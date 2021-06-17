@@ -6,12 +6,14 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+from pathlib import Path
 
 BOT_NAME = "leaf_focus.download"
 
 SPIDER_MODULES = ["leaf_focus.download.spiders"]
 NEWSPIDER_MODULE = "leaf_focus.download.spiders"
 
+LOG_LEVEL = "INFO"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = "leaf-focus (+https://github.com/cofiem/leaf-focus)"
@@ -66,9 +68,10 @@ EXTENSIONS = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    'leaf_focus.pipelines.LeafFocusPipeline': 300,
-# }
+ITEM_PIPELINES = {
+    "leaf_focus.download.pipelines.LeafFocusPdfTextPipelineItem": 300,
+    "leaf_focus.download.pipelines.LeafFocusPdfImagePipelineItem": 301,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
@@ -90,3 +93,11 @@ HTTPCACHE_EXPIRATION_SECS = 0
 HTTPCACHE_DIR = "httpcache"
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
+
+FEEDS = {
+    Path("items-%(batch_time)s-%(batch_id)05d.csv"): {
+        "format": "csv",
+        "batch_item_count": 100,
+        "encoding": "utf8",
+    },
+}
