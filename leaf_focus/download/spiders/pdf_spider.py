@@ -1,4 +1,5 @@
 from pathlib import Path
+from string import Template
 
 import scrapy
 from scrapy.linkextractors import LinkExtractor
@@ -20,7 +21,7 @@ class PdfSpider(scrapy.Spider):
         ],
         "sentors": [
             # current 46th
-            "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests",
+            "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Register46thparl",
             # previous by parliment
             "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Register45thparl",
             "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Register44thparl",
@@ -55,19 +56,22 @@ class PdfSpider(scrapy.Spider):
             url_lower = link.url.lower()
             if "pdf" in url_lower:
                 if url_lower not in self._custom_seen_links:
-                    self._custom_seen_links[url_lower] = link
+                    link_info = self._extract_info(response, link)
+                    self._custom_seen_links[url_lower] = link_info
                 yield scrapy.Request(link.url, self._parse_pdf)
 
     def _parse_pdf(self, response):
         if "pdf" not in response.url:
             return
 
-        name = ""  # TODO
-        category = ""  # TODO
+        link_info = self._custom_seen_links.get(response.url.lower())
+
+        name = (link_info.get("name", "") + " " + link_info.get("location", "")).strip()
+        category = link_info.get("category", "")
         cache_file = self._get_response_cache_file(response)
-        link = self._custom_seen_links.get(response.url.lower())
+        link = link_info.get("link")
         referrer = response.request.headers.get("referer", b"").decode("utf-8")
-        last_updated = ""  # TODO
+        last_updated = link_info.get("last_updated", "")
         item = LeafFocusItem(
             name=name,
             category=category,
@@ -88,3 +92,65 @@ class PdfSpider(scrapy.Spider):
         cache_dir = storage._get_request_path(self, response.request)
         cache_file = Path(cache_dir, "response_body")
         return cache_file
+
+    def _extract_info(self, response, link):
+        urls = [
+            link.url,
+            "/" + "/".join(link.url.split("/")[3:]),
+            ("?" + link.url.split("?")[1]) if "?" in link.url else None,
+        ]
+        templates = {
+            "last_updated": [
+                Template(
+                    '//a[contains(@href, "${url}")]/parent::td/parent::tr/td[@class="date"]/text()'
+                ),
+                Template('//a[contains(@href, "${url}")]/parent::li/em/text()'),
+            ],
+            "name": [
+                Template(
+                    '//a[contains(@href, "${url}")]/parent::td/parent::tr/td[not(@class)]/text()'
+                ),
+                Template('//a[contains(@href, "${url}")]/text()'),
+            ],
+            "location": [
+                Template(
+                    '//a[contains(@href, "${url}")]/parent::li/text()[normalize-space()]'
+                ),
+            ],
+        }
+
+        url_lower = link.url.lower()
+        # is_member = "member" in url_lower or "representat" in url_lower
+        # is_senator = "senator" in url_lower or "senator" in url_lower
+        is_member = (
+            len(response.xpath(f'//text()[contains(.,"Members\' Interests")]')) > 0
+        )
+        is_senator = (
+            len(response.xpath(f'//text()[contains(.,"Senators\' Interests")]')) > 0
+        )
+        if is_member and is_senator:
+            raise ValueError("Cannot be both MP and Senator.")
+        if is_member:
+            category = "member"
+        elif is_senator:
+            category = "senator"
+        else:
+            raise ValueError("Category unknown.")
+
+        found_info = {"link": link, "category": category}
+
+        for url in urls:
+            if url is None:
+                continue
+            for key, value in templates.items():
+                if key in found_info:
+                    continue
+                if key == "name" and "volumes_tabled" in url_lower:
+                    continue
+                for template in value:
+                    query = template.substitute(url=url)
+                    found = response.xpath(query)
+                    if len(found) == 1:
+                        found_info[key] = found[0].get().strip()
+
+        return found_info
