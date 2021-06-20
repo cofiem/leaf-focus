@@ -6,6 +6,8 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+
+import os
 from pathlib import Path
 
 BOT_NAME = "leaf_focus.download"
@@ -90,7 +92,7 @@ AUTOTHROTTLE_DEBUG = False
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
 HTTPCACHE_ENABLED = True
 HTTPCACHE_EXPIRATION_SECS = 0
-HTTPCACHE_DIR = "httpcache"
+HTTPCACHE_DIR = str(Path(os.getenv("CUSTOM_HTTP_CACHE_DIR"), "httpcache"))
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
