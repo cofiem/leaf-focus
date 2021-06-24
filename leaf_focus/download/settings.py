@@ -53,6 +53,7 @@ TELNETCONSOLE_ENABLED = False
 SPIDER_MIDDLEWARES = {
     "leaf_focus.download.middleware.pdf_image_spider_middleware.PdfImageSpiderMiddleware": 601,
     "leaf_focus.download.middleware.pdf_text_spider_middleware.PdfTextSpiderMiddleware": 602,
+    "leaf_focus.download.middleware.pdf_info_spider_middleware.PdfInfoSpiderMiddleware": 603,
 }
 
 # Enable or disable downloader middlewares
@@ -69,10 +70,8 @@ EXTENSIONS = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-    "leaf_focus.download.pipelines.LeafFocusPdfTextPipelineItem": 300,
-    "leaf_focus.download.pipelines.LeafFocusPdfImagePipelineItem": 301,
-}
+# ITEM_PIPELINES = {
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

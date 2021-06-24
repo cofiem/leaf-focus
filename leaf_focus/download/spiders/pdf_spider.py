@@ -60,7 +60,7 @@ class PdfSpider(Spider):
                 yield Request(link.url, self._parse_pdf)
 
     def _parse_pdf(self, response):
-        if "pdf" not in response.url:
+        if "pdf" not in response.url.lower():
             return
 
         link_info = self._custom_seen_links.get(response.url.lower())

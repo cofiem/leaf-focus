@@ -41,6 +41,3 @@ class PdfItem(Item):
             reader = csv.DictReader(f)
             for row in reader:
                 yield PdfItem(**row)
-
-    def __str__(self):
-        return f"{self.category} '{self.name or 'Set'}'"

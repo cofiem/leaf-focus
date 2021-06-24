@@ -3,27 +3,42 @@ import os
 from pathlib import Path
 from typing import Any, Optional
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 
 from leaf_focus.download.items.pdf_item import PdfItem
 from leaf_focus.ocr.found_text import FoundText
 
+# set TF_CPP_MIN_LOG_LEVEL before importing tensorflow
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
+import tensorflow as tf
+
+tf.get_logger().setLevel("WARNING")
+
+import keras_ocr
+
 
 class OcrService:
     """Run Optical Character Recognition over images."""
 
+    _original_name = "response_body"
+    _text_prefix = "response_body_text"
+
+    _image_prefix = "response_body_image"
+    _image_suffix = ".png"
+
+    _ocr_prefix = "response_body_image_ocr"
+    _ocr_suffix = ".png"
+
+    _csv_prefix = "response_body_image_found"
+    _csv_suffix = ".csv"
+
+    _item_prefix = "items"
+    _item_suffix = ".csv"
+
     def __init__(self, logger: logging.Logger):
         self._logger = logger
-
-        os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
-        import tensorflow as tf
-
-        tf.get_logger().setLevel("WARNING")
-
-        import keras_ocr
 
         # see: https://github.com/faustomorales/keras-ocr
         # keras-ocr will automatically download pretrained
@@ -31,57 +46,68 @@ class OcrService:
         self._pipeline = keras_ocr.pipeline.Pipeline()
 
     def start(self, items_dir: Path, cache_dir: Path):
-        import keras_ocr
-
-        self._logger.info(f"Running OCR on pdf files.")
-
         if not items_dir.exists() or not items_dir.is_dir():
-            msg = f"Could not find input items dir '{items_dir}'."
-            self._logger.error(msg)
-            raise ValueError(msg)
+            self._logger.error(f"Could not find items dir '{items_dir}'.")
+            return
 
-        for item_file in items_dir.glob("items*.csv"):
+        self._logger.info(f"Running OCR using item csv files in '{items_dir}'.")
 
-            for item in PdfItem.load(item_file):
-                input_image_dir = Path(item.path).parent
+        pattern = f"{self._item_prefix}*{self._item_suffix}"
+        for item_file in items_dir.glob(pattern):
+            self.start_item(item_file)
 
-                # find the images of the input item
-                for input_image_path in input_image_dir.glob(
-                    "response_body_image-*.png"
-                ):
-                    if "-ocr-ocr.png" in input_image_path.name:
-                        input_image_path.unlink()
-                        continue
+    def start_item(self, item_file: Path):
+        if not item_file.exists() or not item_file.is_file():
+            self._logger.error(f"Could not find item file '{item_file}'.")
+            return
 
-                    if "-ocr.png" in input_image_path.name:
-                        continue
+        for item in PdfItem.load(item_file):
+            item_path = Path(item.path)
 
-                    output_csv_path = input_image_path.with_suffix(".csv")
-                    output_image_path = Path(
-                        input_image_path.parent, input_image_path.stem + "-ocr.png"
-                    )
+            if not item_path.exists():
+                self._logger.error(f"Could not find item path '{item_path}'.")
+                return
 
-                    if output_image_path.exists() and output_csv_path.exists():
-                        self._logger.warning(
-                            f"OCR output already exists for '{input_image_path}'."
-                        )
+            parent_dir = item_path.parent
 
-                    else:
-                        self._logger.info(f"Running OCR on '{input_image_path}'.")
+            # find the images of the input item
+            pattern = f"{self._image_prefix}*{self._image_suffix}"
+            for image_file in parent_dir.glob(pattern):
 
-                        # read in the image
-                        images = [
-                            keras_ocr.tools.read(str(input_image_path)),
-                        ]
+                if image_file.name.endswith("-ocr.png"):
+                    image_file.unlink()
+                    continue
 
-                        # Each list of predictions in prediction_groups is a list of
-                        # (word, box) tuples.
-                        prediction_groups = self._pipeline.recognize(images)
+                csv_name = image_file.stem.replace(self._image_prefix, self._csv_prefix)
+                csv_file = Path(image_file.parent, csv_name + self._csv_suffix)
 
-                        # Plot the predictions
-                        for image, predictions in zip(images, prediction_groups):
-                            self.save_figure(output_image_path, image, predictions)
-                            self.save_predictions(output_csv_path, predictions)
+                ocr_name = image_file.stem.replace(self._image_prefix, self._ocr_prefix)
+                ocr_file = Path(image_file.parent, ocr_name + self._ocr_suffix)
+
+                self.start_image(image_file, ocr_file, csv_file)
+
+    def start_image(self, input_file: Path, ocr_file: Path, csv_file: Path):
+        if ocr_file.exists() and csv_file.exists():
+            self._logger.info(
+                f"Not running as OCR output already exists for '{input_file}'."
+            )
+            return
+
+        self._logger.info(f"Running OCR on '{input_file}'.")
+
+        # read in the image
+        images = [
+            keras_ocr.tools.read(str(input_file)),
+        ]
+
+        # Each list of predictions in prediction_groups is a list of
+        # (word, box) tuples.
+        prediction_groups = self._pipeline.recognize(images)
+
+        # Plot the predictions
+        for image, predictions in zip(images, prediction_groups):
+            self.save_figure(ocr_file, image, predictions)
+            self.save_predictions(csv_file, predictions)
 
     def save_figure(
         self,
@@ -89,18 +115,21 @@ class OcrService:
         image: Optional[np.ndarray],
         predictions: list[tuple[Any, Any]],
     ):
-        self._logger.info(f"Saving OCR results image to '{path}'.")
+        self._logger.info(f"Saving OCR image to '{path}'.")
 
-        import keras_ocr
+        path.parent.mkdir(exist_ok=True, parents=True)
 
         fig, ax = plt.subplots(figsize=(20, 20))
         keras_ocr.tools.drawAnnotations(image=image, predictions=predictions, ax=ax)
         fig.savefig(str(path))
         plt.close(fig)
 
-    def iterate_predictions(self, predictions: list[list[tuple[Any, Any]]]):
+    def save_predictions(self, path: Path, predictions: list[list[tuple[Any, Any]]]):
+        self._logger.info(f"Saving OCR result item to '{path}'.")
+
         # top left, top right, bottom right, bottom left
         # Its structure is [[startX,startY], [endX,startY], [endX,endY], [startX, endY]]
+        found_text = []
         for (
             text,
             (
@@ -110,101 +139,26 @@ class OcrService:
                 (bottom_left_x, bottom_left_y),
             ),
         ) in predictions:
-            yield FoundText(
-                text=text,
-                top_left_x=top_left_x,
-                top_left_y=top_left_y,
-                top_right_x=top_right_x,
-                top_right_y=top_right_y,
-                bottom_right_x=bottom_right_x,
-                bottom_right_y=bottom_right_y,
-                bottom_left_x=bottom_left_x,
-                bottom_left_y=bottom_left_y,
+            found_text.append(
+                FoundText(
+                    text=text,
+                    top_left_x=top_left_x,
+                    top_left_y=top_left_y,
+                    top_right_x=top_right_x,
+                    top_right_y=top_right_y,
+                    bottom_right_x=bottom_right_x,
+                    bottom_right_y=bottom_right_y,
+                    bottom_left_x=bottom_left_x,
+                    bottom_left_y=bottom_left_y,
+                )
             )
 
-    def save_predictions(self, path: Path, predictions: list[list[tuple[Any, Any]]]):
-        self._logger.info(f"Saving OCR result item to '{path}'.")
+        self.order_text_lines(found_text)
+        FoundText.save(path, found_text)
 
-        items = list(self.iterate_predictions(predictions))
-        FoundText.save(path, items)
-
-    # TODO
-    def process_spider_output(self, response, result, spider):
-        # Called with the results returned from the Spider, after
-        # it has processed the response.
-
-        # Must return an iterable of Request, or item objects.
-        for item in result:
-
-            # don't process Requests, only process items
-            if not isinstance(item, Request):
-                adapter = ItemAdapter(item)
-                item_file = adapter.get("path")
-
-                # can only process if the item has a path property
-                if item_file:
-                    pdf_file = Path(item_file)
-
-                    # create images of each page of a pdf file
-                    if pdf_file.suffix.lower() == ".pdf":
-                        self._run_ocr(pdf_file)
-
-            yield item
-
-    def spider_opened(self, spider):
-        spider.logger.info("Spider opened: %s" % spider.name)
-
-    def _run_ocr(self, pdf_file: Path):
-        if not pdf_file or not pdf_file.exists():
-            logger.error(f"Could not find pdf file '{pdf_file}'.")
-
-        pdf_dir = pdf_file.parent
-        image_files = pdf_dir.parent.glob("response_body_image*.png")
-        for image_file in image_files:
-            # don't process ocr images
-            if "-ocr.png" in image_file.name:
-                continue
-
-            # build output file paths
-            csv_file = image_file.with_suffix(".csv")
-            ocr_file = Path(image_file.parent, image_file.stem + "-ocr.png")
-            if ocr_file.exists() and csv_file.exists():
-                if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug(f"OCR output already exists for '{image_file}'.")
-                continue
-
-            logger.info(f"Running OCR on '{image_file}'.")
-
-            # read in the image
-            images = [
-                keras_ocr.tools.read(str(image_file)),
-            ]
-
-            # Each list of predictions in prediction_groups is a list of
-            # (word, box) tuples.
-            prediction_groups = self._pipeline.recognize(images)
-
-            # Plot the predictions
-            for image, predictions in zip(images, prediction_groups):
-                self._save_figure(ocr_file, image, predictions)
-                self.save_predictions(csv_file, predictions)
-
-    def _save_figure(
-        self,
-        path: Path,
-        image: Optional[np.ndarray],
-        predictions: list[tuple[Any, Any]],
-    ):
-        logger.debug(f"Saving OCR results image to '{path}'.")
-
-        fig, ax = plt.subplots(figsize=(20, 20))
-        keras_ocr.tools.drawAnnotations(image=image, predictions=predictions, ax=ax)
-        fig.savefig(str(path))
-        plt.close(fig)
-
-    def _order_text_lines(self, items: list[FoundText]):
+    def order_text_lines(self, items: list[FoundText]):
         """Put items into lines of text (top -> bottom, left -> right)."""
-        logger.debug(f"Arranging text into lines.")
+        self._logger.info(f"Arranging text into lines.")
 
         lines = []
         current_line = []
@@ -227,9 +181,11 @@ class OcrService:
                 # create new line
                 current_line = [item]
 
+        # include last items
         if len(current_line) > 0:
             lines.append(current_line)
 
+        # update items to set line number and line order
         for line_index, line in enumerate(lines):
             for item_index, item in enumerate(line):
                 item.line_number = line_index + 1

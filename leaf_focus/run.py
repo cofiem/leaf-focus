@@ -30,6 +30,7 @@ class Run:
                 args.cache_dir,
                 args.pdf_to_image_file,
                 args.pdf_to_text_file,
+                args.pdf_to_info_file,
             )
         elif name == self._activity_ocr:
             self.ocr(args.items_dir, args.cache_dir)
@@ -46,9 +47,10 @@ class Run:
         cache_dir: Path,
         pdf_image_file: Path,
         pdf_text_file: Path,
+        pdf_info_file: Path,
     ):
         dl = DownloadService()
-        dl.start(items_dir, cache_dir, pdf_image_file, pdf_text_file)
+        dl.start(items_dir, cache_dir, pdf_image_file, pdf_text_file, pdf_info_file)
 
     def ocr(self, items_dir: Path, cache_dir: Path):
         self._log_start(self._activity_ocr)
@@ -118,6 +120,11 @@ if __name__ == "__main__":
         type=Path,
         help="Path to xpdf pdftopng.",
     )
+    sub_parser_download.add_argument(
+        "--pdf-to-info-file",
+        type=Path,
+        help="Path to xpdf pdfinfo.",
+    )
 
     # create the parser for the "ocr" command
     sub_parser_ocr = subparsers.add_parser(
@@ -133,7 +140,7 @@ if __name__ == "__main__":
 
     # create the parser for the "report" command
     sub_parser_report = subparsers.add_parser(
-        "handwriting",
+        "report",
         help="Recognise text from each line of each pdf page.",
     )
     sub_parser_report.add_argument(
