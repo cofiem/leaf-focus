@@ -160,7 +160,7 @@ class FoundText:
             "bottom_left_x",
             "bottom_left_y",
         ]
-        with open(path, "wt", newline="") as f:
+        with open(path, "wt", newline="", encoding="utf8") as f:
             writer = csv.DictWriter(f, fields)
             writer.writeheader()
             writer.writerows([dataclasses.asdict(i) for i in items])
@@ -168,7 +168,7 @@ class FoundText:
     @classmethod
     def load(cls, path: Path):
         """Load found text items from a file."""
-        with open(path, "rt") as f:
+        with open(path, "rt", encoding="utf8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 line_number = row.get("line_number", "").strip()

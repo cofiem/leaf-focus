@@ -1,13 +1,14 @@
 from pathlib import Path
 from string import Template
 
-import scrapy
+from scrapy import Spider, Request, linkextractors
+from scrapy.exceptions import IgnoreRequest
 from scrapy.linkextractors import LinkExtractor
 
-from leaf_focus.download.items import LeafFocusItem
+from leaf_focus.download.items.pdf_item import PdfItem
 
 
-class PdfSpider(scrapy.Spider):
+class PdfSpider(Spider):
     name = "pdf"
 
     custom_start_urls = {
@@ -36,9 +37,7 @@ class PdfSpider(scrapy.Spider):
             "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Volumes_Tabled/pre1996",
         ],
     }
-    link_deny_extensions = sorted(
-        set(scrapy.linkextractors.IGNORED_EXTENSIONS) - {"pdf"}
-    )
+    link_deny_extensions = sorted(set(linkextractors.IGNORED_EXTENSIONS) - {"pdf"})
     link_extractor = LinkExtractor(
         allow_domains=["aph.gov.au"], deny_extensions=link_deny_extensions
     )
@@ -46,9 +45,9 @@ class PdfSpider(scrapy.Spider):
 
     def start_requests(self):
         for url in self.custom_start_urls["members"]:
-            yield scrapy.Request(url=url, callback=self.parse)
+            yield Request(url=url, callback=self.parse)
         for url in self.custom_start_urls["sentors"]:
-            yield scrapy.Request(url=url, callback=self.parse)
+            yield Request(url=url, callback=self.parse)
 
     def parse(self, response, **kwargs):
         links = self.link_extractor.extract_links(response)
@@ -58,7 +57,7 @@ class PdfSpider(scrapy.Spider):
                 if url_lower not in self._custom_seen_links:
                     link_info = self._extract_info(response, link)
                     self._custom_seen_links[url_lower] = link_info
-                yield scrapy.Request(link.url, self._parse_pdf)
+                yield Request(link.url, self._parse_pdf)
 
     def _parse_pdf(self, response):
         if "pdf" not in response.url:
@@ -72,7 +71,7 @@ class PdfSpider(scrapy.Spider):
         link = link_info.get("link")
         referrer = response.request.headers.get("referer", b"").decode("utf-8")
         last_updated = link_info.get("last_updated", "")
-        item = LeafFocusItem(
+        item = PdfItem(
             name=name,
             category=category,
             path=cache_file,
@@ -129,16 +128,20 @@ class PdfSpider(scrapy.Spider):
             len(response.xpath(f'//text()[contains(.,"Senators\' Interests")]')) > 0
         )
         if is_member and is_senator:
-            raise ValueError("Cannot be both MP and Senator.")
+            raise IgnoreRequest("Cannot be both MP and Senator.")
         if is_member:
             category = "member"
         elif is_senator:
             category = "senator"
         else:
-            raise ValueError("Category unknown.")
+            raise IgnoreRequest(f"Unknown category.")
 
-        found_info = {"link": link, "category": category}
+        found_info = {
+            "link": link,
+            "category": category,
+        }
 
+        # extract information from the webpage
         for url in urls:
             if url is None:
                 continue
@@ -146,6 +149,7 @@ class PdfSpider(scrapy.Spider):
                 if key in found_info:
                     continue
                 if key == "name" and "volumes_tabled" in url_lower:
+                    # don't extract the person's name from the 'volumes tabled' files
                     continue
                 for template in value:
                     query = template.substitute(url=url)

@@ -7,8 +7,6 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-import os
-from pathlib import Path
 
 BOT_NAME = "leaf_focus.download"
 
@@ -52,9 +50,10 @@ TELNETCONSOLE_ENABLED = False
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-# SPIDER_MIDDLEWARES = {
-#    'leaf_focus.middlewares.LeafFocusSpiderMiddleware': 543,
-# }
+SPIDER_MIDDLEWARES = {
+    "leaf_focus.download.middleware.pdf_image_spider_middleware.PdfImageSpiderMiddleware": 601,
+    "leaf_focus.download.middleware.pdf_text_spider_middleware.PdfTextSpiderMiddleware": 602,
+}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
@@ -92,14 +91,11 @@ AUTOTHROTTLE_DEBUG = False
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
 HTTPCACHE_ENABLED = True
 HTTPCACHE_EXPIRATION_SECS = 0
-HTTPCACHE_DIR = str(Path(os.getenv("CUSTOM_HTTP_CACHE_DIR"), "httpcache"))
+# HTTPCACHE_DIR =  # set at startup
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
+
 FEEDS = {
-    Path("items-%(batch_time)s-%(batch_id)05d.csv"): {
-        "format": "csv",
-        "batch_item_count": 100,
-        "encoding": "utf8",
-    },
+    # Item feed is set at startup
 }
