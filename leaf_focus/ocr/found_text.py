@@ -163,7 +163,10 @@ class FoundText:
         with open(path, "wt", newline="", encoding="utf8") as f:
             writer = csv.DictWriter(f, fields)
             writer.writeheader()
-            writer.writerows([dataclasses.asdict(i) for i in items])
+            sorted_items = sorted(
+                items, key=lambda i: (i.line_number or 0, i.line_order or 0)
+            )
+            writer.writerows([dataclasses.asdict(i) for i in sorted_items])
 
     @classmethod
     def load(cls, path: Path):
@@ -192,4 +195,6 @@ class FoundText:
                 )
 
     def __str__(self):
-        return f"{self.text} [top left:{self.top_left}, top slope: {self.top_slope}]"
+        line_info = f"({self.line_number or 0}:{self.line_order})"
+        pos_info = f"[top left:{self.top_left}, top slope: {self.top_slope}]"
+        return f"{self.text} {line_info} {pos_info}"

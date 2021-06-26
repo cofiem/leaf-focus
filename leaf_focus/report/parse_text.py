@@ -1,7 +1,6 @@
 import logging
-from pathlib import Path
 
-from leaf_focus.download.items.pdf_item import PdfItem
+import contextualSpellCheck
 
 from leaf_focus.ocr.found_text import FoundText
 
@@ -10,23 +9,33 @@ class ParseText:
     def __init__(self, logger: logging.Logger):
         self._logger = logger
 
-    def start(self, input_items_path: Path):
-        if not input_items_path.exists() or not input_items_path.is_dir():
-            msg = f"Could not find input items dir '{input_items_path}'."
-            self._logger.error(msg)
-            raise ValueError(msg)
+        import spacy
 
-        result = []
-        for item_file in input_items_path.glob("items*.csv"):
+        # self._nlp_gpu = spacy.prefer_gpu()
+        self._nlp = spacy.load("en_core_web_lg")
+        contextualSpellCheck.add_to_pipe(self._nlp)
+        print(self._nlp.pipe_names)
 
-            for item in PdfItem.load(item_file):
-                input_dir = Path(item.path).parent
+    def start(
+        self,
+        text_info: dict,
+        text_extracted: list[str],
+        text_found: list[list[FoundText]],
+    ):
+        # TODO: figure out a robust way to turn the semi-structured text from the two sources into
+        #       a structured csv file. Maybe pyparsing might be more useful than SpaCy?
+        doc = self._nlp("This is a sentence.")
+        for token in doc:
+            print(token.text, token.has_vector, token.vector_norm, token.is_oov)
 
-                for csv_file in input_dir.glob("*.csv"):
-                    found_items = list(FoundText.load(csv_file))
-                    lines = self._text_service.order_text_lines(found_items)
-                    self._extract(lines)
-        return result
+        # Doc Extension
+        print(doc._.contextual_spellCheck)
+        print(doc._.performed_spellCheck)
+        print(doc._.suggestions_spellCheck)
+        print(doc._.outcome_spellCheck)
+        print(doc._.score_spellCheck)
+
+        a = 1
 
     def _find_text(self, text: str, to_find: list[str]):
         if text in to_find:
