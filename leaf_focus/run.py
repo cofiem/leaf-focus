@@ -3,6 +3,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 from leaf_focus.download.download_service import DownloadService
+from leaf_focus.download.extract.extract_service import ExtractService
 from leaf_focus.handwriting.handwriting_service import HandwritingService
 from leaf_focus.ocr.ocr_service import OcrService
 from leaf_focus.report.report_service import ReportService
@@ -11,6 +12,7 @@ from leaf_focus.report.report_service import ReportService
 class Run:
 
     _activity_download = "download"
+    _activity_extract = "extract"
     _activity_ocr = "ocr"
     _activity_handwriting = "handwriting"
     _activity_report = "report"
@@ -25,12 +27,14 @@ class Run:
             self._create_logger()
 
         if name == self._activity_download:
-            self.download(
+            self.download(args.items_dir, args.cache_dir)
+        elif name == self._activity_extract:
+            self.extract(
                 args.items_dir,
                 args.cache_dir,
-                args.pdf_to_image_file,
-                args.pdf_to_text_file,
                 args.pdf_to_info_file,
+                args.pdf_to_text_file,
+                args.pdf_to_image_file,
             )
         elif name == self._activity_ocr:
             self.ocr(args.items_dir, args.cache_dir)
@@ -41,16 +45,24 @@ class Run:
         else:
             raise ValueError(f"Unrecognised activity '{name}'.")
 
-    def download(
+    def download(self, items_dir: Path, cache_dir: Path):
+        dl = DownloadService()
+        dl.start(items_dir, cache_dir)
+
+    def extract(
         self,
         items_dir: Path,
         cache_dir: Path,
-        pdf_image_file: Path,
-        pdf_text_file: Path,
         pdf_info_file: Path,
+        pdf_text_file: Path,
+        pdf_image_file: Path,
     ):
-        dl = DownloadService()
-        dl.start(items_dir, cache_dir, pdf_image_file, pdf_text_file, pdf_info_file)
+        self._log_start(self._activity_extract)
+        extract = ExtractService(
+            self._logger, pdf_info_file, pdf_text_file, pdf_image_file
+        )
+        extract.start(items_dir, cache_dir)
+        self._log_end(self._activity_extract)
 
     def ocr(self, items_dir: Path, cache_dir: Path):
         self._log_start(self._activity_ocr)
@@ -110,20 +122,26 @@ if __name__ == "__main__":
         "download",
         help="Download pdfs and create images and extract text from them.",
     )
-    sub_parser_download.add_argument(
+
+    # create the parser for the "extract" command
+    sub_parser_extract = subparsers.add_parser(
+        "extract",
+        help="Extract info, text, and images from pdfs.",
+    )
+    sub_parser_extract.add_argument(
+        "--pdf-to-info-file",
+        type=Path,
+        help="Path to xpdf pdfinfo.",
+    )
+    sub_parser_extract.add_argument(
         "--pdf-to-text-file",
         type=Path,
         help="Path to xpdf pdftotext.",
     )
-    sub_parser_download.add_argument(
+    sub_parser_extract.add_argument(
         "--pdf-to-image-file",
         type=Path,
         help="Path to xpdf pdftopng.",
-    )
-    sub_parser_download.add_argument(
-        "--pdf-to-info-file",
-        type=Path,
-        help="Path to xpdf pdfinfo.",
     )
 
     # create the parser for the "ocr" command

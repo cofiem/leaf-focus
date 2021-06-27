@@ -50,11 +50,8 @@ TELNETCONSOLE_ENABLED = False
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-SPIDER_MIDDLEWARES = {
-    "leaf_focus.download.middleware.pdf_image_spider_middleware.PdfImageSpiderMiddleware": 601,
-    "leaf_focus.download.middleware.pdf_text_spider_middleware.PdfTextSpiderMiddleware": 602,
-    "leaf_focus.download.middleware.pdf_info_spider_middleware.PdfInfoSpiderMiddleware": 603,
-}
+# SPIDER_MIDDLEWARES = {
+# }
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
@@ -93,7 +90,7 @@ HTTPCACHE_EXPIRATION_SECS = 0
 # HTTPCACHE_DIR =  # set at startup
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
-
+# HTTPCACHE_POLICY = "scrapy.extensions.httpcache.RFC2616Policy"
 
 FEEDS = {
     # Item feed is set at startup

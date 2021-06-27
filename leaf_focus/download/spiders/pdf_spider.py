@@ -103,7 +103,10 @@ class PdfSpider(Spider):
                 Template(
                     '//a[contains(@href, "${url}")]/parent::td/parent::tr/td[@class="date"]/text()'
                 ),
-                Template('//a[contains(@href, "${url}")]/parent::li/em/text()'),
+                Template('//a[contains(@href, "${url}")]/parent::li/em//text()'),
+                Template(
+                    '//a[contains(@href, "${url}")]/parent::td/parent::tr/td[1]/text()'
+                ),
             ],
             "name": [
                 Template(
@@ -113,7 +116,7 @@ class PdfSpider(Spider):
             ],
             "location": [
                 Template(
-                    '//a[contains(@href, "${url}")]/parent::li/text()[normalize-space()]'
+                    '//a[contains(@href, "${url}")]/parent::*/text()[normalize-space()]'
                 ),
             ],
         }
@@ -154,7 +157,14 @@ class PdfSpider(Spider):
                 for template in value:
                     query = template.substitute(url=url)
                     found = response.xpath(query)
-                    if len(found) == 1:
-                        found_info[key] = found[0].get().strip()
+                    if len(found) > 0:
+                        found_value = " ".join(found.getall()).strip()
+                        if key == "last_updated":
+                            found_value = found_value.replace("Last updated", "")
+                            found_value = found_value.replace("lodged between", "")
+                            found_value = found_value.replace("lodged by", "")
+                        if "Duncan" in found_value:
+                            a = 1
+                        found_info[key] = found_value.strip()
 
         return found_info

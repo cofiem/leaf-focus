@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 
 @dataclass
-class ResultItem:
+class ResultEntryItem:
     """One row in the report."""
 
     # These results need to account for a few different data structures:
@@ -16,16 +17,6 @@ class ResultItem:
     #   - which document,
     #   - who is it for,
     #   - what is the content (which can be multiple lines)
-
-    # TODO
-
-    url: str
-
-    entry_name: str
-    entry_value: str
-
-    last_updated_web: Optional[datetime] = None
-    last_updated_doc: Optional[datetime] = None
 
     last_name: Optional[str] = None
     first_name1: Optional[str] = None
