@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 from typing import Optional
+from urllib.parse import urlparse
 
 
 @dataclass
-class ReportItem:
+class MetadataItem:
     """A report covers the information for one person for one parliment."""
 
     # house of reps or senate
@@ -24,10 +26,6 @@ class ReportItem:
     # web dates are parsed from the web page containing the link to the pdf
     date_created_web: Optional[str] = None
     date_updated_web: Optional[str] = None
-
-    # text dates are parsed from the pdf text
-    date_created_text: Optional[str] = None
-    date_updated_text: Optional[str] = None
 
     # doc dates are obtained from the pdf metadata
     date_created_doc: Optional[str] = None
@@ -55,3 +53,34 @@ class ReportItem:
 
     # url for page pdf is linked from
     referrer_url: Optional[str] = None
+
+    def __str__(self) -> str:
+        result = []
+
+        display_full = self.display_full
+        if display_full:
+            result.append(display_full)
+
+        display_url = self.display_url
+        if display_url:
+            result.append(display_url)
+
+        if not result:
+            result.append(self.person_full or self.page_url or "(unknown)")
+
+        return " - ".join(result)
+
+    @property
+    def display_full(self):
+        display_full = self.person_full.strip("()[] \r\n\f")
+        if len(display_full) > 0:
+            return self.person_full
+        return None
+
+    @property
+    def display_url(self):
+        if self.page_url:
+            pdf_url = urlparse(self.page_url)
+            if len(pdf_url.path) > 0:
+                return Path(pdf_url.path).name
+        return None

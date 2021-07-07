@@ -1,43 +1,20 @@
 import logging
 import re
+from collections import OrderedDict
 from configparser import ConfigParser
 from datetime import datetime
 
 from leaf_focus.download.items.pdf_item import PdfItem
-from leaf_focus.ocr.found_text import FoundText
-from leaf_focus.report.report_item import ReportItem
+from leaf_focus.report.metadata_item import MetadataItem
+from leaf_focus.report.normalise import Normalise
 
 
-class ParseText:
+class MetadataReport:
     def __init__(self, logger: logging.Logger):
         self._logger = logger
+        self._normalise = Normalise()
 
-        # import contextualSpellCheck
-        # import spacy
-        #
-        # # self._nlp_gpu = spacy.prefer_gpu()
-        # self._nlp = spacy.load("en_core_web_lg")
-        # contextualSpellCheck.add_to_pipe(self._nlp)
-        # print(self._nlp.pipe_names)
-
-    def start(
-        self,
-        item: PdfItem,
-        text_info: dict,
-        text_extracted: list[str],
-        text_found: list[list[FoundText]],
-    ):
-        results = []  # type: list[ReportItem]
-
-        result = self._populate_info(item, text_info)
-        results.append(result)
-
-        # text_extracted (all text from a pdf file)
-        # TODO
-
-        return results
-
-    def _populate_info(self, item: PdfItem, text_info: dict):
+    def start(self, item: PdfItem, text_info: dict):
         # item details (for a pdf file)
         category = item["category"]
         is_rep = category == "member"
@@ -103,7 +80,7 @@ class ParseText:
         pdf_is_optimized = config.getboolean(section, "Optimized", fallback=None)
         pdf_version = config.get(section, "PDF version", fallback=None)
 
-        result = ReportItem(
+        result = MetadataItem(
             # basic info
             category=category,
             parliament_number="",
@@ -139,56 +116,8 @@ class ParseText:
             pdf_is_optimized=pdf_is_optimized,
             pdf_version=pdf_version,
         )
-        self._logger.info(f"Info for '{result.person_full}' from '{result.page_url}'.")
+        # self._logger.info(f"Info for '{str(result)}'.")
         return result
-
-    def _find_text(self, text: str, to_find: list[str]):
-        if text in to_find:
-            return True, "whole"
-        if any([text.startswith(t) for t in to_find]):
-            return True, "start"
-        if any([text.endswith(t) for t in to_find]):
-            return True, "end"
-        if any([text in t for t in to_find]):
-            return True, "contains"
-        return False, None
-
-    def _extract(self, lines: list[list[FoundText]]):
-        # TODO
-        find_text = [
-            ("self", "", ["self"]),
-            ("spouse", "", ["spouse"]),
-            ("children", "", ["dependent", "children"]),
-            ("last_name", "", ["surname", "please print"]),
-            ("first_name", self._match_first_name, ["other names"]),
-            ("electorate", "", ["electoral division", "electoral division state"]),
-            (
-                "companies",
-                "",
-                [
-                    "shareholdings in public and private companies",
-                    "the name of the company",
-                ],
-            ),
-        ]
-        for line_index, line_item in enumerate(lines):
-            text = " ".join([i.text for i in line_item]).lower()
-
-            for name, func, match in find_text:
-                is_match, where_match = self._find_text(text, match)
-                if not is_match:
-                    continue
-
-    def _match_first_name(
-        self,
-        lines: list[list[FoundText]],
-        line_index: int,
-        line_item: list[FoundText],
-        text: str,
-        where_match: str,
-    ):
-        # TODO
-        a = 1
 
     def _get_date(self, value: str):
         value = self._norm_text(value)
@@ -349,43 +278,27 @@ class ParseText:
             match = pattern.fullmatch(value)
             if match:
                 result = match.groupdict()
+                norm_last, titles_last = self._norm_name(result.get("last1"))
+                norm_first, titles_first = self._norm_name(
+                    result.get("first1") or result.get("first2")
+                )
+                titles = (
+                    result.get("title1", "").split(" ") + titles_last + titles_first
+                )
+                titles = " ".join(list(OrderedDict.fromkeys(titles)))
                 return (
                     value,
-                    self._norm_name(result.get("last1")),
-                    self._norm_name(result.get("first1") or result.get("first2")),
+                    norm_last,
+                    norm_first,
                     result.get("electorate2") or result.get("electorate1"),
-                    self._norm_state(result.get("state1")),
-                    result.get("title1"),
+                    self._normalise.state(result.get("state1")),
+                    titles,
                 )
-        if not value or not self._norm_name(value):
+
+        norm_name, norm_titles = self._norm_name(value)
+        if not value or not norm_name:
             return value, None, None, None, None, None
         raise ValueError(value)
-
-    def _norm_state(self, value: str):
-        if not value:
-            return None
-        alpha = re.compile(f"[^a-zA-Z ]")
-        value = alpha.sub("", value).lower()
-        known = {
-            "act": "ACT",
-            "australian capital territory": "ACT",
-            "new south wales": "NSW",
-            "northern territory": "NT",
-            "nsw": "NSW",
-            "nt": "NT",
-            "qld": "QLD",
-            "queensland": "QLD",
-            "sa": "SA",
-            "south australia": "SA",
-            "tas": "TAS",
-            "tasmania": "TAS",
-            "vic": "VIC",
-            "victoria": "VIC",
-            "wa": "WA",
-            "waw": "WA",
-            "western australia": "WA",
-        }
-        return known[value]
 
     def _norm_text(self, value: str):
         value = value.strip() if value else ""
@@ -400,10 +313,13 @@ class ParseText:
         return value
 
     def _norm_name(self, value: str):
+        titles = []
         if value.endswith(", AO"):
-            return value[0:-4]
+            value = value[0:-4]
+            titles.append("AO")
         if value.endswith(" AO"):
-            return value[0:-3]
+            value = value[0:-3]
+            titles.append("AO")
 
         replacements = [
             "(PDF",
@@ -420,8 +336,4 @@ class ParseText:
         for replace in replacements:
             value = value.replace(replace, "")
 
-        return value.strip()
-
-
-#  – Senator for New South Wales
-# Spender, Senator Duncan
+        return value.strip(), titles

@@ -34,16 +34,17 @@ class ExtractService:
         pattern = f"{self._item_prefix}*{self._item_suffix}"
         for item_file in items_dir.glob(pattern):
             for item in PdfItem.load(item_file):
-                item_path = item["path"]
+                item_path = Path(item["path"])
+                self._logger.info(f"Processing '{item_path}'.")
 
                 info_file = item_path.parent / "response_body_info"
-                self.create_info(item_file, info_file)
+                self.create_info(item_path, info_file)
 
                 text_file = item_path.parent / "response_body_text"
-                self.create_text(item_file, text_file)
+                self.create_text(item_path, text_file)
 
                 image_prefix = item_path.parent / "response_body_image"
-                self.create_images(item_file, image_prefix)
+                self.create_images(item_path, image_prefix)
 
     def create_info(self, input_path: Path, output_path: Path):
         if not input_path or not input_path.exists():
@@ -75,7 +76,7 @@ class ExtractService:
         ]
         result = subprocess.run(commands, capture_output=True, check=True)
         is_success = result.returncode == 0
-        if is_success:
+        if not is_success:
             self._logger.error(f"Pdf to text command failed: {repr(result)}")
         return is_success
 

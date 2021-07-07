@@ -1,12 +1,15 @@
 import csv
 import dataclasses
 import logging
+import re
 from pathlib import Path
 
 from leaf_focus.download.items.pdf_item import PdfItem
 from leaf_focus.ocr.found_text import FoundText
-from leaf_focus.report.parse_text import ParseText
-from leaf_focus.report.report_item import ReportItem
+from leaf_focus.report.content_item import ContentItem
+from leaf_focus.report.content_report import ContentReport
+from leaf_focus.report.metadata_item import MetadataItem
+from leaf_focus.report.metadata_report import MetadataReport
 
 
 class ReportService:
@@ -21,10 +24,15 @@ class ReportService:
     _ocr_prefix = "response_body_image"
     _ocr_id = "found-text"
 
+    _file_metadata = "metadata.csv"
+    _file_content = "content.csv"
+
     def __init__(self, logger: logging.Logger):
         self._logger = logger
+        self._metadata_report = MetadataReport(self._logger)
+        self._content_report = ContentReport(self._logger)
 
-    def start(self, items_dir: Path, cache_dir: Path, output_file: Path) -> None:
+    def start(self, items_dir: Path, cache_dir: Path, output_dir: Path) -> None:
         if not items_dir.exists() or not items_dir.is_dir():
             self._logger.error(f"Could not find items dir '{items_dir}'.")
             return
@@ -32,30 +40,55 @@ class ReportService:
         self._logger.info(f"Parsing text from item csv files in '{items_dir}'.")
 
         pattern = f"{self._item_prefix}*{self._csv_suffix}"
-        with open(output_file, "wt", newline="", encoding="utf8") as f:
-            field_names = [i.name for i in dataclasses.fields(ReportItem)]
-            writer = csv.DictWriter(f, field_names)
-            writer.writeheader()
 
-            matched_item_files = sorted(
-                items_dir.glob(pattern), key=lambda x: x.name, reverse=True
-            )
+        matched_item_files = sorted(
+            items_dir.glob(pattern), key=lambda x: x.name, reverse=True
+        )
+
+        # write reports
+        metadata_path = output_dir / self._file_metadata
+        metadata_open = open(metadata_path, "wt", newline="", encoding="utf8")
+
+        content_path = output_dir / self._file_content
+        content_open = open(content_path, "wt", newline="", encoding="utf8")
+
+        with metadata_open as metadata_f, content_open as content_f:
+            metadata_fields = [i.name for i in dataclasses.fields(MetadataItem)]
+            metadata_writer = csv.DictWriter(metadata_f, metadata_fields)
+            metadata_writer.writeheader()
+
+            content_fields = [i.name for i in dataclasses.fields(ContentItem)]
+            content_writer = csv.DictWriter(content_f, content_fields)
+            content_writer.writeheader()
+
             for item_file in matched_item_files:
-                for item_result in self.process_item(item_file):
-                    if item_result is not None:
-                        writer.writerow(dataclasses.asdict(item_result))
+                for metadata_item, content_items in self.process_item(item_file):
+                    metadata_writer.writerow(dataclasses.asdict(metadata_item))
+
+                    for content_item in content_items:
+                        content_writer.writerow(dataclasses.asdict(content_item))
 
     def process_item(self, item_file: Path):
         if not item_file.exists() or not item_file.is_file():
             self._logger.error(f"Could not find item file '{item_file}'.")
             return
 
+        # TODO: only process the most recent files at first
+        referrers = [
+            "https://www.aph.gov.au/Senators_and_Members/Members/Register",
+            "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Register46thparl",
+        ]
+
         for item in PdfItem.load(item_file):
             item_path = Path(item["path"])
 
             if not item_path.exists():
                 self._logger.error(f"Could not find item path '{item_path}'.")
-                return
+                continue
+
+            referrer = item["referrer"]
+            if referrer not in referrers:
+                continue
 
             parent_dir = item_path.parent
 
@@ -68,19 +101,16 @@ class ReportService:
             for csv_file in parent_dir.glob(pattern):
                 csv_files.append(csv_file)
 
-            results = self.evaluate_text(item, info_file, text_file, csv_files)
-            for result in results:
-                yield result
+            text_info = self.read_info(info_file)
+            text_extracted = self.read_text(text_file)
+            text_found = [list(FoundText.load(p)) for p in csv_files]
 
-    def evaluate_text(
-        self, item: PdfItem, info_file: Path, text_file: Path, csv_files: list[Path]
-    ):
-        text_info = self.read_info(info_file)
-        text_extracted = self.read_text(text_file)
-        text_found = [list(FoundText.load(p)) for p in csv_files]
-        parse_text = ParseText(self._logger)
-        results = parse_text.start(item, text_info, text_extracted, text_found)
-        return results
+            metadata_item = self._metadata_report.start(item, text_info)
+            content_items = self._content_report.start(
+                metadata_item, text_extracted, text_found
+            )
+
+            yield metadata_item, content_items
 
     def read_info(self, path: Path):
         result = {}
@@ -103,7 +133,22 @@ class ReportService:
     def read_text(self, path: Path):
         result = []
         with open(path, "rt", encoding="utf8") as f:
-            for raw_line in f.readlines():
-                line = raw_line.strip()
-                result.append(line)
+            # read the whole file
+            content = f.read() or ""
+
+            # replace Carriage Return with New Line
+            # split on Form Feed (which xpdf pdftotext uses to indicate end of page)
+            # ignore the last item of array as that's after the last Form Feed
+            pages = content.replace("\r", "\n").split("\f")[:-1]
+
+            for page in pages:
+
+                # read each line in each page
+                page_lines = []
+                for line in page.split("\n"):
+                    page_lines.append(line)
+
+                # add the page if there are any lines
+                if len(page_lines) > 0:
+                    result.append(page_lines)
         return result

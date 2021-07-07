@@ -90,7 +90,7 @@ HTTPCACHE_EXPIRATION_SECS = 0
 # HTTPCACHE_DIR =  # set at startup
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
-# HTTPCACHE_POLICY = "scrapy.extensions.httpcache.RFC2616Policy"
+HTTPCACHE_POLICY = "scrapy.extensions.httpcache.RFC2616Policy"
 
 FEEDS = {
     # Item feed is set at startup

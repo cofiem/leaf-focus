@@ -41,7 +41,7 @@ class Run:
         elif name == self._activity_handwriting:
             self.handwriting(args.items_dir, args.cache_dir)
         elif name == self._activity_report:
-            self.report(args.items_dir, args.cache_dir, args.output_file)
+            self.report(args.items_dir, args.cache_dir, args.output_dir)
         else:
             raise ValueError(f"Unrecognised activity '{name}'.")
 
@@ -61,6 +61,8 @@ class Run:
         extract = ExtractService(
             self._logger, pdf_info_file, pdf_text_file, pdf_image_file
         )
+        # TODO: integrate extract into download,
+        #  only run if response is not cached or files do not exist
         extract.start(items_dir, cache_dir)
         self._log_end(self._activity_extract)
 
@@ -76,10 +78,10 @@ class Run:
         hw.start(items_dir, cache_dir)
         self._log_end(self._activity_handwriting)
 
-    def report(self, items_dir: Path, cache_dir: Path, output_file: Path):
+    def report(self, items_dir: Path, cache_dir: Path, output_dir: Path):
         self._log_start(self._activity_report)
         report = ReportService(self._logger)
-        report.start(items_dir, cache_dir, output_file)
+        report.start(items_dir, cache_dir, output_dir)
         self._log_end(self._activity_report)
 
     def _create_logger(self):
@@ -162,9 +164,9 @@ if __name__ == "__main__":
         help="Recognise text from each line of each pdf page.",
     )
     sub_parser_report.add_argument(
-        "--output-file",
+        "--output-dir",
         type=Path,
-        help="Path to save the report file.",
+        help="Path to directory to save the report files.",
     )
 
     parsed_args = parser.parse_args()
