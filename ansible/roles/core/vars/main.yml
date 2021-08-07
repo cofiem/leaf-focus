@@ -1,0 +1,60 @@
+---
+# rabbit mq
+port_rabbitmq: 5672
+port_rabbitmq_http: 15672
+
+# elasticsearch
+port_elasticsearch_1: 9200
+port_elasticsearch_2: 9300
+port_elasticsearch_http: 5601
+
+# apt mirror
+ubuntu_apt_source_mirror: 'http://mirror.aarnet.edu.au/pub/ubuntu/archive'
+ubuntu_apt_source_mirror_security: 'http://security.ubuntu.com/ubuntu'
+
+# apt sources
+ubuntu_package_source_file: '/etc/apt/sources.list'
+
+# venv
+app_base_dir: '/opt/leaf-focus'
+app_venv_dir: '{{ app_base_dir }}/venv'
+app_source_dir: '{{ app_base_dir }}/source'
+app_run_dir: '{{ app_base_dir }}/run'
+
+# docker
+ubuntu_docker_repository: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable'
+ubuntu_docker_repository_key: '9DC858229FC7DD38854AE2D88D81803C0EBFCD88'
+ubuntu_docker_repository_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
+
+# docker compose
+docker_compose_bin_file: '/usr/bin/docker-compose'
+
+# check for new versions here: https://github.com/docker/compose/releases
+docker_compose_version: '1.29.2'
+
+# docker compose
+docker_compose_base_path: '{{ app_base_dir }}/docker-compose'
+
+docker_compose_file: 'docker-compose.yml'
+docker_compose_path: '{{ docker_compose_base_path }}/{{ docker_compose_file }}'
+
+# celery
+# names of one or more nodes to start
+celery_nodes: 'node1 node2'
+# Absolute path to the 'celery' command
+celery_bin: '{{ app_venv_dir }}/bin/celery'
+# App instance to use, fully qualified
+celery_app: 'leaf_focus.pipeline.app:app'
+# Extra command-line arguments to the worker
+celery_opts: '--time-limit=300 --concurrency=8'
+
+# - %n will be replaced with the first part of the nodename.
+# - %I will be replaced with the current child process index
+#   and is important when using the prefork pool to avoid race conditions.
+celery_pid_file: '{{ app_run_dir }}/celery-%%n.pid'
+celery_log_file: '{{ app_run_dir }}/celery-%%n%%I.log'
+celery_log_level: 'INFO'
+
+#  Celery Beat pid and log files
+celerybeat_pid_file: '{{ app_run_dir }}/celery-beat.pid'
+celerybeat_log_file: '{{ app_run_dir }}/celery-beat.log'

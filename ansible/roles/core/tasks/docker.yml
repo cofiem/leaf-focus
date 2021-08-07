@@ -1,0 +1,76 @@
+---
+- name: Remove any old docker versions
+  ansible.builtin.apt:
+    name:
+      - 'docker'
+      - 'docker-engine'
+      - 'docker.io'
+      - 'containerd'
+      - 'runc'
+    state: 'absent'
+
+- name: Add the docker apt repo key
+  ansible.builtin.apt_key:
+    id: '{{ ubuntu_docker_repository_key }}'
+    url: '{{ ubuntu_docker_repository_key_url }}'
+    state: 'present'
+
+- name: Add docker repository
+  ansible.builtin.apt_repository:
+    repo: '{{ ubuntu_docker_repository }}'
+    state: 'present'
+    update_cache: true
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: 'safe'
+
+- name: Install docker
+  ansible.builtin.apt:
+    name:
+      - 'docker-ce'
+      - 'docker-ce-cli'
+      - 'containerd.io'
+    state: 'present'
+
+- name: Create the docker group
+  ansible.builtin.group:
+    name: 'docker'
+    state: 'present'
+
+- name: Add user to docker group
+  ansible.builtin.user:
+    name: 'vagrant'
+    append: true
+    groups:
+      - 'docker'
+
+- name: Update current user group membership
+  ansible.builtin.command: 'newgrp docker'
+
+- name: Enable docker service and start at boot
+  ansible.builtin.systemd:
+    name: 'docker'
+    state: 'started'
+    enabled: true
+
+- name: Check docker installation
+  become_user: 'vagrant'
+  ansible.builtin.command: 'docker run --rm hello-world'
+
+- name: Check if docker compose is installed
+  ansible.builtin.stat:
+    path: '{{ docker_compose_bin_file }}'
+  register: 'docker_compose_status'
+
+- name: Download docker compose
+  ansible.builtin.get_url:
+    url: 'https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64'
+    dest: '{{ docker_compose_bin_file }}'
+    checksum: 'sha256:https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64.sha256'
+    mode: 'u=rx,g=rx,o=rx'
+  when: 'not docker_compose_status.stat.exists'
+
+- name: Check that docker-compose is installed
+  ansible.builtin.command: 'docker-compose --version'

@@ -5,7 +5,7 @@ from pathlib import Path
 from leaf_focus.download.download_service import DownloadService
 from leaf_focus.download.extract.extract_service import ExtractService
 from leaf_focus.handwriting.handwriting_service import HandwritingService
-from leaf_focus.ocr.ocr_service import OcrService
+from leaf_focus.components.ocr_service import OcrService
 from leaf_focus.report.report_service import ReportService
 
 
@@ -23,6 +23,7 @@ class Run:
     def from_args(self, args: Namespace):
         name = args.sub_parser_name
 
+        # scrapy has an internal logger
         if name != "download":
             self._create_logger()
 
@@ -122,7 +123,7 @@ if __name__ == "__main__":
     # create the parser for the "download" command
     sub_parser_download = subparsers.add_parser(
         "download",
-        help="Download pdfs and create images and extract text from them.",
+        help="Find and download pdfs.",
     )
 
     # create the parser for the "extract" command

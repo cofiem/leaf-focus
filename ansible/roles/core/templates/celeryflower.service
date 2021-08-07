@@ -1,0 +1,14 @@
+[Unit]
+Description=Celery Flower Service
+After=network.target
+
+[Service]
+Type=simple
+User=vagrant
+Group=vagrant
+WorkingDirectory={{ app_source_dir }}
+ExecStart=/bin/sh -c '{{ celery_bin }} -A {{ celery_app }} flower --loglevel={{ celery_log_level }}'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

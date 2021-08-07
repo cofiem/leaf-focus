@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+
+# All officially supported packages, including security and other updates: main restricted
+# All community supported packages, including security and other updates: universe multiverse
+
+deb {{ ubuntu_apt_source_mirror }} {{ ansible_distribution_release }} main restricted
+
+deb {{ ubuntu_apt_source_mirror }} {{ ansible_distribution_release }}-updates main restricted
+
+deb {{ ubuntu_apt_source_mirror }} {{ ansible_distribution_release }} universe
+deb {{ ubuntu_apt_source_mirror }} {{ ansible_distribution_release }}-updates universe
+
+deb {{ ubuntu_apt_source_mirror }} {{ ansible_distribution_release }} multiverse
+deb {{ ubuntu_apt_source_mirror }} {{ ansible_distribution_release }}-updates multiverse
+
+# Security updates direct from Ubuntu
+
+deb {{ ubuntu_apt_source_mirror_security }} {{ ansible_distribution_release }}-security main restricted
+deb {{ ubuntu_apt_source_mirror_security }} {{ ansible_distribution_release }}-security universe
+deb {{ ubuntu_apt_source_mirror_security }} {{ ansible_distribution_release }}-security multiverse

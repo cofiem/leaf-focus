@@ -1,0 +1,46 @@
+---
+- name: Set the apt sources list to a local mirror
+  ansible.builtin.template:
+    src: 'sources.list'
+    dest: '{{ ubuntu_package_source_file }}'
+    force: true
+    backup: false
+    owner: 'root'
+    group: 'root'
+    mode: 'u=rw,g=r,o=r'
+
+- name: Update the repository cache and update packages
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: 'safe'
+
+- name: Autoremove any unneccessary packages
+  ansible.builtin.apt:
+    autoremove: true
+
+- name: Ensure ufw firewall is disabled, as this is a dev machine
+  ansible.builtin.ufw:
+    state: 'disabled'
+
+- name: Install required dependencies
+  ansible.builtin.apt:
+    name:
+      - 'unzip'
+      - 'jq'
+      - 'apt-transport-https'
+      - 'ca-certificates'
+      - 'curl'
+      - 'dos2unix'
+      - 'python3-lxml'
+    state: 'present'
+
+- name: Create required directories
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: 'directory'
+    owner: 'vagrant'
+    group: 'vagrant'
+    mode: 'u=rwx,g=rwx,o=rx'
+  loop:
+    - '{{ app_base_dir }}'
+    - '{{ app_run_dir }}'

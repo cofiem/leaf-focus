@@ -1,0 +1,57 @@
+version: '3.9'
+
+# ports are in the format HOST:CONTAINER
+
+# service volumes have a short syntax which uses the generic [SOURCE:]TARGET[:MODE] format,
+# where SOURCE can be either a host path or volume name.
+# TARGET is the container path where the volume is mounted.
+# Standard modes are ro for read-only and rw for read-write (default).
+
+services:
+
+  rabbitmq:
+    image: 'rabbitmq:management'
+    ports:
+      - '{{ port_rabbitmq }}:{{ port_rabbitmq }}'
+      - '{{ port_rabbitmq_http }}:{{ port_rabbitmq_http }}'
+    expose:
+      - '{{ port_rabbitmq }}'
+      - '{{ port_rabbitmq_http }}'
+    restart: 'always'
+    hostname: 'rabbitmq'
+    logging:
+      driver: 'journald'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  elasticsearch:
+    image: 'elasticsearch:7.14.0'
+    ports:
+      - '{{ port_elasticsearch_1 }}:{{ port_elasticsearch_1 }}'
+      - '{{ port_elasticsearch_2 }}:{{ port_elasticsearch_2 }}'
+    expose:
+      - '{{ port_elasticsearch_1 }}'
+      - '{{ port_elasticsearch_2 }}'
+    restart: 'always'
+    environment:
+      'discovery.type': 'single-node'
+      'http.cors.enabled': 'true'
+      'http.cors.allow-origin': 'http://localhost:{{ port_elasticsearch_http }},http://127.0.0.1:{{ port_elasticsearch_http }},http://elasticsearch-ui:{{ port_elasticsearch_http }}'
+      'http.cors.allow-headers': 'X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization'
+      'http.cors.allow-credentials': 'true'
+    logging:
+      driver: 'journald'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  elasticsearch-ui:
+    image: 'kibana:7.14.0'
+    ports:
+      - '{{ port_elasticsearch_http }}:{{ port_elasticsearch_http }}'
+    expose:
+      - '{{ port_elasticsearch_http }}'
+    restart: 'always'
+    logging:
+      driver: 'journald'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
