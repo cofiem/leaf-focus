@@ -3,10 +3,9 @@
 port_rabbitmq: 5672
 port_rabbitmq_http: 15672
 
-# elasticsearch
-port_elasticsearch_1: 9200
-port_elasticsearch_2: 9300
-port_elasticsearch_http: 5601
+# redis
+port_redis: 6379
+port_redis_http: 8081
 
 # apt mirror
 ubuntu_apt_source_mirror: 'http://mirror.aarnet.edu.au/pub/ubuntu/archive'
@@ -20,6 +19,9 @@ app_base_dir: '/opt/leaf-focus'
 app_venv_dir: '{{ app_base_dir }}/venv'
 app_source_dir: '{{ app_base_dir }}/source'
 app_run_dir: '{{ app_base_dir }}/run'
+app_data_dir: '/mnt/data/processing'
+app_items_dir: '/mnt/data/items'
+app_cache_dir: '/mnt/data/httpcache'
 
 # docker
 ubuntu_docker_repository: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable'
@@ -39,14 +41,27 @@ docker_compose_file: 'docker-compose.yml'
 docker_compose_path: '{{ docker_compose_base_path }}/{{ docker_compose_file }}'
 
 # celery
-# names of one or more nodes to start
-celery_nodes: 'node1 node2'
 # Absolute path to the 'celery' command
 celery_bin: '{{ app_venv_dir }}/bin/celery'
 # App instance to use, fully qualified
 celery_app: 'leaf_focus.pipeline.app:app'
-# Extra command-line arguments to the worker
-celery_opts: '--time-limit=300 --concurrency=8'
+
+celery_worker_services:
+  - name: 'celery-queue-ocr-prepare.service'
+    nodes: 'leaf-focus.node.ocr.prepare.1'
+    queues: 'leaf-focus.queue.ocr.prepare'
+    opts: '--time-limit=3600 --concurrency=1'
+
+  - name: 'celery-queue-ocr-recognise.service'
+    nodes: 'leaf-focus.node.ocr.recognise.1'
+    queues: 'leaf-focus.queue.ocr.recognise'
+    opts: '--time-limit=3600 --concurrency=1'
+
+  - name: 'celery-queue-work.service'
+    nodes: 'leaf-focus.node.work.1 leaf-focus.node.work.2'
+    queues: 'leaf-focus.queue.work'
+    opts: '--time-limit=3600 --concurrency=2'
+
 
 # - %n will be replaced with the first part of the nodename.
 # - %I will be replaced with the current child process index
@@ -58,3 +73,17 @@ celery_log_level: 'INFO'
 #  Celery Beat pid and log files
 celerybeat_pid_file: '{{ app_run_dir }}/celery-beat.pid'
 celerybeat_log_file: '{{ app_run_dir }}/celery-beat.log'
+
+# xpdf
+xpdf_gpg_key_file: 'xpdf-gpg-key.txt'
+xpdf_gpg_key_id: '97271342'
+xpdf_gpg_name: 'xpdf@xpdfreader.com'
+xpdf_gpg_fingerprint: 'A56006CA75CF8B13FA2F120DF4825F5397271342'
+xpdf_gpg_key_url: 'https://www.xpdfreader.com/gpg-key.txt'
+xpdf_dir: 'xpdf-tools-linux-4.03'
+xpdf_file_url: 'https://dl.xpdfreader.com/{{ xpdf_dir }}.tar.gz'
+xpdf_gpg_url: 'https://dl.xpdfreader.com/{{ xpdf_dir }}.tar.gz.sig'
+
+xpdf_images: '{{ app_base_dir }}/{{ xpdf_dir }}/bin64/pdfimages'
+xpdf_text: '{{ app_base_dir }}/{{ xpdf_dir }}/bin64/pdftotext'
+xpdf_info: '{{ app_base_dir }}/{{ xpdf_dir }}/bin64/pdfinfo'

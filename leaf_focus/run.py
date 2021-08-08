@@ -2,19 +2,15 @@ import logging
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from leaf_focus.download.download_service import DownloadService
-from leaf_focus.download.extract.extract_service import ExtractService
-from leaf_focus.handwriting.handwriting_service import HandwritingService
-from leaf_focus.components.ocr_service import OcrService
+from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
+
 from leaf_focus.report.report_service import ReportService
 
 
 class Run:
 
     _activity_download = "download"
-    _activity_extract = "extract"
-    _activity_ocr = "ocr"
-    _activity_handwriting = "handwriting"
     _activity_report = "report"
 
     def __init__(self):
@@ -28,61 +24,32 @@ class Run:
             self._create_logger()
 
         if name == self._activity_download:
-            self.download(args.items_dir, args.cache_dir)
-        elif name == self._activity_extract:
-            self.extract(
-                args.items_dir,
-                args.cache_dir,
-                args.pdf_to_info_file,
-                args.pdf_to_text_file,
-                args.pdf_to_image_file,
-            )
-        elif name == self._activity_ocr:
-            self.ocr(args.items_dir, args.cache_dir)
-        elif name == self._activity_handwriting:
-            self.handwriting(args.items_dir, args.cache_dir)
+            self.download(args.config_file)
         elif name == self._activity_report:
-            self.report(args.items_dir, args.cache_dir, args.output_dir)
+            self.report(args.config_file)
         else:
             raise ValueError(f"Unrecognised activity '{name}'.")
 
-    def download(self, items_dir: Path, cache_dir: Path):
-        dl = DownloadService()
-        dl.start(items_dir, cache_dir)
+    def download(self, config_file: Path):
+        """Find and download pdf files."""
 
-    def extract(
-        self,
-        items_dir: Path,
-        cache_dir: Path,
-        pdf_info_file: Path,
-        pdf_text_file: Path,
-        pdf_image_file: Path,
-    ):
-        self._log_start(self._activity_extract)
-        extract = ExtractService(
-            self._logger, pdf_info_file, pdf_text_file, pdf_image_file
-        )
-        # TODO: integrate extract into download,
-        #  only run if response is not cached or files do not exist
-        extract.start(items_dir, cache_dir)
-        self._log_end(self._activity_extract)
+        settings = get_project_settings()
 
-    def ocr(self, items_dir: Path, cache_dir: Path):
-        self._log_start(self._activity_ocr)
-        ocr = OcrService(self._logger)
-        ocr.start(items_dir, cache_dir)
-        self._log_end(self._activity_ocr)
+        settings.set("LEAF_FOCUS_CONFIG_FILE", config_file)
 
-    def handwriting(self, items_dir: Path, cache_dir: Path):
-        self._log_start(self._activity_handwriting)
-        hw = HandwritingService(self._logger)
-        hw.start(items_dir, cache_dir)
-        self._log_end(self._activity_handwriting)
+        # create crawler process
+        process = CrawlerProcess(settings)
 
-    def report(self, items_dir: Path, cache_dir: Path, output_dir: Path):
+        # set the spider to use
+        process.crawl("pdf")
+
+        # the script will block here until the crawling is finished
+        process.start()
+
+    def report(self, config_file: Path):
         self._log_start(self._activity_report)
         report = ReportService(self._logger)
-        report.start(items_dir, cache_dir, output_dir)
+        # report.start(items_dir, cache_dir, output_dir)
         self._log_end(self._activity_report)
 
     def _create_logger(self):
@@ -106,14 +73,9 @@ if __name__ == "__main__":
         description="Extract text from pdf files.",
     )
     parser.add_argument(
-        "--items-dir",
+        "--config-file",
         type=Path,
-        help="Path to items directory.",
-    )
-    parser.add_argument(
-        "--cache-dir",
-        type=Path,
-        help="Path to cache directory.",
+        help="Path to the config file.",
     )
     subparsers = parser.add_subparsers(
         dest="sub_parser_name",
@@ -124,39 +86,6 @@ if __name__ == "__main__":
     sub_parser_download = subparsers.add_parser(
         "download",
         help="Find and download pdfs.",
-    )
-
-    # create the parser for the "extract" command
-    sub_parser_extract = subparsers.add_parser(
-        "extract",
-        help="Extract info, text, and images from pdfs.",
-    )
-    sub_parser_extract.add_argument(
-        "--pdf-to-info-file",
-        type=Path,
-        help="Path to xpdf pdfinfo.",
-    )
-    sub_parser_extract.add_argument(
-        "--pdf-to-text-file",
-        type=Path,
-        help="Path to xpdf pdftotext.",
-    )
-    sub_parser_extract.add_argument(
-        "--pdf-to-image-file",
-        type=Path,
-        help="Path to xpdf pdftopng.",
-    )
-
-    # create the parser for the "ocr" command
-    sub_parser_ocr = subparsers.add_parser(
-        "ocr",
-        help="Recognise text from each line of each pdf page.",
-    )
-
-    # create the parser for the "handwriting" command
-    sub_parser_handwriting = subparsers.add_parser(
-        "handwriting",
-        help="Recognise text from each line of each pdf page.",
     )
 
     # create the parser for the "report" command

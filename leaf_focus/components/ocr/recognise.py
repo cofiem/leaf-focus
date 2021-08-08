@@ -1,20 +1,17 @@
-import logging
+from logging import Logger
 import os
-import typing
 from pathlib import Path
-from typing import Any, Optional, Iterable
+from typing import Any, Optional, Iterable, List, Tuple
 
 from leaf_focus.components.ocr.item import Item
 
-if typing.TYPE_CHECKING:
-    import numpy as np
+import numpy as np
 
 
 class Recognise:
+    def __init__(self, logger: Logger):
+        self._logger = logger
 
-    _logger = logging.getLogger(__name__)
-
-    def __init__(self):
         # set TF_CPP_MIN_LOG_LEVEL before importing tensorflow
         os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -70,7 +67,7 @@ class Recognise:
         self,
         annotation_file: Path,
         image: Optional[np.ndarray],
-        predictions: list[tuple[Any, Any]],
+        predictions: List[Tuple[Any, Any]],
     ):
         if not annotation_file:
             raise ValueError("Must supply annotation file.")
@@ -92,7 +89,7 @@ class Recognise:
         fig.savefig(str(annotation_file))
         plt.close(fig)
 
-    def convert_predictions(self, predictions: list[tuple[Any, Any]]):
+    def convert_predictions(self, predictions: List[Tuple[Any, Any]]):
         """Convert predictions to items."""
         if not predictions:
             raise ValueError("Must supply predictions data.")

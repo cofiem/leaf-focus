@@ -1,13 +1,11 @@
-import logging
+from logging import Logger
 import subprocess
 from pathlib import Path
 
 
 class Text:
-
-    _logger = logging.getLogger(__name__)
-
-    def __init__(self, exe_file: Path):
+    def __init__(self, exe_file: Path, logger: Logger):
+        self._logger = logger
         if not exe_file:
             raise ValueError("Must supply exe file.")
         if not exe_file.exists():
@@ -21,8 +19,10 @@ class Text:
             raise ValueError("Must supply text file.")
         if not pdf_file.exists():
             raise FileNotFoundError(f"Pdf file does not exist '{pdf_file}'.")
+
         if text_file.exists():
-            raise FileExistsError(f"Text file already exists '{text_file}'.")
+            self._logger.debug(f"Pdf text file already exists for '{pdf_file}'.")
+            return
 
         if not text_file.parent.exists():
             text_file.parent.mkdir(exist_ok=True, parents=True)

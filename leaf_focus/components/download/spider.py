@@ -8,11 +8,14 @@ from scrapy.link import Link
 from scrapy.linkextractors import LinkExtractor
 from scrapy.settings import Settings
 
-from leaf_focus.download.items.pdf_item import PdfItem
+from leaf_focus.components.download.pdf_item import PdfItem
+from leaf_focus.components.operations import Operations
 
 
 class Spider(ScrapySpider):
     name = "pdf"
+
+    leaf_focus_operations = None
 
     _link_extractor = None
     _custom_seen_links = {}
@@ -21,12 +24,31 @@ class Spider(ScrapySpider):
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
         s = super(Spider, cls).from_crawler(crawler, *args, **kwargs)  # type: Spider
-        settings = s.settings  # type:Settings
-        s._custom_start_urls = settings.get("CUSTOM_START_URLS")
+        settings = s.settings  # type: Settings
+
+        config_file = settings["LEAF_FOCUS_CONFIG_FILE"]
+        operations = Operations(s.logger, config_file)
+        s.leaf_focus_operations = operations
+
+        s._custom_start_urls = s.leaf_focus_operations.pdf_input_urls
         s._link_extractor = LinkExtractor(
-            allow_domains=settings.get("CUSTOM_ALLOW_DOMAINS"),
+            allow_domains=s.leaf_focus_operations.pdf_allowed_domains,
             deny_extensions=sorted(set(linkextractors.IGNORED_EXTENSIONS) - {"pdf"}),
         )
+
+        feed_file_template = "/items-%(batch_time)s-%(batch_id)05d.csv"
+        key = Path(operations.pdf_items_dir).as_uri() + feed_file_template
+
+        feeds = {
+            key: {
+                "format": "csv",
+                "batch_item_count": 100,
+                "encoding": "utf8",
+            }
+        }
+        settings.set("FEEDS", feeds)
+        settings.set("HTTPCACHE_DIR", str(operations.pdf_cache_dir))
+
         return s
 
     def start_requests(self):

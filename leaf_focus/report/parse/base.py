@@ -17,9 +17,9 @@ class Base:
         self,
         text_info: MetadataItem,
         text_extracted: list[str],
-        text_found: list[FoundText],
+        text_found: List[FoundText],
         page_number: int,
-        shared_data: dict,
+        shared_data: Dict,
     ) -> Optional[list[ContentItem]]:
         raise NotImplementedError()
 

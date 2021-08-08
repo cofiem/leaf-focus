@@ -2,13 +2,13 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, List, Tuple
 
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 
-from leaf_focus.download.items.pdf_item import PdfItem
+from leaf_focus.components.download.pdf_item import PdfItem
 from leaf_focus.ocr.found_text import FoundText
 
 
@@ -143,7 +143,7 @@ class OcrService:
         self,
         path: Path,
         image: Optional[np.ndarray],
-        predictions: list[tuple[Any, Any]],
+        predictions: List[Tuple[Any, Any]],
     ):
         self._logger.debug(f"Saving OCR image to '{path}'.")
 

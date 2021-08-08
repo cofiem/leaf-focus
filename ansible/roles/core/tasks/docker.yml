@@ -46,14 +46,15 @@
     groups:
       - 'docker'
 
-- name: Update current user group membership
-  ansible.builtin.command: 'newgrp docker'
-
 - name: Enable docker service and start at boot
   ansible.builtin.systemd:
     name: 'docker'
     state: 'started'
     enabled: true
+
+- name: Update current user group membership
+  become_user: 'vagrant'
+  ansible.builtin.command: 'newgrp docker'
 
 - name: Check docker installation
   become_user: 'vagrant'

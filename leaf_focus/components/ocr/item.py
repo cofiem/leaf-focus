@@ -4,7 +4,7 @@ import logging
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Any
+from typing import Optional, Any, List
 
 
 @dataclass
@@ -146,7 +146,7 @@ class Item:
         return False
 
     @classmethod
-    def save(cls, path: Path, items: list["Item"]):
+    def save(cls, path: Path, items: List["Item"]):
         """Save found text items to a file."""
         logger = logging.getLogger(cls.__name__)
         logger.info(f"Saving {len(items)} OCR items to '{path}'.")

@@ -1,10 +1,9 @@
 import csv
 import dataclasses
 import logging
-import re
 from pathlib import Path
 
-from leaf_focus.download.items.pdf_item import PdfItem
+from leaf_focus.components.download.pdf_item import PdfItem
 from leaf_focus.ocr.found_text import FoundText
 from leaf_focus.report.content_item import ContentItem
 from leaf_focus.report.content_report import ContentReport

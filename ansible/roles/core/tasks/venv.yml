@@ -1,11 +1,4 @@
 ---
-- name: Install required dependencies
-  ansible.builtin.apt:
-    name:
-      - 'python3-venv'
-      - 'python3-dev'
-    state: 'present'
-
 - name: Create required directories
   ansible.builtin.file:
     path: '{{ item }}'
@@ -18,7 +11,7 @@
 
 - name: Create the python venv
   become_user: 'vagrant'
-  ansible.builtin.command: '/usr/bin/python3 -m venv {{ app_venv_dir }}'
+  ansible.builtin.command: '/usr/bin/python3.9 -m venv {{ app_venv_dir }}'
   args:
     creates: '{{ app_venv_dir }}/bin/activate'
 

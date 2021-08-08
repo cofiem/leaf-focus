@@ -1,5 +1,6 @@
 import csv
 from pathlib import Path
+from typing import List
 
 import scrapy
 from scrapy import Item
@@ -16,7 +17,7 @@ class PdfItem(Item):
     last_updated = scrapy.Field()
 
     @classmethod
-    def save(cls, path: Path, items: list["PdfItem"]):
+    def save(cls, path: Path, items: List["PdfItem"]):
         """Save file items to a file."""
         fields = ["category", "last_updated", "name", "path", "referrer", "url"]
         with open(path, "wt", newline="", encoding="utf8") as f:

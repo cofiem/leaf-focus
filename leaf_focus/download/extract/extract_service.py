@@ -2,7 +2,7 @@ import subprocess
 from logging import Logger
 from pathlib import Path
 
-from leaf_focus.download.items.pdf_item import PdfItem
+from leaf_focus.components.download.pdf_item import PdfItem
 
 
 class ExtractService:

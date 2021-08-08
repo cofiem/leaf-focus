@@ -3,7 +3,7 @@ import dataclasses
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 
 @dataclass
@@ -145,7 +145,7 @@ class FoundText:
         return False
 
     @classmethod
-    def save(cls, path: Path, items: list["FoundText"]):
+    def save(cls, path: Path, items: List["FoundText"]):
         """Save found text items to a file."""
         fields = [
             "text",

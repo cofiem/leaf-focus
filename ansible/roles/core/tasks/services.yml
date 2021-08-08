@@ -20,7 +20,7 @@
 - name: Start docker-compose services so data can be imported
   ansible.builtin.command: 'docker-compose -f {{ docker_compose_path }} up --detach'
 
-- name: Template systemd service files
+- name: Template celery basic systemd service files
   ansible.builtin.template:
     src: '{{ item }}'
     dest: '/etc/systemd/system/{{ item }}'
@@ -28,9 +28,33 @@
     group: 'root'
     mode: 'u=rw,g=r,o=r'
   loop:
-    - 'celery.service'
     - 'celerybeat.service'
     - 'celeryflower.service'
+
+- name: Template systemd service files
+  ansible.builtin.template:
+    src: 'celery-worker.service'
+    dest: '/etc/systemd/system/{{ item.name }}'
+    owner: 'root'
+    group: 'root'
+    mode: 'u=rw,g=r,o=r'
+  loop: '{{ celery_worker_services }}'
+
+- name: Template main config file
+  ansible.builtin.template:
+    src: 'config.json'
+    dest: '{{ app_base_dir }}/leaf-focus-config.json'
+    owner: 'vagrant'
+    group: 'vagrant'
+    mode: 'u=rw,g=r,o=r'
+
+- name: Template bash profile.d file
+  ansible.builtin.template:
+    src: 'leaf-focus.sh'
+    dest: '/etc/profile.d/leaf-focus.sh'
+    owner: 'root'
+    group: 'root'
+    mode: 'u=rw,g=r,o=r'
 
 - name: Install systemd service files
   ansible.builtin.systemd:
@@ -42,6 +66,12 @@
     state: 'started'
     name: '{{ item }}'
   loop:
-    - 'celery.service'
     - 'celerybeat.service'
     - 'celeryflower.service'
+
+- name: Enable systemd services
+  ansible.builtin.systemd:
+    enabled: true
+    state: 'started'
+    name: '{{ item.name }}'
+  loop: '{{ celery_worker_services }}'

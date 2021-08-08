@@ -27,11 +27,9 @@
     name:
       - 'unzip'
       - 'jq'
-      - 'apt-transport-https'
       - 'ca-certificates'
       - 'curl'
       - 'dos2unix'
-      - 'python3-lxml'
     state: 'present'
 
 - name: Create required directories
@@ -44,3 +42,4 @@
   loop:
     - '{{ app_base_dir }}'
     - '{{ app_run_dir }}'
+    - '{{ app_data_dir }}'

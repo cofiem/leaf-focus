@@ -24,33 +24,27 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
 
-  elasticsearch:
-    image: 'elasticsearch:7.14.0'
+  redis:
+    image: 'redis:latest'
     ports:
-      - '{{ port_elasticsearch_1 }}:{{ port_elasticsearch_1 }}'
-      - '{{ port_elasticsearch_2 }}:{{ port_elasticsearch_2 }}'
+      - '{{ port_redis }}:{{ port_redis }}'
     expose:
-      - '{{ port_elasticsearch_1 }}'
-      - '{{ port_elasticsearch_2 }}'
+      - '{{ port_redis }}'
     restart: 'always'
-    environment:
-      'discovery.type': 'single-node'
-      'http.cors.enabled': 'true'
-      'http.cors.allow-origin': 'http://localhost:{{ port_elasticsearch_http }},http://127.0.0.1:{{ port_elasticsearch_http }},http://elasticsearch-ui:{{ port_elasticsearch_http }}'
-      'http.cors.allow-headers': 'X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization'
-      'http.cors.allow-credentials': 'true'
     logging:
       driver: 'journald'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
 
-  elasticsearch-ui:
-    image: 'kibana:7.14.0'
+  redis-ui:
+    image: 'rediscommander/redis-commander:latest'
     ports:
-      - '{{ port_elasticsearch_http }}:{{ port_elasticsearch_http }}'
+      - '{{ port_redis_http }}:{{ port_redis_http }}'
     expose:
-      - '{{ port_elasticsearch_http }}'
+      - '{{ port_redis_http }}'
     restart: 'always'
+    environment:
+      REDIS_HOSTS: 'local:redis:6379'
     logging:
       driver: 'journald'
     extra_hosts:

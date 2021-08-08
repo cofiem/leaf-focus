@@ -5,7 +5,7 @@ from scrapy import Spider, Request, linkextractors
 from scrapy.exceptions import IgnoreRequest
 from scrapy.linkextractors import LinkExtractor
 
-from leaf_focus.download.items.pdf_item import PdfItem
+from leaf_focus.components.download.pdf_item import PdfItem
 
 
 class PdfSpider(Spider):
