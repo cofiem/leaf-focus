@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
     v.gui = false
     v.name = "leaf-focus-box"
     v.check_guest_additions = true
-    v.memory = 2048
+    v.memory = 4096
     v.cpus = 6
   end
 
@@ -28,13 +28,13 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder data_dir, "/mnt/data"
 
   config.vm.provision "install_ansible", type: "shell", inline: <<-SHELL
-    if [ ! -d "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-focal.list" ]; then
+    if [ ! -f "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-focal.list" ]; then
       sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install software-properties-common python3-apt python-apt-common python3-packaging apt-transport-https
       sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:deadsnakes/ppa
       sudo DEBIAN_FRONTEND=noninteractive apt-get -yq update
     fi
 
-    if [ ! -d "/opt/ansible-venv" ]; then
+    if [ ! -d "/opt/leaf-focus/ansible-venv" ]; then
       sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install python3.9 python3.9-dev python3.9-venv python3.9-distutils
       sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install libxml2-dev libxslt-dev zlib1g-dev libffi-dev
       sudo DEBIAN_FRONTEND=noninteractive apt-get -yq upgrade
@@ -61,7 +61,6 @@ Vagrant.configure("2") do |config|
     ansible.config_file = "/opt/leaf-focus/source/ansible/ansible.cfg"
     ansible.playbook = "/opt/leaf-focus/source/ansible/playbook.yml"
     ansible.install = false
-
   end
 
   # redis

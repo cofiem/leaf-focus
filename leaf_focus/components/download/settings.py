@@ -6,7 +6,7 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-
+import os
 
 BOT_NAME = "leaf_focus.download"
 
@@ -96,3 +96,6 @@ HTTPCACHE_POLICY = "scrapy.extensions.httpcache.RFC2616Policy"
 FEEDS = {
     # Item feed is set at startup
 }
+
+
+LEAF_FOCUS_CONFIG_FILE = os.getenv("LEAF_FOCUS_CONFIG_FILE")

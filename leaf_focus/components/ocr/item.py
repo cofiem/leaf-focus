@@ -102,48 +102,99 @@ class Item:
         return self_top <= other_bottom and other_top <= self_bottom
 
     @property
-    def top_slope(self):
+    def slope_top_left_right(self):
         """The slope of the top of the rectangle."""
         return self._slope(
-            self.top_left_x, self.top_right_x, self.top_left_y, self.top_right_y
+            self.top_left_x,
+            self.top_left_y,
+            self.top_right_x,
+            self.top_right_y,
         )
 
     @property
-    def left_slope(self):
+    def slope_top_right_left(self):
+        """The slope of the top of the rectangle."""
+        return self._slope(
+            self.top_right_x,
+            self.top_right_y,
+            self.top_left_x,
+            self.top_left_y,
+        )
+
+    @property
+    def slope_left_top_bottom(self):
         """The slope of the left of the rectangle."""
         return self._slope(
-            self.top_left_x, self.bottom_left_x, self.top_left_y, self.bottom_left_y
+            self.top_left_x,
+            self.top_left_y,
+            self.bottom_left_x,
+            self.bottom_left_y,
         )
 
     @property
-    def bottom_slope(self):
+    def slope_left_bottom_top(self):
+        """The slope of the left of the rectangle."""
+        return self._slope(
+            self.bottom_left_x,
+            self.bottom_left_y,
+            self.top_left_x,
+            self.top_left_y,
+        )
+
+    @property
+    def slope_bottom_left_right(self):
         """The slope of the bottom of the rectangle."""
         return self._slope(
-            self.bottom_right_y,
+            self.bottom_left_x,
             self.bottom_left_y,
             self.bottom_right_x,
-            self.bottom_left_x,
+            self.bottom_right_y,
         )
 
     @property
-    def right_slope(self):
+    def slope_bottom_right_left(self):
+        """The slope of the bottom of the rectangle."""
+        return self._slope(
+            self.bottom_right_x,
+            self.bottom_right_y,
+            self.bottom_left_x,
+            self.bottom_left_y,
+        )
+
+    @property
+    def slope_right_top_bottom(self):
         """The slope of the right of the rectangle."""
         return self._slope(
-            self.top_right_y, self.bottom_right_y, self.top_right_x, self.bottom_right_x
+            self.top_right_x,
+            self.top_right_y,
+            self.bottom_right_x,
+            self.bottom_right_y,
         )
 
-    def _slope(self, x1, x2, y1, y2):
-        return (y2 - y1) / (x2 - x1 + 0.000001)
+    @property
+    def slope_right_bottom_top(self):
+        """The slope of the right of the rectangle."""
+        return self._slope(
+            self.bottom_right_x,
+            self.bottom_right_y,
+            self.top_right_x,
+            self.top_right_y,
+        )
 
     @property
-    def is_top_horizontal(self):
-        """Is the top approximately horizontal?"""
+    def is_horizontal_level(self):
+        """Is side-to-side slope approximately horizontal?"""
         # -0.1 -> 0.1 is strictly horizontal
         # give a bit of buffer
-        return -0.2 <= self.top_slope <= 0.2
+        buffer = 0.09
+        return -buffer <= self.slope_top_left_right <= buffer
 
-    def is_left_vertical(self):
-        return False
+    @property
+    def is_vertical_level(self):
+        """Is the top-to-bottom slope approximately vertical?"""
+        # -0.1 -> 0.1 is strictly vertical
+        # give a bit of buffer
+        return self.slope_left_top_bottom == math.inf
 
     @classmethod
     def save(cls, path: Path, items: List["Item"]):
@@ -233,6 +284,7 @@ class Item:
             bottom_left_y=bottom_left_y,
         )
 
+    @property
     def to_prediction(self):
         return (
             self.text,
@@ -244,7 +296,15 @@ class Item:
             ),
         )
 
+    def _slope(self, x1, y1, x2, y2):
+        y_diff = y2 - y1
+        x_diff = x2 - x1
+        try:
+            return y_diff / x_diff
+        except ZeroDivisionError:
+            return math.inf if y_diff >= 0 else -math.inf
+
     def __str__(self):
         line_info = f"({self.line_number or 0}:{self.line_order})"
-        pos_info = f"[top left:{self.top_left}, top slope: {self.top_slope}]"
+        pos_info = f"[top left:{self.top_left}, top slope: {self.slope_top_left_right}]"
         return f"{self.text} {line_info} {pos_info}"

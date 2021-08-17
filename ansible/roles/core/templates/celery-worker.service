@@ -9,9 +9,9 @@ Group=vagrant
 WorkingDirectory={{ app_source_dir }}
 # see: https://docs.celeryproject.org/en/stable/reference/celery.bin.multi.html#module-celery.bin.multi
 Environment="LEAF_FOCUS_CONFIG_FILE={{ app_base_dir }}/leaf-focus-config.json"
-ExecStart=/bin/sh -c '{{ celery_bin }} -A {{ celery_app }} multi start {{ item.nodes }} -Q "{{ item.queues }}" --pidfile={{ celery_pid_file }} --logfile={{ celery_log_file }} --loglevel="{{ celery_log_level }}" {{ item.opts }}'
-ExecStop=/bin/sh -c '{{ celery_bin }} multi stopwait {{ item.nodes }} -Q "{{ item.queues }}" --pidfile={{ celery_pid_file }} --loglevel="{{ celery_log_level }}"'
-ExecReload=/bin/sh -c '{{ celery_bin }} -A {{ celery_app }} multi restart {{ item.nodes }} -Q "{{ item.queues }}" --pidfile={{ celery_pid_file }} --logfile={{ celery_log_file }} --loglevel="{{ celery_log_level }}" {{ item.opts }}'
+ExecStart={{ celery_bin }} --app {{ celery_app }} multi start {{ item.nodes }} --events --queues "{{ item.queues }}" --pidfile "{{ celery_pid_file }}" --logfile "{{ celery_log_file }}" --loglevel "{{ celery_log_level }}" {{ item.opts }}
+ExecStop={{ celery_bin }} --app {{ celery_app }} multi stopwait {{ item.nodes }} --events --queues "{{ item.queues }}" --pidfile "{{ celery_pid_file }}" --loglevel "{{ celery_log_level }}"
+ExecReload={{ celery_bin }} --app {{ celery_app }} multi restart {{ item.nodes }} --events --queues "{{ item.queues }}" --pidfile "{{ celery_pid_file }}" --logfile "{{ celery_log_file }}" --loglevel "{{ celery_log_level }}" {{ item.opts }}
 Restart=always
 
 [Install]

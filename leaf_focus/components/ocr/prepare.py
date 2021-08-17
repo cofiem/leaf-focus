@@ -2,10 +2,13 @@ from logging import Logger
 from pathlib import Path
 from PIL import Image
 
+from leaf_focus.support.config import Config
+
 
 class Prepare:
-    def __init__(self, logger: Logger):
+    def __init__(self, logger: Logger, config: Config):
         self._logger = logger
+        self._config = config
 
     def threshold(self, input_file: Path, output_file: Path, threshold: int) -> None:
         if not input_file:

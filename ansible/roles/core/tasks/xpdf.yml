@@ -1,6 +1,12 @@
 ---
+- name: Install required dependencies
+  ansible.builtin.apt:
+    name:
+      - 'libfontconfig1-dev'
+    state: 'present'
+
 - name: Check if command is already available
-  ansible.builtin.command: '{{ xpdf_info }} --version'
+  ansible.builtin.command: '{{ xpdf_info }} -v'
   ignore_errors: true
   register: 'xpdf_exe_present'
 
@@ -16,7 +22,6 @@
     src: '{{ xpdf_gpg_key_file }}'
     dest: '/tmp/{{ xpdf_gpg_key_file }}'
     mode: 'u=r,g=r,o=r'
-
   when: 'xpdf_gpg_key_present.rc != 0 and xpdf_exe_present.rc != 0'
 
 - name: Import gpg key if it is not present

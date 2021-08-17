@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 class Text:
-    def __init__(self, exe_file: Path, logger: Logger):
+    def __init__(self, logger: Logger, exe_file: Path):
         self._logger = logger
         if not exe_file:
             raise ValueError("Must supply exe file.")
