@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from leaf_focus.components.pdf.images import Images
+from leaf_focus.components.pdf.info import Info
 
 
-class TestPdfImages:
+class TestComponentsPdfInfo:
     def test_no_exe(self):
         with pytest.raises(ValueError, match="Must supply exe file."):
-            Images(logging.getLogger(), None)
+            Info(logging.getLogger(), None)
 
     def test_exe_not_found(self):
         path = "this-path-does-not-exist"
@@ -17,4 +17,4 @@ class TestPdfImages:
             FileNotFoundError,
             match=f"Exe file does not exist '{path}'.",
         ):
-            Images(logging.getLogger(), Path(path))
+            Info(logging.getLogger(), Path(path))

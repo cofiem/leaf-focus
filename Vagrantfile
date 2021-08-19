@@ -73,4 +73,10 @@ Vagrant.configure("2") do |config|
   # celery flower
   config.vm.network "forwarded_port", guest: 5555, host: 5555
 
+  # prometheus
+  config.vm.network "forwarded_port", guest: 9090, host: 9090
+
+  # grafana
+  config.vm.network "forwarded_port", guest: 3000, host: 3000
+
 end

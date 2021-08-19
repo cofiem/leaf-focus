@@ -11,6 +11,9 @@ class Identify:
         return "SHA256"
 
     def file_hash(self, path: Path):
+        if not path.exists():
+            raise FileNotFoundError(f"Path does not exist '{path}'.")
+
         import hashlib
 
         sha256_hash = hashlib.sha256()

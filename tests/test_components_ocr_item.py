@@ -3,7 +3,7 @@ import math
 from leaf_focus.components.ocr.item import Item
 
 
-class TestOcrItem:
+class TestComponentsOcrItem:
     def test_create(self):
         text = "test text"
         i = Item(

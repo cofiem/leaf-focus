@@ -47,17 +47,17 @@ class Location:
     def pdf_page_prepared_file(
         self, base_dir: Path, file_hash: str, threshold: int, page: int
     ):
-        name = f"{self._prefix}-{page:06}-a1-th-{threshold:03}.png"
+        name = f"{self._prefix}-{page:06}-prep-th-{threshold:03}.png"
         return self.store_dir(base_dir, file_hash) / name
 
     def pdf_page_ocr_file(
         self, base_dir: Path, file_hash: str, threshold: int, page: int
     ):
-        name = f"{self._prefix}-{page:06}-b1-th-{threshold:03}.png"
+        name = f"{self._prefix}-{page:06}-ocr-th-{threshold:03}.png"
         return self.store_dir(base_dir, file_hash) / name
 
     def pdf_page_text_file(
         self, base_dir: Path, file_hash: str, threshold: int, page: int
     ):
-        name = f"{self._prefix}-{page:06}-b1-th-{threshold:03}.csv"
+        name = f"{self._prefix}-{page:06}-text-th-{threshold:03}.csv"
         return self.store_dir(base_dir, file_hash) / name

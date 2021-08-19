@@ -2,10 +2,20 @@
 # rabbit mq
 port_rabbitmq: 5672
 port_rabbitmq_http: 15672
+port_rabbitmq_prom: 15692
+rabbitmq_user: 'guest'
+rabbitmq_pass: 'guest'
 
 # redis
 port_redis: 6379
 port_redis_http: 8081
+
+# prometheus
+port_prom: 9090
+port_grafana: 3000
+
+# celery
+port_flower: 5555
 
 # apt mirror
 ubuntu_apt_source_mirror: 'http://mirror.aarnet.edu.au/pub/ubuntu/archive'
@@ -14,14 +24,21 @@ ubuntu_apt_source_mirror_security: 'http://security.ubuntu.com/ubuntu'
 # apt sources
 ubuntu_package_source_file: '/etc/apt/sources.list'
 
-# venv
+# dirs
 app_base_dir: '/opt/leaf-focus'
 app_venv_dir: '{{ app_base_dir }}/venv'
 app_source_dir: '{{ app_base_dir }}/source'
 app_run_dir: '{{ app_base_dir }}/run'
+app_conf_dir: '{{ app_base_dir }}/conf'
+
 app_data_dir: '/mnt/data/processing'
 app_items_dir: '/mnt/data/items'
 app_cache_dir: '/mnt/data/httpcache'
+
+# config files
+app_conf_main_file: '{{ app_conf_dir }}/leaf-focus-config.json'
+app_conf_prom_file: '{{ app_conf_dir }}/prometheus.yml'
+app_conf_rabbitmq_file: '{{ app_conf_dir }}/rabbitmq-plugins.txt'
 
 # docker
 ubuntu_docker_repository: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable'
@@ -46,6 +63,9 @@ celery_bin: '{{ app_venv_dir }}/bin/celery'
 # App instance to use, fully qualified
 celery_app: 'leaf_focus.pipeline.app:app'
 
+# celery workers
+# ref: https://docs.celeryproject.org/en/stable/reference/cli.html#celery-worker
+# ref: https://docs.celeryproject.org/en/stable/reference/celery.bin.multi.html
 celery_worker_services:
   - name: 'celery-queue-ocr-prepare.service'
     nodes: 'leaf-focus.node.ocr.prepare.1'
@@ -71,8 +91,14 @@ celery_log_file: '{{ app_run_dir }}/celery-%%n%%I.log'
 celery_log_level: 'INFO'
 
 #  Celery Beat pid and log files
+# ref: https://docs.celeryproject.org/en/stable/reference/cli.html?highlight=beat#celery-beat
 celerybeat_pid_file: '{{ app_run_dir }}/celery-beat.pid'
 celerybeat_log_file: '{{ app_run_dir }}/celery-beat.log'
+celerybeat_log_level: 'INFO'
+
+# celery flower
+# ref: https://flower.readthedocs.io/en/latest/man.html
+celeryflower_log_level: 'info'
 
 # xpdf
 xpdf_gpg_key_file: 'xpdf-gpg-key.txt'

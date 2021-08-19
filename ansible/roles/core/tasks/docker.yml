@@ -71,3 +71,21 @@
 
 - name: Check that docker-compose is installed
   ansible.builtin.command: 'docker-compose --version'
+
+- name: Create directory for docker compose
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: 'directory'
+    owner: 'vagrant'
+    group: 'vagrant'
+    mode: 'u=rwx,g=rx,o=rx'
+  loop:
+    - '{{ docker_compose_base_path }}'
+
+- name: Template docker-compose file
+  ansible.builtin.template:
+    src: '{{ docker_compose_file }}'
+    dest: '{{ docker_compose_path }}'
+    owner: 'vagrant'
+    group: 'vagrant'
+    mode: 'u=rw,g=r,o=r'

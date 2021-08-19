@@ -1,24 +1,11 @@
 ---
-- name: Create directory for docker compose
-  ansible.builtin.file:
-    path: '{{ item }}'
-    state: 'directory'
-    owner: 'vagrant'
-    group: 'vagrant'
-    mode: 'u=rwx,g=rx,o=rx'
-  loop:
-    - '{{ docker_compose_base_path }}'
-
-- name: Template docker-compose file
+- name: Template bash profile.d file
   ansible.builtin.template:
-    src: '{{ docker_compose_file }}'
-    dest: '{{ docker_compose_path }}'
-    owner: 'vagrant'
-    group: 'vagrant'
+    src: 'leaf-focus.sh'
+    dest: '/etc/profile.d/leaf-focus.sh'
+    owner: 'root'
+    group: 'root'
     mode: 'u=rw,g=r,o=r'
-
-- name: Start docker-compose services so data can be imported
-  ansible.builtin.command: 'docker-compose -f {{ docker_compose_path }} up --detach'
 
 - name: Template celery basic systemd service files
   ansible.builtin.template:
@@ -43,17 +30,25 @@
 - name: Template main config file
   ansible.builtin.template:
     src: 'config.json'
-    dest: '{{ app_base_dir }}/leaf-focus-config.json'
+    dest: '{{ app_conf_main_file }}'
     owner: 'vagrant'
     group: 'vagrant'
     mode: 'u=rw,g=r,o=r'
 
-- name: Template bash profile.d file
+- name: Template prometheus config file
   ansible.builtin.template:
-    src: 'leaf-focus.sh'
-    dest: '/etc/profile.d/leaf-focus.sh'
-    owner: 'root'
-    group: 'root'
+    src: 'prometheus.yml'
+    dest: '{{ app_conf_prom_file }}'
+    owner: 'vagrant'
+    group: 'vagrant'
+    mode: 'u=rw,g=r,o=r'
+
+- name: Template rabbitmq config file
+  ansible.builtin.template:
+    src: 'rabbitmq-plugins.txt'
+    dest: '{{ app_conf_rabbitmq_file }}'
+    owner: 'vagrant'
+    group: 'vagrant'
     mode: 'u=rw,g=r,o=r'
 
 - name: Install systemd service files
@@ -63,7 +58,7 @@
 - name: Enable systemd services
   ansible.builtin.systemd:
     enabled: true
-    state: 'started'
+    state: 'restarted'
     name: '{{ item }}'
   loop:
     - 'celerybeat.service'
@@ -72,6 +67,12 @@
 - name: Enable systemd services
   ansible.builtin.systemd:
     enabled: true
-    state: 'started'
+    state: 'restarted'
     name: '{{ item.name }}'
   loop: '{{ celery_worker_services }}'
+
+- name: Start docker-compose services so data can be imported
+  ansible.builtin.command: 'docker-compose -f {{ docker_compose_path }} up --detach'
+
+- name: Restart docker-compose services to update config
+  ansible.builtin.command: 'docker-compose -f {{ docker_compose_path }} restart --detach'

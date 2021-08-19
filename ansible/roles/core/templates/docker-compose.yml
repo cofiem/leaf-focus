@@ -14,15 +14,19 @@ services:
     ports:
       - '{{ port_rabbitmq }}:{{ port_rabbitmq }}'
       - '{{ port_rabbitmq_http }}:{{ port_rabbitmq_http }}'
+      - '{{ port_rabbitmq_prom }}:{{ port_rabbitmq_prom }}'
     expose:
       - '{{ port_rabbitmq }}'
       - '{{ port_rabbitmq_http }}'
+      - '{{ port_rabbitmq_prom }}'
     restart: 'always'
     hostname: 'rabbitmq'
     logging:
       driver: 'journald'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+    volumes:
+      - '{{ app_conf_rabbitmq_file }}:/etc/rabbitmq/enabled_plugins'
 
   redis:
     image: 'redis:latest'
@@ -49,3 +53,34 @@ services:
       driver: 'journald'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+
+  prometheus:
+    image: 'prom/prometheus:latest'
+    ports:
+      - '{{ port_prom }}:{{ port_prom }}'
+    expose:
+      - '{{ port_prom }}'
+    restart: 'always'
+    logging:
+      driver: 'journald'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - '{{ app_conf_prom_file }}:/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: 'grafana/grafana:latest'
+    ports:
+      - '{{ port_grafana }}:{{ port_grafana }}'
+    expose:
+      - '{{ port_grafana }}'
+    restart: 'always'
+    logging:
+      driver: 'journald'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - 'grafana-storage:/var/lib/grafana'
+
+volumes:
+  grafana-storage:

@@ -1,7 +1,7 @@
 {
   "process": {
-    "broker": "amqp://guest:guest@localhost:{{ port_rabbitmq }}/",
-    "backend": "redis://localhost:{{ port_redis }}/leaf-focus-results",
+    "broker": "amqp://{{ rabbitmq_user }}:{{ rabbitmq_pass }}@localhost:{{ port_rabbitmq }}",
+    "backend": "redis://localhost:{{ port_redis }}/0",
     "default-queue": "leaf-focus.queue.work",
     "task-queues": {
       "leaf-focus.store.identify": {

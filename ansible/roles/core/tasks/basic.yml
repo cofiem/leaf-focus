@@ -43,3 +43,4 @@
     - '{{ app_base_dir }}'
     - '{{ app_run_dir }}'
     - '{{ app_data_dir }}'
+    - '{{ app_conf_dir }}'
