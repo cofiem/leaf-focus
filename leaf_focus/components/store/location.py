@@ -26,8 +26,8 @@ class Location:
     def details_file(self, pdf_file: Path):
         return pdf_file.parent / "pdf-details.json"
 
-    def identify_file(self, base_dir: Path, file_hash: str):
-        return self.store_dir(base_dir, file_hash) / "pdf-identify.json"
+    def identify_file(self, pdf_file: Path):
+        return pdf_file.parent / "pdf-identify.json"
 
     def pdf_info_file(self, base_dir: Path, file_hash: str):
         return self.store_dir(base_dir, file_hash) / "pdf-info.txt"

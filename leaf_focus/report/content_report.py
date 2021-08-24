@@ -1,6 +1,6 @@
 import logging
 
-from leaf_focus.ocr.found_text import FoundText
+from leaf_focus.components.download.pdf_item import PdfItem
 from leaf_focus.report.content_item import ContentItem
 from leaf_focus.report.metadata_item import MetadataItem
 from leaf_focus.report.parse.base import Base
@@ -20,7 +20,7 @@ class ContentReport:
         self,
         text_info: MetadataItem,
         text_extracted: list[list[str]],
-        text_found: list[list[FoundText]],
+        text_found: list[list[PdfItem]],
     ) -> list[ContentItem]:
         """Parse the contents of a pdf file into structured data."""
 

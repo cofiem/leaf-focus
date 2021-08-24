@@ -69,6 +69,7 @@ Vagrant.configure("2") do |config|
 
   # rabbitmq
   config.vm.network "forwarded_port", guest: 15672, host: 15672
+  config.vm.network "forwarded_port", guest: 15692, host: 15692
 
   # celery flower
   config.vm.network "forwarded_port", guest: 5555, host: 5555
@@ -79,4 +80,6 @@ Vagrant.configure("2") do |config|
   # grafana
   config.vm.network "forwarded_port", guest: 3000, host: 3000
 
+  # scrapy prometheus metrics
+  config.vm.network "forwarded_port", guest: 9080, host: 9080
 end

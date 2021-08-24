@@ -25,7 +25,8 @@ def pdf_identify(self: "Task", details_file: str, base_dir: str):
     bs = Path(base_dir)
 
     identify = Identify(logger, config)
-    pdf_identify_file = identify.run(df, bs)
+    pdf_identify_path = identify.run(df, bs)
+    pdf_identify_file = str(pdf_identify_path)
 
     self.update_state(
         state="LF_IDENTIFIED_PDF",
@@ -43,4 +44,4 @@ def pdf_identify(self: "Task", details_file: str, base_dir: str):
         pdf_images.si(pdf_identify_file),
     ).delay()
 
-    return str(pdf_identify_file)
+    return pdf_identify_file

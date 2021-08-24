@@ -21,18 +21,20 @@ def pdf_images(self: "Task", pdf_identify_file: str):
     input_file = Path(pdf_identify_file)
 
     images = Images(logger, config)
-    pdf_image_files = images.run(input_file)
+    pdf_image_paths = images.run(input_file)
 
     self.update_state(
         state="LF_CREATED_PAGE_IMAGES",
-        meta={"input_path": pdf_identify_file, "output_paths": pdf_image_files},
+        meta={"input_path": pdf_identify_file, "page_count": len(pdf_image_paths)},
     )
 
     # call the ocr prepare tasks
     threshold = config.image_threshold
-    group(
-        ocr_prepare.si(str(pdf_identify_file), threshold, page)
-        for path, page in pdf_image_files
-    ).delay()
+
+    task_group = []
+    for path, page in pdf_image_paths:
+        task_group.append(ocr_prepare.si(str(pdf_identify_file), threshold, page))
+
+    group(task_group).delay()
 
     return pdf_identify_file

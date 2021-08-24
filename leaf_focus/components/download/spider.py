@@ -6,7 +6,6 @@ from scrapy.exceptions import IgnoreRequest
 from scrapy.http import Response
 from scrapy.link import Link
 from scrapy.linkextractors import LinkExtractor
-from scrapy.settings import Settings
 
 from leaf_focus.components.download.pdf_item import PdfItem
 from leaf_focus.support.config import Config
@@ -16,39 +15,17 @@ class Spider(ScrapySpider):
     name = "pdf"
 
     leaf_focus_config = None  # type: Config
+    _link_extractor = None  # type: LinkExtractor
+    _custom_start_urls = None  # type: list[dict]
 
-    _link_extractor = None
-    _custom_seen_links = {}
-    _custom_start_urls = []
+    _custom_seen_links = {}  # type: dict[str, dict]
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
-        s = super(Spider, cls).from_crawler(crawler, *args, **kwargs)  # type: Spider
-        settings = s.settings  # type: Settings
-
-        config_file = settings["LEAF_FOCUS_CONFIG_FILE"]
-        config = Config(s.logger, config_file)
-        s.leaf_focus_config = config
-
-        s._custom_start_urls = s.leaf_focus_config.pdf_input_urls
-        s._link_extractor = LinkExtractor(
-            allow_domains=s.leaf_focus_config.pdf_allowed_domains,
-            deny_extensions=sorted(set(linkextractors.IGNORED_EXTENSIONS) - {"pdf"}),
-        )
-
-        feed_file_template = "/items-%(batch_time)s-%(batch_id)05d.csv"
-        key = Path(s.leaf_focus_config.pdf_items_dir).as_uri() + feed_file_template
-
-        feeds = {
-            key: {
-                "format": "csv",
-                "batch_item_count": 100,
-                "encoding": "utf8",
-            }
-        }
-        settings.set("FEEDS", feeds)
-        settings.set("HTTPCACHE_DIR", str(s.leaf_focus_config.pdf_cache_dir))
-
+        s = super().from_crawler(crawler, *args, **kwargs)  # type: Spider
+        s.set_custom_start_urls()
+        s.set_custom_link_extractor()
+        s.set_custom_config()
         return s
 
     def start_requests(self):
@@ -72,27 +49,49 @@ class Spider(ScrapySpider):
                     self._custom_seen_links[url_lower] = link_info
                 yield Request(link.url, self._parse_pdf)
 
-    def _parse_pdf(self, response: Response):
-        if "pdf" not in response.url.lower():
-            return
+    def set_custom_start_urls(self):
+        start_urls = self.settings.get("LEAF_FOCUS_START_URLS")
+        if not start_urls:
+            raise ValueError(f"Custom start urls must be provided.")
+        self._custom_start_urls = start_urls
 
-        link_info = self._custom_seen_links.get(response.url.lower())
-
-        name = (link_info.get("name", "") + " " + link_info.get("location", "")).strip()
-        category = link_info.get("category", "")
-        cache_file = self._get_response_cache_file(response)
-        link = link_info.get("link")
-        referrer = response.request.headers.get("referer", b"").decode("utf-8")
-        last_updated = link_info.get("last_updated", "")
-        item = PdfItem(
-            name=name,
-            category=category,
-            path=cache_file,
-            url=link.url,
-            referrer=referrer,
-            last_updated=last_updated,
+    def set_custom_link_extractor(self):
+        allowed_domains = self.settings.get("LEAF_FOCUS_ALLOWED_DOMAINS")
+        if not allowed_domains:
+            raise ValueError(f"Custom allowed domains must be provided.")
+        self._link_extractor = LinkExtractor(
+            allow_domains=allowed_domains,
+            deny_extensions=sorted(set(linkextractors.IGNORED_EXTENSIONS) - {"pdf"}),
         )
-        return item
+
+    def set_custom_config(self):
+        config = self.settings.get("LEAF_FOCUS_CONFIG")
+        if not config:
+            raise ValueError(f"Config must be provided.")
+        self.leaf_focus_config = config
+
+    def _parse_pdf(self, response: Response):
+        if "pdf" in response.url.lower():
+            link_info = self._custom_seen_links.get(response.url.lower())
+
+            link_name = link_info.get("name", "").strip()
+            link_location = link_info.get("location", "").strip()
+            name = f"{link_name} {link_location}".strip()
+
+            category = link_info.get("category", "")
+            cache_file = self._get_response_cache_file(response)
+            link = link_info.get("link")
+            referrer = response.request.headers.get("referer", b"").decode("utf-8")
+            last_updated = link_info.get("last_updated", "")
+            item = PdfItem(
+                name=name,
+                category=category,
+                path=cache_file,
+                url=link.url,
+                referrer=referrer,
+                last_updated=last_updated,
+            )
+            yield item
 
     def _get_response_cache_file(self, response: Response):
         downloader_mw = self.crawler.engine.downloader.middleware.middlewares

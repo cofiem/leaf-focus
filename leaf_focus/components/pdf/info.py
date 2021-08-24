@@ -34,4 +34,5 @@ class Info:
             self._logger.error(f"Could not create pdf info: {repr(result)}")
             raise ValueError(result)
 
-        info_file.write_text(data=result.stdout.decode("utf8"), encoding="utf8")
+        data = result.stdout.decode(encoding="utf8", errors="replace")
+        info_file.write_text(data=data, encoding="utf8")

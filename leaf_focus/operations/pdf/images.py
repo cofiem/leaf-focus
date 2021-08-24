@@ -28,6 +28,7 @@ class Images:
         file_hash = identify.get("file_hash")
         output_prefix = self._location.pdf_images_path(self._base_dir, file_hash)
         self._location.create_directory(output_prefix.parent)
-        pdf_image_files = self._pdf_images.create(input_file, output_prefix)
 
-        return pdf_image_files
+        pdf_image_paths = self._pdf_images.create(input_file, output_prefix)
+
+        return pdf_image_paths

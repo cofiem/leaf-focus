@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 
-from leaf_focus.ocr.found_text import FoundText
+from leaf_focus.components.download.pdf_item import PdfItem
 from leaf_focus.report.content_item import ContentItem
 from leaf_focus.report.metadata_item import MetadataItem
 from leaf_focus.report.normalise import Normalise
@@ -17,9 +17,9 @@ class Base:
         self,
         text_info: MetadataItem,
         text_extracted: list[str],
-        text_found: List[FoundText],
+        text_found: list[PdfItem],
         page_number: int,
-        shared_data: Dict,
+        shared_data: dict,
     ) -> Optional[list[ContentItem]]:
         raise NotImplementedError()
 

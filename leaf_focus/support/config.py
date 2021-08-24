@@ -1,18 +1,13 @@
 import json
-from logging import Logger
 from pathlib import Path
 
 
 class Config:
-    def __init__(self, logger: Logger, config_file: Path):
-        if not logger:
-            raise ValueError("Must provide logger.")
+    def __init__(self, config_file: Path):
         if not config_file:
             raise ValueError("Must provide config file.")
         if not config_file.exists():
             raise ValueError("The config file must exist.")
-
-        self._logger = logger
 
         with open(config_file, "rt") as f:
             self._config = json.load(f)

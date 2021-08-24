@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 
 from leaf_focus.components.download.pdf_item import PdfItem
-from leaf_focus.ocr.found_text import FoundText
 from leaf_focus.report.content_item import ContentItem
 from leaf_focus.report.content_report import ContentReport
 from leaf_focus.report.metadata_item import MetadataItem
@@ -102,7 +101,7 @@ class ReportService:
 
             text_info = self.read_info(info_file)
             text_extracted = self.read_text(text_file)
-            text_found = [list(FoundText.load(p)) for p in csv_files]
+            text_found = [list(PdfItem.load(p)) for p in csv_files]
 
             metadata_item = self._metadata_report.start(item, text_info)
             content_items = self._content_report.start(

@@ -55,7 +55,7 @@
   ansible.builtin.systemd:
     daemon_reload: true
 
-- name: Enable systemd services
+- name: Enable and restart systemd services
   ansible.builtin.systemd:
     enabled: true
     state: 'restarted'
@@ -64,7 +64,7 @@
     - 'celerybeat.service'
     - 'celeryflower.service'
 
-- name: Enable systemd services
+- name: Enable and restart systemd services
   ansible.builtin.systemd:
     enabled: true
     state: 'restarted'
@@ -75,4 +75,4 @@
   ansible.builtin.command: 'docker-compose -f {{ docker_compose_path }} up --detach'
 
 - name: Restart docker-compose services to update config
-  ansible.builtin.command: 'docker-compose -f {{ docker_compose_path }} restart --detach'
+  ansible.builtin.command: 'docker-compose -f {{ docker_compose_path }} restart'

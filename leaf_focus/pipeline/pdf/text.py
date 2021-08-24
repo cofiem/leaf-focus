@@ -19,7 +19,8 @@ def pdf_text(self: "Task", pdf_identify_file: str):
     input_file = Path(pdf_identify_file)
 
     text = Text(logger, config)
-    pdf_text_file = text.run(input_file)
+    pdf_text_path = text.run(input_file)
+    pdf_text_file = str(pdf_text_path)
 
     self.update_state(
         state="LF_EXTRACTING_PDF_TEXT",

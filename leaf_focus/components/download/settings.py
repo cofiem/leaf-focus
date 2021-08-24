@@ -6,7 +6,6 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-import os
 
 BOT_NAME = "leaf_focus.download"
 
@@ -61,8 +60,10 @@ TELNETCONSOLE_ENABLED = False
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
+PROM_METRICS_ENABLED = True
 EXTENSIONS = {
     "scrapy.extensions.telnet.TelnetConsole": None,
+    "leaf_focus.components.download.prometheus_extension.PrometheusExtension": 500,
 }
 
 # Configure item pipelines
@@ -93,9 +94,5 @@ HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 HTTPCACHE_POLICY = "scrapy.extensions.httpcache.RFC2616Policy"
 
-FEEDS = {
-    # Item feed is set at startup
-}
-
-
-LEAF_FOCUS_CONFIG_FILE = os.getenv("LEAF_FOCUS_CONFIG_FILE")
+# Item feed is set at startup
+# FEEDS = {}

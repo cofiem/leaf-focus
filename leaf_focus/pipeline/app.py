@@ -17,7 +17,7 @@ _config_file = Path(_config_str)
 if not _config_file.exists():
     raise ValueError(f"The config file must exist '{_config_file}'.")
 
-config = Config(logger, _config_file)
+config = Config(_config_file)
 
 app = Celery(
     main="leaf-focus",

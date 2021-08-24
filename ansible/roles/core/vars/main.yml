@@ -13,6 +13,7 @@ port_redis_http: 8081
 # prometheus
 port_prom: 9090
 port_grafana: 3000
+port_scrapy_prom: 9080
 
 # celery
 port_flower: 5555
@@ -110,6 +111,6 @@ xpdf_dir: 'xpdf-tools-linux-4.03'
 xpdf_file_url: 'https://dl.xpdfreader.com/{{ xpdf_dir }}.tar.gz'
 xpdf_gpg_url: 'https://dl.xpdfreader.com/{{ xpdf_dir }}.tar.gz.sig'
 
-xpdf_images: '{{ app_base_dir }}/{{ xpdf_dir }}/bin64/pdfimages'
+xpdf_images: '{{ app_base_dir }}/{{ xpdf_dir }}/bin64/pdftopng'
 xpdf_text: '{{ app_base_dir }}/{{ xpdf_dir }}/bin64/pdftotext'
 xpdf_info: '{{ app_base_dir }}/{{ xpdf_dir }}/bin64/pdfinfo'

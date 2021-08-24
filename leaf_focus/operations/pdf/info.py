@@ -28,6 +28,7 @@ class Info:
         file_hash = identify.get("file_hash")
         output_file = self._location.pdf_info_file(self._base_dir, file_hash)
         self._location.create_directory(output_file.parent)
+
         self._pdf_info.create(input_file, output_file)
 
         return output_file

@@ -20,11 +20,12 @@ def pdf_info(self: "Task", pdf_identify_file: str):
     input_file = Path(pdf_identify_file)
 
     info = Info(logger, config)
-    pdf_info_file = info.run(input_file)
+    pdf_info_path = info.run(input_file)
+    pdf_info_file = str(pdf_info_path)
 
     self.update_state(
         state="LF_EXTRACTED_PDF_INFO",
-        meta={"input_path": pdf_identify_file, "output_path": str(pdf_info_file)},
+        meta={"input_path": pdf_identify_file, "output_path": pdf_info_file},
     )
 
     return pdf_identify_file

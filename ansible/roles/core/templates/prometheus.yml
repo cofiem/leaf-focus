@@ -15,3 +15,7 @@ scrape_configs:
     static_configs:
       - targets:
         - 'rabbitmq:{{ port_rabbitmq_prom }}'
+  - job_name: scrapy
+    static_configs:
+      - targets:
+          - 'host.docker.internal:{{ port_scrapy_prom }}'
