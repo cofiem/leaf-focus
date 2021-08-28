@@ -6,18 +6,17 @@ from numbers import Number
 from typing import Any
 
 from prometheus_client import Gauge, Counter, Info, Enum
+from prometheus_client.twisted import MetricsResource
 from scrapy import signals, Spider, Request, Item
 from scrapy.crawler import Crawler
-from scrapy.exceptions import NotConfigured, DropItem, DontCloseSpider
+from scrapy.exceptions import NotConfigured, DropItem
 from scrapy.http import Response, Headers
 from scrapy.statscollectors import StatsCollector
 from scrapy.utils.reactor import listen_tcp
-from twisted.python.failure import Failure
-
-from prometheus_client.twisted import MetricsResource
-from twisted.web.server import Site
-from twisted.web.resource import Resource
 from twisted.internet import task
+from twisted.python.failure import Failure
+from twisted.web.resource import Resource
+from twisted.web.server import Site
 
 
 class PrometheusExtension:
@@ -29,7 +28,7 @@ class PrometheusExtension:
     # https://docs.scrapy.org/en/latest/topics/extensions.html#sample-extension
     # https://github.com/prometheus/client_python
 
-    _metric_name_re = re.compile(r"[a-zA-Z_:][a-zA-Z0-9_:]*")
+    _metric_name_re = re.compile(r"[^a-zA-Z0-9_:]+")
 
     def __init__(
         self,
@@ -201,9 +200,24 @@ class PrometheusExtension:
         label_keys = list(labels.keys())
 
         # for debugging
-        # self.logger.info(
-        #     f"Prometheus metric '{metric_name}' '{metric_type}' with labels '{labels}' and value '{value}'."
-        # )
+        show_metric_info = False
+        if show_metric_info:
+            details = {
+                "original_name": name,
+                "metric_name": metric_name,
+                "metric_type": metric_type,
+                "labels": labels,
+                "label_keys": label_keys,
+                "value": value,
+            }
+            details = ", ".join(
+                [
+                    f"{k} = {details[k]}"
+                    for k in sorted(details.keys())
+                    if details[k] is not None
+                ]
+            )
+            self.logger.info(f"Prometheus metric '{details}'.")
 
         # ensure metric exists
         msg = f"'{metric_name}' with labels '{label_keys}'"
@@ -232,7 +246,7 @@ class PrometheusExtension:
         elif metric_type == "enum":
             metric.labels(**labels).state(value)
         else:
-            raise ValueError(f"Unknown metric type '{metric_type}'.")
+            raise ValueError(f"Unknown metric '{metric_name}' type '{metric_type}'.")
 
     def _engine_started(self):
         self._update_metric("signal_engine_started", {"spider": self.name})
@@ -262,7 +276,6 @@ class PrometheusExtension:
 
     def _spider_idle(self, spider: Spider):
         self._update_metric("signal_spider_idle", {"spider": self.name})
-        raise DontCloseSpider()
 
     def _spider_error(self, failure: Failure, response: Response, spider: Spider):
         self._update_metric("signal_spider_error", {"spider": self.name})

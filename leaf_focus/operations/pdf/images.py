@@ -31,4 +31,9 @@ class Images:
 
         pdf_image_paths = self._pdf_images.create(input_file, output_prefix)
 
+        pdf_details_path = self._location.details_file(input_file)
+        with open(pdf_details_path, "rt") as f:
+            details = json.load(f)
+
+        self._logger.info(f"Completed pdf images for '{details.get('name')}'.")
         return pdf_image_paths

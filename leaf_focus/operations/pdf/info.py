@@ -31,4 +31,9 @@ class Info:
 
         self._pdf_info.create(input_file, output_file)
 
+        pdf_details_path = self._location.details_file(input_file)
+        with open(pdf_details_path, "rt") as f:
+            details = json.load(f)
+
+        self._logger.info(f"Completed pdf info for '{details.get('name')}'.")
         return output_file

@@ -69,41 +69,43 @@ class TestComponentsStoreLocation:
         location = Location(logging.getLogger())
         with tempfile.TemporaryDirectory() as d:
             base_dir = Path(d)
-            store_dir = location.pdf_page_image_file(base_dir, self._file_hash, page)
-            assert store_dir == base_dir / self._dir_hash / name
+            fh = self._file_hash
+            dh = self._dir_hash
+            store_dir = location.pdf_page_image_file(base_dir, fh, page)
+            assert store_dir == base_dir / dh / name
 
     def test_pdf_page_prepared_file(self):
         page = 2
         threshold = 190
         name = "pdf-page-000002-prep-th-190.png"
-        location = Location(logging.getLogger())
+        loc = Location(logging.getLogger())
         with tempfile.TemporaryDirectory() as d:
-            base_dir = Path(d)
-            store_dir = location.pdf_page_prepared_file(
-                base_dir, self._file_hash, threshold, page
-            )
-            assert store_dir == base_dir / self._dir_hash / name
+            bd = Path(d)
+            fh = self._file_hash
+            dh = self._dir_hash
+            store_dir = loc.pdf_page_prepared_file(bd, fh, page, threshold)
+            assert store_dir == bd / dh / name
 
     def test_pdf_page_ocr_file(self):
         page = 2
         threshold = 9
         name = "pdf-page-000002-ocr-th-009.png"
-        location = Location(logging.getLogger())
+        loc = Location(logging.getLogger())
         with tempfile.TemporaryDirectory() as d:
             base_dir = Path(d)
-            store_dir = location.pdf_page_ocr_file(
-                base_dir, self._file_hash, threshold, page
-            )
-            assert store_dir == base_dir / self._dir_hash / name
+            fh = self._file_hash
+            dh = self._dir_hash
+            store_dir = loc.pdf_page_ocr_file(base_dir, fh, page, threshold)
+            assert store_dir == base_dir / dh / name
 
     def test_pdf_page_text_file(self):
         page = 2
         threshold = 190
         name = "pdf-page-000002-text-th-190.csv"
-        location = Location(logging.getLogger())
+        loc = Location(logging.getLogger())
         with tempfile.TemporaryDirectory() as d:
             base_dir = Path(d)
-            store_dir = location.pdf_page_text_file(
-                base_dir, self._file_hash, threshold, page
-            )
-            assert store_dir == base_dir / self._dir_hash / name
+            fh = self._file_hash
+            dh = self._dir_hash
+            store_dir = loc.pdf_page_text_file(base_dir, fh, page, threshold)
+            assert store_dir == base_dir / dh / name

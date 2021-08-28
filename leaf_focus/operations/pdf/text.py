@@ -31,4 +31,9 @@ class Text:
 
         self._pdf_text.create(input_file, output_file)
 
+        pdf_details_path = self._location.details_file(input_file)
+        with open(pdf_details_path, "rt") as f:
+            details = json.load(f)
+
+        self._logger.info(f"Completed pdf text for '{details.get('name')}'.")
         return output_file

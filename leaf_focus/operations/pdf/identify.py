@@ -16,14 +16,15 @@ class Identify:
         self._location = Location(logger)
         self._identify = StoreIdentify(logger)
 
-    def run(self, details_file: Path, base_dir: Path):
+    def run(self, details_file: Path):
         """Create the pdf identify file containing file hash details."""
 
         # load the details file
         with open(details_file, "rt") as f:
             details = json.load(f)
 
-        # paths
+        # get task info
+        pdf_name = details.get("name")
         pdf_path = Path(details.get("path"))
         output_file = self._location.identify_file(pdf_path)
         self._location.create_directory(output_file.parent)
@@ -42,11 +43,15 @@ class Identify:
             or not identify.get("file_hash")
         ):
             # get the hash of the source file
+            hash_type = self._identify.file_hash_type
+
+            self._logger.info(f"Generating '{hash_type}' for '{pdf_path}'.")
+
             file_hash = self._identify.file_hash(pdf_path)
 
             identify = {
                 "pdf_file": str(pdf_path),
-                "hash_type": self._identify.file_hash_type,
+                "hash_type": hash_type,
                 "file_hash": file_hash,
             }
 
@@ -54,4 +59,5 @@ class Identify:
             with open(output_file, "wt") as f:
                 json.dump(identify, f, indent=2, cls=LeafFocusJsonEncoder)
 
+        self._logger.info(f"Completed pdf identify for '{pdf_name}'.")
         return output_file

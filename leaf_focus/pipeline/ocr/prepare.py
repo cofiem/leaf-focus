@@ -8,12 +8,7 @@ if typing.TYPE_CHECKING:
 
 
 @app.task(bind=True, name="leaf-focus.ocr.prepare")
-def ocr_prepare(self: "Task", pdf_identify_file: str, threshold: int, page: int):
-
-    self.update_state(
-        state="LF_PREPARING_IMAGE",
-        meta={"input_path": pdf_identify_file, "threshold": threshold, "page": page},
-    )
+def ocr_prepare(self: "Task", pdf_identify_file: str, page: int, threshold: int):
 
     from leaf_focus.operations.ocr.prepare import Prepare
     from leaf_focus.pipeline.ocr.recognise import ocr_recognise
@@ -21,19 +16,6 @@ def ocr_prepare(self: "Task", pdf_identify_file: str, threshold: int, page: int)
     input_file = Path(pdf_identify_file)
 
     prepare = Prepare(logger, config)
-    prepared_image = prepare.run(input_file, threshold, page)
+    prepare.run(input_file, page, threshold)
 
-    self.update_state(
-        state="LF_PREPARED_IMAGE",
-        meta={
-            "input_path": pdf_identify_file,
-            "threshold": threshold,
-            "page": page,
-            "output_path": str(prepared_image),
-        },
-    )
-
-    # call the ocr recognise task
-    ocr_recognise.si(pdf_identify_file, threshold, page).delay()
-
-    return pdf_identify_file
+    ocr_recognise.si(pdf_identify_file, page, threshold).delay()
