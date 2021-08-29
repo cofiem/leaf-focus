@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from leaf_focus.components.store.identify import Identify
+from leaf_focus.components.pdf.identify import Identify
 
 
 class TestComponentsStoreIdentify:

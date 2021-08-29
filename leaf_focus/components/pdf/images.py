@@ -14,22 +14,28 @@ class Images:
             raise FileNotFoundError(f"Exe file does not exist '{exe_file}'.")
         self._exe_file = exe_file
 
-    def create(self, pdf_file: Path, output_prefix: Path) -> List[Tuple[Path, int]]:
-        if not pdf_file:
+    def create(
+        self, pdf_path: Path, output_prefix_path: Path
+    ) -> List[Tuple[Path, int]]:
+        if not pdf_path:
             raise ValueError("Must supply pdf file.")
-        if not output_prefix:
+        if not output_prefix_path:
             raise ValueError("Must supply output prefix.")
-        if not pdf_file.exists():
-            raise FileNotFoundError(f"Pdf file does not exist '{pdf_file}'.")
+        if not pdf_path.exists():
+            raise FileNotFoundError(f"Pdf file does not exist '{pdf_path}'.")
 
-        if not output_prefix.parent.exists():
-            output_prefix.parent.mkdir(exist_ok=True, parents=True)
+        if not output_prefix_path.parent.exists():
+            output_prefix_path.parent.mkdir(exist_ok=True, parents=True)
 
         # find the highest page number
-        existing_files = self._find_images(output_prefix)
-        last_page_number = (
-            ["-f", str(existing_files[-1][1])] if len(existing_files) > 0 else []
-        )
+        existing_files = self._find_images(output_prefix_path)
+        if len(existing_files) > 0:
+            # start from the last page number
+            # this ensures the last page number is overwritten if it was only partially created
+            last_path, last_number = existing_files[-1]
+            last_page_number = ["-f", str(last_number)]
+        else:
+            last_page_number = []
 
         # −f : Specifies the first page to convert.
         # -r : Specifies the resolution, in DPI. The default is 150 DPI.
@@ -42,12 +48,12 @@ class Images:
             ]
             + last_page_number
             + [
-                str(pdf_file),
-                str(output_prefix),
+                str(pdf_path),
+                str(output_prefix_path),
             ]
         )
 
-        self._logger.info(f"Creating pdf page images for '{pdf_file}'.")
+        self._logger.info(f"Creating pdf page images for '{pdf_path}'.")
 
         result = subprocess.run(commands, capture_output=True, check=True)
 
@@ -55,7 +61,7 @@ class Images:
             self._logger.error(f"Could not create pdf page images: {repr(result)}")
             raise ValueError(result)
 
-        existing_files = self._find_images(output_prefix)
+        existing_files = self._find_images(output_prefix_path)
         return existing_files
 
     def _find_images(self, output_prefix: Path):

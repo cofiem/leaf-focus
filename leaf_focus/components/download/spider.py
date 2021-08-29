@@ -7,7 +7,7 @@ from scrapy.http import Response
 from scrapy.link import Link
 from scrapy.linkextractors import LinkExtractor
 
-from leaf_focus.components.download.pdf_item import PdfItem
+from leaf_focus.components.data.pdf_item import PdfItem
 from leaf_focus.support.config import Config
 
 
@@ -86,7 +86,7 @@ class Spider(ScrapySpider):
             item = PdfItem(
                 name=name,
                 category=category,
-                path=cache_file,
+                path=str(cache_file),
                 url=link.url,
                 referrer=referrer,
                 last_updated=last_updated,

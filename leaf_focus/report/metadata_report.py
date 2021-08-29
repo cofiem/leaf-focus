@@ -4,7 +4,7 @@ from collections import OrderedDict
 from configparser import ConfigParser
 from datetime import datetime
 
-from leaf_focus.components.download.pdf_item import PdfItem
+from leaf_focus.components.data.pdf_item import PdfItem
 from leaf_focus.report.metadata_item import MetadataItem
 from leaf_focus.report.normalise import Normalise
 

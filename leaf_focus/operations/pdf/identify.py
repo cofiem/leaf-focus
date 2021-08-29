@@ -1,11 +1,9 @@
-import json
 from logging import Logger
 from pathlib import Path
 
-from leaf_focus.components.serialise import LeafFocusJsonEncoder
-from leaf_focus.components.store.location import Location
+from leaf_focus.components.pdf.identify import Identify as StoreIdentify
+from leaf_focus.components.location import Location
 from leaf_focus.support.config import Config
-from leaf_focus.components.store.identify import Identify as StoreIdentify
 
 
 class Identify:
@@ -14,50 +12,22 @@ class Identify:
         self._config = config
 
         self._location = Location(logger)
+        self._base_dir = config.pdf_base_dir
         self._identify = StoreIdentify(logger)
 
-    def run(self, details_file: Path):
+    def run(self, pdf_path: Path, name: str):
         """Create the pdf identify file containing file hash details."""
 
-        # load the details file
-        with open(details_file, "rt") as f:
-            details = json.load(f)
+        # generate file hash
+        file_hash = self._identify.file_hash(pdf_path)
 
-        # get task info
-        pdf_name = details.get("name")
-        pdf_path = Path(details.get("path"))
-        output_file = self._location.identify_file(pdf_path)
+        # create the output directory
+        output_file = self._location.identify_file(self._base_dir, file_hash)
         self._location.create_directory(output_file.parent)
 
-        # get the hash and hash type to the details
-        identify = {}
+        # create output file
+        self._identify.create(pdf_path, file_hash, output_file)
 
-        # see if the identify file already exists
-        if output_file.exists():
-            with open(output_file, "rt") as f:
-                identify = json.load(f)
-
-        if (
-            not identify.get("pdf_file")
-            or not identify.get("hash_type")
-            or not identify.get("file_hash")
-        ):
-            # get the hash of the source file
-            hash_type = self._identify.file_hash_type
-
-            self._logger.info(f"Generating '{hash_type}' for '{pdf_path}'.")
-
-            file_hash = self._identify.file_hash(pdf_path)
-
-            identify = {
-                "pdf_file": str(pdf_path),
-                "hash_type": hash_type,
-                "file_hash": file_hash,
-            }
-
-            # write the identify file as json
-            with open(output_file, "wt") as f:
-                json.dump(identify, f, indent=2, cls=LeafFocusJsonEncoder)
-
-        self._logger.info(f"Completed pdf identify for '{pdf_name}'.")
+        # log completion
+        self._logger.info(f"Completed pdf identify for '{name}'.")
         return output_file

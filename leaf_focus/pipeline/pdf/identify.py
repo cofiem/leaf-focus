@@ -1,5 +1,7 @@
 import typing
 from pathlib import Path
+
+import dramatiq
 from celery import group
 
 from leaf_focus.operations.pdf.identify import Identify
@@ -22,3 +24,10 @@ def pdf_identify(self: "Task", details_file: str):
     pdf_identify_file = str(pdf_identify_path)
 
     group(pdf_info.s(), pdf_text.s(), pdf_images.s()).delay(pdf_identify_file)
+
+
+@dramatiq.actor(store_results=True)
+def pdf_identify(details_file: str):
+    df = Path(details_file)
+    identify = Identify(logger, config)
+    identify.run(df)

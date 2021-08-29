@@ -3,9 +3,10 @@ import os
 from pathlib import Path
 from typing import Any, Optional, Iterable, List, Tuple
 
-from leaf_focus.components.ocr.item import Item
 
 import numpy as np
+
+from leaf_focus.components.data.text_item import TextItem
 
 
 class Recognise:
@@ -95,9 +96,9 @@ class Recognise:
             raise ValueError("Must supply predictions data.")
 
         for prediction in predictions:
-            yield Item.from_prediction(prediction)
+            yield TextItem.from_prediction(prediction)
 
-    def save_items(self, items_file: Path, items: Iterable[Item]):
+    def save_items(self, items_file: Path, items: Iterable[TextItem]):
         """Save items to csv file."""
         if not items_file:
             raise ValueError("Must supply predictions file.")
@@ -108,9 +109,9 @@ class Recognise:
 
         items_list = list(items)
         self.order_text_lines(items_file, items_list)
-        Item.save(items_file, items_list)
+        TextItem.save(items_file, items_list)
 
-    def order_text_lines(self, items_file: Path, items: Iterable[Item] = None):
+    def order_text_lines(self, items_file: Path, items: Iterable[TextItem] = None):
         """Put items into lines of text (top -> bottom, left -> right)."""
         if not items_file:
             raise ValueError("Must supply items file.")
@@ -118,7 +119,7 @@ class Recognise:
             raise FileNotFoundError(f"Items file does not exist '{items_file}'.")
 
         if items is None:
-            items = Item.load(items_file)
+            items = TextItem.load(items_file)
 
         self._log_debug(f"Arranging text into lines from '{items_file}'.")
 

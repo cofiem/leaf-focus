@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 
-from leaf_focus.components.download.pdf_item import PdfItem
+from leaf_focus.components.data.pdf_item import PdfItem
 from leaf_focus.report.content_item import ContentItem
 from leaf_focus.report.metadata_item import MetadataItem
 from leaf_focus.report.normalise import Normalise

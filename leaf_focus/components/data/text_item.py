@@ -8,7 +8,7 @@ from typing import Optional, Any, List
 
 
 @dataclass
-class Item:
+class TextItem:
     """One found text item (could be a word or phrase) in an image."""
 
     text: str
@@ -78,7 +78,7 @@ class Item:
         )
         return top_bound, bottom_bound
 
-    def is_same_line(self, other: "Item"):
+    def is_same_line(self, other: "TextItem"):
         """
         Check if other found text overlaps this found text.
         Calculated as the midpoint +- 1/3 of the height of the text
@@ -197,7 +197,7 @@ class Item:
         return self.slope_left_top_bottom == math.inf
 
     @classmethod
-    def save(cls, path: Path, items: List["Item"]):
+    def save(cls, path: Path, items: List["TextItem"]):
         """Save found text items to a file."""
         logger = logging.getLogger(cls.__name__)
         logger.info(f"Saving {len(items)} OCR items to '{path}'.")
@@ -243,7 +243,7 @@ class Item:
 
                 count += 1
 
-                yield Item(
+                yield TextItem(
                     text=row["text"],
                     line_number=line_number,
                     line_order=line_order,
@@ -272,7 +272,7 @@ class Item:
             (bottom_right_x, bottom_right_y),
             (bottom_left_x, bottom_left_y),
         ) = prediction
-        return Item(
+        return TextItem(
             text=text,
             top_left_x=top_left_x,
             top_left_y=top_left_y,

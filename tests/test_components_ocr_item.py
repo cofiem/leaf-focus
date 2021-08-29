@@ -1,12 +1,12 @@
 import math
 
-from leaf_focus.components.ocr.item import Item
+from leaf_focus.components.data.text_item import TextItem
 
 
 class TestComponentsOcrItem:
     def test_create(self):
         text = "test text"
-        i = Item(
+        i = TextItem(
             text=text,
             top_left_x=879,
             top_left_y=131,
@@ -44,5 +44,5 @@ class TestComponentsOcrItem:
                 (i.bottom_left_x, i.bottom_left_y),
             ),
         )
-        assert Item.from_prediction(prediction) == i
+        assert TextItem.from_prediction(prediction) == i
         assert i.to_prediction == prediction

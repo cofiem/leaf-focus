@@ -29,5 +29,6 @@ class Prepare:
         def calc_threshold(value):
             return 255 if value > threshold else 0
 
-        r = img.convert("L").point(calc_threshold, mode="1")
-        r.save(output_file)
+        img_greyscale = img.convert("L")  # type: Image
+        img_threshold = img_greyscale.point(calc_threshold, mode="1")  # type: Image
+        img_threshold.save(output_file)

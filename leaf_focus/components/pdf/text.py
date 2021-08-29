@@ -12,20 +12,20 @@ class Text:
             raise FileNotFoundError(f"Exe file does not exist '{exe_file}'.")
         self._exe_file = exe_file
 
-    def create(self, pdf_file: Path, text_file: Path) -> None:
-        if not pdf_file:
+    def create(self, pdf_path: Path, text_path: Path) -> None:
+        if not pdf_path:
             raise ValueError("Must supply pdf file.")
-        if not text_file:
+        if not text_path:
             raise ValueError("Must supply text file.")
-        if not pdf_file.exists():
-            raise FileNotFoundError(f"Pdf file does not exist '{pdf_file}'.")
+        if not pdf_path.exists():
+            raise FileNotFoundError(f"Pdf file does not exist '{pdf_path}'.")
 
-        if text_file.exists():
-            self._logger.debug(f"Pdf text file already exists for '{pdf_file}'.")
+        if text_path.exists():
+            self._logger.debug(f"Pdf text file already exists for '{pdf_path}'.")
             return
 
-        if not text_file.parent.exists():
-            text_file.parent.mkdir(exist_ok=True, parents=True)
+        if not text_path.parent.exists():
+            text_path.parent.mkdir(exist_ok=True, parents=True)
 
         commands = [
             str(self._exe_file),
@@ -34,11 +34,11 @@ class Text:
             "UTF-8",
             "-eol",
             "dos",
-            str(pdf_file),
-            str(text_file),
+            str(pdf_path),
+            str(text_path),
         ]
 
-        self._logger.info(f"Creating pdf text for '{pdf_file}'.")
+        self._logger.info(f"Creating pdf text for '{pdf_path}'.")
 
         result = subprocess.run(commands, capture_output=True, check=True)
 

@@ -2,7 +2,7 @@ import logging
 import tempfile
 from pathlib import Path
 
-from leaf_focus.components.store.location import Location
+from leaf_focus.components.location import Location
 
 
 class TestComponentsStoreLocation:
@@ -38,9 +38,16 @@ class TestComponentsStoreLocation:
     def test_identify_file(self):
         location = Location(logging.getLogger())
         with tempfile.TemporaryDirectory() as d:
-            pdf_file = Path(d) / self._new_dir / "file.pdf"
-            store_dir = location.identify_file(pdf_file)
-            assert store_dir == pdf_file.parent / "pdf-identify.json"
+            base_dir = Path(d)
+            store_dir = location.identify_file(base_dir, self._file_hash)
+            assert store_dir == base_dir / self._dir_hash / "pdf-identify.json"
+
+    def test_info_file(self):
+        location = Location(logging.getLogger())
+        with tempfile.TemporaryDirectory() as d:
+            base_dir = Path(d)
+            store_dir = location.info_file(base_dir, self._file_hash)
+            assert store_dir == base_dir / self._dir_hash / "pdf-info.json"
 
     def test_pdf_info_file(self):
         location = Location(logging.getLogger())

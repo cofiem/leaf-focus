@@ -3,7 +3,7 @@ import dataclasses
 import logging
 from pathlib import Path
 
-from leaf_focus.components.download.pdf_item import PdfItem
+from leaf_focus.components.data.pdf_item import PdfItem
 from leaf_focus.report.content_item import ContentItem
 from leaf_focus.report.content_report import ContentReport
 from leaf_focus.report.metadata_item import MetadataItem
