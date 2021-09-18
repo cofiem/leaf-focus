@@ -1,8 +1,9 @@
-import re
-from logging import Logger
 import subprocess
+from logging import Logger
 from pathlib import Path
 from typing import List, Tuple
+
+from leaf_focus.components.data.image_item import ImageItem
 
 
 class Images:
@@ -28,12 +29,15 @@ class Images:
             output_prefix_path.parent.mkdir(exist_ok=True, parents=True)
 
         # find the highest page number
-        existing_files = self._find_images(output_prefix_path)
+        existing_files = sorted(
+            ImageItem.load(output_prefix_path.parent),
+            key=lambda x: x.page,
+        )
         if len(existing_files) > 0:
             # start from the last page number
             # this ensures the last page number is overwritten if it was only partially created
-            last_path, last_number = existing_files[-1]
-            last_page_number = ["-f", str(last_number)]
+            last = existing_files[-1]
+            last_page_number = ["-f", str(last.page)]
         else:
             last_page_number = []
 
@@ -61,17 +65,8 @@ class Images:
             self._logger.error(f"Could not create pdf page images: {repr(result)}")
             raise ValueError(result)
 
-        existing_files = self._find_images(output_prefix_path)
+        existing_files = sorted(
+            ImageItem.load(output_prefix_path.parent),
+            key=lambda x: x.page,
+        )
         return existing_files
-
-    def _find_images(self, output_prefix: Path):
-        found = []
-        file_pattern = re.compile(rf"^{output_prefix.name}-(\d{{6}})$")
-        for file in output_prefix.parent.glob(output_prefix.name + "*.png"):
-            if not file.is_file():
-                continue
-            match = file_pattern.match(file.name)
-            if match:
-                found.append((file, int(match.group(1), 10)))
-        found = sorted(found, key=lambda x: x[1])
-        return found

@@ -11,7 +11,7 @@ class Prepare:
         self._config = config
 
         self._location = Location(logger)
-        self._base_dir = config.pdf_base_dir
+        self._base_dir = config.pdf_data_dir
         self._prepare = OcrPrepare(logger, config.exe_pdf_text_file)
 
     def run(self, file_hash: str, name: str, page: int, threshold: int):

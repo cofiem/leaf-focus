@@ -1,9 +1,6 @@
 import typing
 from pathlib import Path
 
-import dramatiq
-from celery import group
-
 from leaf_focus.operations.pdf.identify import Identify
 from leaf_focus.pipeline.app import app, logger, config
 
@@ -12,22 +9,9 @@ if typing.TYPE_CHECKING:
 
 
 @app.task(bind=True, name="leaf-focus.store.identify")
-def pdf_identify(self: "Task", details_file: str):
+def pdf_identify(self: "Task", pdf_file: str, name: str):
 
-    from leaf_focus.pipeline.pdf.info import pdf_info
-    from leaf_focus.pipeline.pdf.text import pdf_text
-    from leaf_focus.pipeline.pdf.images import pdf_images
-
-    df = Path(details_file)
+    pdf_path = Path(pdf_file)
     identify = Identify(logger, config)
-    pdf_identify_path = identify.run(df)
-    pdf_identify_file = str(pdf_identify_path)
-
-    group(pdf_info.s(), pdf_text.s(), pdf_images.s()).delay(pdf_identify_file)
-
-
-@dramatiq.actor(store_results=True)
-def pdf_identify(details_file: str):
-    df = Path(details_file)
-    identify = Identify(logger, config)
-    identify.run(df)
+    pdf_identify_path = identify.run(pdf_path, name)
+    return str(pdf_identify_path)

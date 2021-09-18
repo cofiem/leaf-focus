@@ -12,7 +12,7 @@ class Images:
         self._config = config
 
         self._location = Location(logger)
-        self._base_dir = config.pdf_base_dir
+        self._base_dir = config.pdf_data_dir
         self._pdf_images = PdfImages(logger, config.exe_pdf_images_file)
 
     def run(self, pdf_path: Path, file_hash: str, name: str):

@@ -6,12 +6,12 @@ from leaf_focus.support.config import Config
 
 
 class Recognise:
-    def __init__(self, config: Config, logger: Logger):
+    def __init__(self, logger: Logger, config: Config):
         self._logger = logger
         self._config = config
 
         self._location = Location(logger)
-        self._base_dir = config.pdf_base_dir
+        self._base_dir = config.pdf_data_dir
         self._recognise = OcrRecognise(logger)
 
     def run(self, file_hash: str, name: str, page: int, threshold: int):

@@ -1,11 +1,10 @@
 from logging import Logger
 from pathlib import Path
 
+from leaf_focus.components.data.image_item import ImageItem
+
 
 class Location:
-
-    _prefix = "pdf-page"
-
     def __init__(self, logger: Logger):
         self._logger = logger
 
@@ -40,27 +39,26 @@ class Location:
 
     def pdf_images_path(self, base_dir: Path, file_hash: str):
         # the pdftopng exe will add the suffix '-nnnnnn.png' (6 x 'n' - page number digits)
-        name = self._prefix
-        return self.store_dir(base_dir, file_hash) / name
+        return self.store_dir(base_dir, file_hash) / "pdf-page"
 
     def pdf_page_image_file(self, base_dir: Path, file_hash: str, page: int):
-        name = f"{self._prefix}-{page:06}.png"
+        name = ImageItem.build(page)
         return self.store_dir(base_dir, file_hash) / name
 
     def pdf_page_prepared_file(
         self, base_dir: Path, file_hash: str, page: int, threshold: int
     ):
-        name = f"{self._prefix}-{page:06}-prep-th-{threshold:03}.png"
+        name = ImageItem.build(page, "prep", threshold)
         return self.store_dir(base_dir, file_hash) / name
 
     def pdf_page_ocr_file(
         self, base_dir: Path, file_hash: str, page: int, threshold: int
     ):
-        name = f"{self._prefix}-{page:06}-ocr-th-{threshold:03}.png"
+        name = ImageItem.build(page, "ocr", threshold)
         return self.store_dir(base_dir, file_hash) / name
 
     def pdf_page_text_file(
         self, base_dir: Path, file_hash: str, page: int, threshold: int
     ):
-        name = f"{self._prefix}-{page:06}-text-th-{threshold:03}.csv"
+        name = ImageItem.build(page, "text", threshold, ".csv")
         return self.store_dir(base_dir, file_hash) / name

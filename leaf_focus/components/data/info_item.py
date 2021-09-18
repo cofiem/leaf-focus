@@ -41,7 +41,7 @@ class InfoItem:
                 items[pdf_path][key] = value
 
             for pdf_path, entries in items.items():
-                yield InfoItem(pdf_path=pdf_path, entries=entries)
+                yield InfoItem(pdf_path=Path(pdf_path), entries=entries)
 
     def write(self, path: Path) -> None:
         with open(path, "wt") as f:
@@ -52,4 +52,7 @@ class InfoItem:
     def read(cls, path: Path) -> "InfoItem":
         with open(path, "rt") as f:
             item_dict = json.load(f)
-            return InfoItem(**item_dict)
+            return InfoItem(
+                pdf_path=Path(item_dict["pdf_path"]),
+                entries=item_dict["entries"],
+            )

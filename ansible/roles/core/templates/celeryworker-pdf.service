@@ -1,0 +1,18 @@
+[Unit]
+Description=Celery PDF Worker Service
+After=network.target
+
+[Service]
+Type=forking
+User=vagrant
+Group=vagrant
+WorkingDirectory={{ app_source_dir }}
+# see: https://docs.celeryproject.org/en/stable/reference/celery.bin.multi.html#module-celery.bin.multi
+Environment="LEAF_FOCUS_CONFIG_FILE={{ app_conf_main_file }}"
+ExecStart={{ celery_bin }} --app="{{ celery_app }}" multi start leaf-focus.node.pdf.1 leaf-focus.node.pdf.2 --events --queues="{{ celery_queue_pdf }}" --pidfile="{{ celery_pid_file }}" --logfile="{{ celery_log_file }}" --loglevel="{{ celery_log_level }}" --time-limit=3600 --concurrency=2
+ExecStop={{ celery_bin }} --app="{{ celery_app }}" multi stopwait leaf-focus.node.pdf.1 leaf-focus.node.pdf.2 --events --queues="{{ celery_queue_pdf }}" --pidfile="{{ celery_pid_file }}" --loglevel="{{ celery_log_level }}"
+ExecReload={{ celery_bin }} --app="{{ celery_app }}" multi restart leaf-focus.node.pdf.1 leaf-focus.node.pdf.2 --events --queues="{{ celery_queue_pdf }}" --pidfile="{{ celery_pid_file }}" --logfile="{{ celery_log_file }}" --loglevel="{{ celery_log_level }}" --time-limit=3600 --concurrency=2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

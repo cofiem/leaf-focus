@@ -8,7 +8,7 @@ User=vagrant
 Group=vagrant
 WorkingDirectory={{ app_source_dir }}
 Environment="LEAF_FOCUS_CONFIG_FILE={{ app_conf_main_file }}"
-ExecStart={{ celery_bin }} --app={{ celery_app }} beat --pidfile="{{ celerybeat_pid_file }}" --logfile="{{ celerybeat_log_file }}" --loglevel="{{ celery_log_level }}"
+ExecStart={{ celery_bin }} --app="{{ celery_app }}" beat --pidfile="{{ celerybeat_pid_file }}" --logfile="{{ celerybeat_log_file }}" --loglevel="{{ celery_log_level }}"
 Restart=always
 
 [Install]

@@ -6,6 +6,8 @@ port_rabbitmq_prom: 15692
 rabbitmq_user: 'guest'
 rabbitmq_pass: 'guest'
 
+rabbitmq_url: '{{ rabbitmq_user }}:{{ rabbitmq_pass }}@localhost'
+
 # redis
 port_redis: 6379
 port_redis_http: 8081
@@ -68,21 +70,15 @@ celery_app: 'leaf_focus.pipeline.app:app'
 # ref: https://docs.celeryproject.org/en/stable/reference/cli.html#celery-worker
 # ref: https://docs.celeryproject.org/en/stable/reference/celery.bin.multi.html
 celery_worker_services:
-  - name: 'celery-queue-ocr-prepare.service'
-    nodes: 'leaf-focus.node.ocr.prepare.1'
-    queues: 'leaf-focus.queue.ocr.prepare'
-    opts: '--time-limit=3600 --concurrency=1'
+  - 'celerybeat.service'
+  - 'celeryflower.service'
+  - 'celeryworker-pdf.service'
+  - 'celeryworker-prepare.service'
+  - 'celeryworker-recognise.service'
 
-  - name: 'celery-queue-ocr-recognise.service'
-    nodes: 'leaf-focus.node.ocr.recognise.1'
-    queues: 'leaf-focus.queue.ocr.recognise'
-    opts: '--time-limit=3600 --concurrency=1'
-
-  - name: 'celery-queue-work.service'
-    nodes: 'leaf-focus.node.work.1 leaf-focus.node.work.2'
-    queues: 'leaf-focus.queue.work'
-    opts: '--time-limit=3600 --concurrency=2'
-
+celery_queue_pdf: 'leaf-focus.queue.pdf'
+celery_queue_ocr_prepare: 'leaf-focus.queue.ocr.prepare'
+celery_queue_ocr_recognise: 'leaf-focus.queue.ocr.recognise'
 
 # - %n will be replaced with the first part of the nodename.
 # - %I will be replaced with the current child process index

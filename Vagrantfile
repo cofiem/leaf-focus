@@ -13,14 +13,21 @@ Vagrant.configure("2") do |config|
     v.cpus = 6
   end
 
+  app_base_dir = "/opt/leaf-focus"
+  app_venv_dir = "#{app_base_dir}/ansible-venv"
+  app_src_dir = "#{app_base_dir}/source"
+
+  # install vbguest
+  # vagrant plugin install vagrant-vbguest
+
   # set auto_update to false, if you do NOT want to check the correct
   # additions version when booting this machine
-  config.vbguest.auto_update = false
+  config.vbguest.auto_update = true
 
   # set no_remote to true if you do NOT want to download the iso file from a webserver
-  config.vbguest.no_remote = true
+  config.vbguest.no_remote = false
 
-  config.vm.synced_folder ".", "/opt/leaf-focus/source", type: "rsync", rsync__exclude: [".git/", ".github/", ".vagrant/", "__pycache__/"]
+  config.vm.synced_folder ".", app_src_dir, type: "rsync", rsync__exclude: [".git/", ".github/", ".vagrant/", "__pycache__/"]
 
   data_dir = ENV["LEAF_FOCUS_DATA_DIR"]
   raise "Missing 'LEAF_FOCUS_DATA_DIR'" unless data_dir
@@ -39,14 +46,12 @@ Vagrant.configure("2") do |config|
       sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install libxml2-dev libxslt-dev zlib1g-dev libffi-dev
       sudo DEBIAN_FRONTEND=noninteractive apt-get -yq upgrade
 
-      DEBIAN_FRONTEND=noninteractive python3.9 -m venv /opt/leaf-focus/ansible-venv
-      echo 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/opt/leaf-focus/ansible-venv/bin"' | sudo tee /etc/environment > /dev/null
-      source /opt/leaf-focus/ansible-venv/bin/activate
+      python3.9 -m venv #{app_venv_dir}
 
-      /opt/leaf-focus/ansible-venv/bin/python -m pip install -U pip
-      /opt/leaf-focus/ansible-venv/bin/pip install -U setuptools wheel
-      /opt/leaf-focus/ansible-venv/bin/pip install -U lxml
-      /opt/leaf-focus/ansible-venv/bin/pip install -U ansible
+      #{app_venv_dir}/bin/python -m pip install -U pip
+      #{app_venv_dir}/bin/pip install -U setuptools wheel
+      #{app_venv_dir}/bin/pip install -U lxml
+      #{app_venv_dir}/bin/pip install -U ansible
     fi
 
     if [ ! -d "/vagrant" ]; then
@@ -58,9 +63,10 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "run_ansible", type: "ansible_local"  do |ansible|
     ansible.compatibility_mode = "2.0"
-    ansible.config_file = "/opt/leaf-focus/source/ansible/ansible.cfg"
-    ansible.playbook = "/opt/leaf-focus/source/ansible/playbook.yml"
+    ansible.config_file = "#{app_src_dir}/ansible/ansible.cfg"
+    ansible.playbook = "#{app_src_dir}/ansible/playbook.yml"
     ansible.install = false
+    ansible.playbook_command = " #{app_venv_dir}/bin/ansible-playbook"
   end
 
   # redis

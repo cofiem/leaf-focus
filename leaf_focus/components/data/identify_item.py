@@ -37,7 +37,11 @@ class IdentifyItem:
         with open(path, "rt", encoding="utf8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                yield IdentifyItem(**row)
+                yield IdentifyItem(
+                    pdf_file=Path(row["pdf_file"]),
+                    hash_type=row["hash_type"],
+                    file_hash=row["file_hash"],
+                )
 
     def write(self, path: Path) -> None:
         with open(path, "wt") as f:
@@ -48,4 +52,8 @@ class IdentifyItem:
     def read(cls, path: Path) -> "IdentifyItem":
         with open(path, "rt") as f:
             item_dict = json.load(f)
-            return IdentifyItem(**item_dict)
+            return IdentifyItem(
+                pdf_file=Path(item_dict["pdf_file"]),
+                hash_type=item_dict["hash_type"],
+                file_hash=item_dict["file_hash"],
+            )

@@ -41,8 +41,8 @@ class Config:
         return Path(self.get_value("pdf", "cache-dir"))
 
     @property
-    def pdf_base_dir(self):
-        return Path(self.get_value("pdf", "base-dir"))
+    def pdf_data_dir(self):
+        return Path(self.get_value("pdf", "data-dir"))
 
     @property
     def pdf_allowed_domains(self):

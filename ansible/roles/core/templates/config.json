@@ -1,26 +1,26 @@
 {
   "process": {
-    "broker": "amqp://{{ rabbitmq_user }}:{{ rabbitmq_pass }}@localhost:{{ port_rabbitmq }}",
+    "broker": "amqp://{{ rabbitmq_url }}:{{ port_rabbitmq }}",
     "backend": "redis://localhost:{{ port_redis }}/0",
-    "default-queue": "leaf-focus.queue.work",
+    "default-queue": "{{ celery_queue_pdf }}",
     "task-queues": {
       "leaf-focus.store.identify": {
-        "queue": "leaf-focus.queue.work"
+        "queue": "{{ celery_queue_pdf }}"
       },
       "leaf-focus.pdf.images": {
-        "queue": "leaf-focus.queue.work"
+        "queue": "{{ celery_queue_pdf }}"
       },
       "leaf-focus.pdf.info": {
-        "queue": "leaf-focus.queue.work"
+        "queue": "{{ celery_queue_pdf }}"
       },
       "leaf-focus.pdf.text": {
-        "queue": "leaf-focus.queue.work"
+        "queue": "{{ celery_queue_pdf }}"
       },
       "leaf-focus.ocr.prepare": {
-        "queue": "leaf-focus.queue.ocr.prepare"
+        "queue": "{{ celery_queue_ocr_prepare }}"
       },
       "leaf-focus.ocr.recognise": {
-        "queue": "leaf-focus.queue.ocr.recognise"
+        "queue": "{{ celery_queue_ocr_recognise }}"
       }
     }
   },
@@ -33,7 +33,7 @@
     "threshold": 190
   },
   "pdf": {
-    "base-dir": "{{ app_data_dir }}",
+    "data-dir": "{{ app_data_dir }}",
     "items-dir": "{{ app_items_dir }}",
     "cache-dir": "{{ app_cache_dir }}",
     "allowed-domains": [

@@ -12,7 +12,7 @@ matplotlib = "^3.4.2"
 keras-ocr = "^0.8.7"
 tensorflow = "^2.5.0"
 editdistance = "^0.5.3"
-opencv-python-headless = "^4.0.0.21"
+opencv-python-headless = "^4.5.2"
 lmdb = "^1.2.1"
 mmh3 = "^3.0.0"
 Pillow = "^8.2.0"
@@ -21,8 +21,6 @@ celery = {extras = ["redis"], version = "^5.1.2"}
 flower = "^1.0.0"
 pytest = "^6.2.4"
 prometheus-client = "^0.11.0"
-dramatiq = {extras = ["redis", "watch"], version = "^1.11.0"}
-hiredis = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.6b0"

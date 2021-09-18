@@ -7,7 +7,7 @@
     group: 'root'
     mode: 'u=rw,g=r,o=r'
 
-- name: Template celery basic systemd service files
+- name: Template celery systemd service files
   ansible.builtin.template:
     src: '{{ item }}'
     dest: '/etc/systemd/system/{{ item }}'
@@ -17,15 +17,9 @@
   loop:
     - 'celerybeat.service'
     - 'celeryflower.service'
-
-- name: Template systemd service files
-  ansible.builtin.template:
-    src: 'celery-worker.service'
-    dest: '/etc/systemd/system/{{ item.name }}'
-    owner: 'root'
-    group: 'root'
-    mode: 'u=rw,g=r,o=r'
-  loop: '{{ celery_worker_services }}'
+    - 'celeryworker-pdf.service'
+    - 'celeryworker-prepare.service'
+    - 'celeryworker-recognise.service'
 
 - name: Template main config file
   ansible.builtin.template:
@@ -68,7 +62,7 @@
   ansible.builtin.systemd:
     enabled: true
     state: 'restarted'
-    name: '{{ item.name }}'
+    name: '{{ item }}'
   loop: '{{ celery_worker_services }}'
 
 - name: Start docker-compose services so data can be imported

@@ -65,6 +65,7 @@ class Entry:
         # scrapy has an internal logger
         if name != cmd_download:
             self._create_logger()
+            self._logger.info("Starting leaf focus...")
 
         if name == cmd_download:
             self._download.run(parsed_args)
@@ -74,6 +75,9 @@ class Entry:
             self._report.run(parsed_args, self._logger)
         else:
             raise ValueError(f"Unrecognised activity '{name}'.")
+
+        if name != cmd_download:
+            self._logger.info("Finished leaf focus.")
 
     def _create_logger(self):
         logging.basicConfig(
