@@ -17,7 +17,7 @@ class TestPdfIdentifyComponent(BaseTest):
             identify = Component(logging.getLogger())
             identify.file_hash(Path(path))
 
-    @pytest.mark.parametrize("suffix", [".docx", ".pdf", ".png", ".txt"])
+    @pytest.mark.parametrize("suffix", [".docx", ".pdf", ".png"])
     def test_file_hash(self, suffix):
         identify = Component(logging.getLogger())
         actual = identify.file_hash(self.example1_path(suffix))

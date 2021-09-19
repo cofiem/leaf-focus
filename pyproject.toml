@@ -15,17 +15,14 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Utilities",
 ]
 
 
 [tool.poetry.dependencies]
-python = ">=3.7,<4"
+python = ">=3.9,<4"
 Scrapy = "^2.5.0"
 matplotlib = "^3.4.2"
 keras-ocr = "^0.8.7"
