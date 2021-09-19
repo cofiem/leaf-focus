@@ -33,7 +33,7 @@ jobs:
           path: ${{ env.pythonLocation }}
           key: ${{ env.pythonLocation }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('requirements.txt') }}
 
-      # generate requirements.txt using 'poetry export -f requirements.txt --output requirements.txt'
+      # generate requirements.txt using 'poetry export -f requirements.txt -o requirements.txt --dev --without-hashes'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade --upgrade-strategy eager pip
