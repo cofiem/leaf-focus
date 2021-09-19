@@ -1,6 +1,0 @@
----
-- ansible.builtin.import_tasks: 'basic.yml'
-- ansible.builtin.import_tasks: 'venv.yml'
-- ansible.builtin.import_tasks: 'docker.yml'
-- ansible.builtin.import_tasks: 'xpdf.yml'
-- ansible.builtin.import_tasks: 'services.yml'

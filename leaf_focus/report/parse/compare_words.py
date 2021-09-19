@@ -89,7 +89,8 @@ class CompareWords:
         if line_len < line_count:
             line.extend(["_"] * (line_count - line_len))
 
-        return f'"{" ".join(line)}" (matched {line_match} - {line_percent:.0%} | {value_percent:.0%})'
+        msg_counts = f"{line_match} - {line_percent:.0%} | {value_percent:.0%}"
+        return f'"{" ".join(line)}" (matched {msg_counts})'
 
     def _do_select(self, matched):
         if not matched:

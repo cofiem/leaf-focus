@@ -1,36 +1,57 @@
 [tool.poetry]
 name = "leaf-focus"
-version = "0.2.0"
-description = ""
-authors = ["Mark <cofiem@gmail.com>"]
+version = "0.3.0"
+description = "Extract text from pdf files."
 license = "MIT"
+authors = ["Mark <cofiem@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/cofiem/leaf-focus"
+repository = "https://github.com/cofiem/leaf-focus"
+documentation = "https://github.com/cofiem/leaf-focus"
+keywords = []
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Utilities",
+]
+
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.7,<4"
 Scrapy = "^2.5.0"
 matplotlib = "^3.4.2"
 keras-ocr = "^0.8.7"
 tensorflow = "^2.5.0"
 editdistance = "^0.5.3"
 opencv-python-headless = "^4.5.2"
-lmdb = "^1.2.1"
-mmh3 = "^3.0.0"
 Pillow = "^8.2.0"
 pytz = "^2021.1"
-celery = {extras = ["redis"], version = "^5.1.2"}
-flower = "^1.0.0"
-pytest = "^6.2.4"
-prometheus-client = "^0.11.0"
+prefect = "^0.15.5"
+click = "^7.0"
+colorama = "^0.4.4"
 
 [tool.poetry.dev-dependencies]
-black = "^21.6b0"
+black = "21.7b0"  # TODO: dep typing-extensions conflicts with tensorflow
 pytest = "^6.2.4"
-coverage = "^5.5"
+coverage = { extras = ["toml"], version = "^5.5" }
 mypy = "^0.910"
+pytest-cov = "^2.12.1"
+flake8 = "^3.7.9"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+leaf-focus = 'leaf_focus.run:cli'
 
 # mypy global options:
 
@@ -40,3 +61,47 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_any_explicit = true
 disallow_untyped_defs = true
+
+# coverage options:
+
+[tool.coverage.run]
+omit = [
+    '*/.venv/*',
+    '*/tests/*',
+]
+source = [
+    './leaf_focus/'
+]
+
+
+# pytest options:
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = [
+    "tests"
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "needs_exe: tests that need an external program to run"
+]
+
+# black options:
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.mypy_cache
+  | \.venv
+  | _build
+  | build
+  | dist
+  | tests/.*/setup.py
+)/
+'''
+

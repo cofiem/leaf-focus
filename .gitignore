@@ -132,4 +132,4 @@ dmypy.json
 # JetBrains
 .idea/
 
-.vagrant/
+.temp/

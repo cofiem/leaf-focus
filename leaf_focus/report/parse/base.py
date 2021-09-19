@@ -1,10 +1,10 @@
 import re
 from typing import Optional
 
-from leaf_focus.components.data.pdf_item import PdfItem
-from leaf_focus.report.content_item import ContentItem
-from leaf_focus.report.metadata_item import MetadataItem
-from leaf_focus.report.normalise import Normalise
+from download.crawl.item import Item
+from report.gather.content_item import ContentItem
+from report.gather.metadata_item import MetadataItem
+from report.gather.normalise import Normalise
 
 
 class Base:
@@ -17,7 +17,7 @@ class Base:
         self,
         text_info: MetadataItem,
         text_extracted: list[str],
-        text_found: list[PdfItem],
+        text_found: list[Item],
         page_number: int,
         shared_data: dict,
     ) -> Optional[list[ContentItem]]:
