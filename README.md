@@ -2,84 +2,79 @@
 
 Extract text from pdf files.
 
-Some steps use [Tensorflow](https://www.tensorflow.org).
+```
+$ leaf-focus --help
+Usage: leaf-focus [OPTIONS] COMMAND [ARGS]...
 
-Tensorflow can, be run more efficiently using one or more GPUs, but this is not required.
-Running tensorflow has some [requirements](https://www.tensorflow.org/install/source_windows#gpu).
+  Extract text from pdf files.
 
-## Steps
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
 
-### Download pdfs, create images and extract text (download)
-
-- Input: list of urls
-  - `--cache-dir`: absolute path to cache directory
-  - `--items-dir`: absolute path to items output directory
-  - `--pdf-to-text-file`: absolute path to pdftotext.exe
-  - `--pdf-to-image-file`: absolute path to pdftopng.exe
-- Output: csv entries, pdf files, images of each pdf page, text from each pdf
-- Notes: Implemented using [Scrapy](https://docs.scrapy.org/en/latest/index.html).
-
-```bash
-DATA_DIR=""
-XPDF_DIR=""
-python leaf_focus\run.py \
-  --items-dir "${DATA_DIR}/items" \
-  --cache-dir "${DATA_DIR}/cache" \
-  download \
-  --pdf-to-text-file "${XPDF_DIR}/pdftotext.exe" \
-  --pdf-to-image-file "${XPDF_DIR}/pdftopng.exe" \
-  --pdf-to-info-file "${XPDF_DIR}/pdfinfo.exe"
+Commands:
+  download  Find and download pdfs.
+  ocr       Run Optical Character Recogition.
+  pdf       Extract information from pdf files.
+  pipeline  Run a pipeline of tasks.
+  report    Create a report.
 ```
 
-### Optical Character Recognition (ocr)
+[![Build and Test](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml/badge.svg)](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml)
+[![Coverage](coverage.svg)](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml)
 
-- Input: images of each pdf page
-  - `--cache-dir`: absolute path to cache directory
-  - `--items-dir`: absolute path to items output directory
-- Output: recognised text from each line of each pdf page
-- Notes: Implemented using [keras-ocr](https://github.com/faustomorales/keras-ocr).
+## Overview
 
-```bash
-DATA_DIR=""
-python leaf_focus\run.py \
-  --items-dir "${DATA_DIR}/items" \
-  --cache-dir "${DATA_DIR}/cache" \
-  ocr
-```
+Dealing with pdf files that are scans of pages or don't contain machine-readable text can be tough.
+This package is a command line program that helps to extract text from these kinds of pdf files.
 
-### Handwriting recognition (handwriting)
+It is a best-effort approach, so be aware that any text extracted may be incorrect.
 
-- Input: images of parts of each pdf page
-  - `--cache-dir`: absolute path to cache directory
-  - `--items-dir`: absolute path to items output directory
-- Output: recognised handwriting from parts of each pdf page
-- Notes: Implemented using [Simple Handwritten Text Recognition](https://github.com/githubharald/SimpleHTR).
+There are three main stages - downloading, pdf processing, and producing a report.
 
-```bash
-DATA_DIR=""
-python leaf_focus\run.py \
-  --items-dir "${DATA_DIR}/items" \
-  --cache-dir "${DATA_DIR}/cache" \
-  handwriting
-```
+- The downloading stage makes the pdf files available to the pdf processing stage.
+- The pdf processing stage tries to extract text from the pdfs.
+  It has sub-steps that can be run as a pipeline or separately.
+- The report stage makes use of the text extracted from the pdf file to build a report specific to the 
+  format of the pdf content.
 
-### Report generation (report)
+Each stage can work with partial results from the previous stage.
+This helps with checking the output and processing, so changes can be made without waiting for all the stages 
+to complete.
 
-- Input: 
-  - text from each pdf, 
-  - recognised text from each line of each pdf page,
-  - recognised handwriting from parts of each pdf page
-  - `--cache-dir`: absolute path to cache directory
-  - `--items-dir`: absolute path to items output directory
-  - `--output-file`: absolute path to the report csv file
-- Output: csv file where each column is a data item, and each row is either the initial form, or a later update
-- Notes: later updates sometimes are just a paragraph of text with no indication of which section the updates are belong
+The essential inputs are pdf files and a definition of the pdf content,
+to be able to extract data that can be used to build a report.
 
-```bash
-DATA_DIR=""
-python leaf_focus\run.py \
-  --items-dir "${DATA_DIR}/items" \
-  --cache-dir "${DATA_DIR}/cache" \
-  report \
-  --output-file "${DATA_DIR}/report.csv"
-```
+## Install
+
+(todo)
+
+## Find and download pdfs.
+
+(todo)
+
+## Extract information from pdf files.
+
+(todo)
+
+## Run Optical Character Recogition.
+
+(todo)
+
+## Run a pipeline of tasks.
+
+(todo)
+
+## Create a report.
+
+(todo)
+
+## Dependencies
+
+- [xpdf](https://www.xpdfreader.com/download.html)
+- [Scrapy](https://docs.scrapy.org/en/latest/index.html)
+- [keras-ocr](https://github.com/faustomorales/keras-ocr)
+- [Simple Handwritten Text Recognition](https://github.com/githubharald/SimpleHTR)
+- [Tensorflow](https://www.tensorflow.org) (can optionally be run more efficiently [using one or more GPUs](https://www.tensorflow.org/install/source_windows#gpu))
+- [Pillow](https://python-pillow.org/)
+- [Prefect](https://docs.prefect.io/)
