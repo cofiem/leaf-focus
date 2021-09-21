@@ -1,5 +1,7 @@
 from pathlib import Path
 from prefect import Task
+
+from leaf_focus.pdf.identify.item import Item as PdfIdentifyItem
 from leaf_focus.pdf.text.operation import Operation
 
 
@@ -11,9 +13,9 @@ class PrefectTask(Task):
         self._operation = Operation(self.logger, base_path, exe_path)
 
     # noinspection PyMethodOverriding
-    def run(self, pdf_file: str, file_hash: str):
+    def run(self, input_item: PdfIdentifyItem) -> list[list[str]]:
         """Run the task."""
-
-        pdf_path = Path(pdf_file)
-        text_path = self._operation.run(pdf_path, file_hash)
-        return str(text_path)
+        pdf_path = input_item.pdf_file
+        text_path = self._operation.run(pdf_path, input_item.file_hash)
+        output_item = self._operation.read(text_path)
+        return output_item

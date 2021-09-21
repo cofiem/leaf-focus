@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "leaf-focus"
-version = "0.3.0"
+version = "0.4.0"
 description = "Extract text from pdf files."
 license = "MIT"
 authors = ["Mark <cofiem@gmail.com>"]
@@ -66,6 +66,7 @@ disallow_untyped_defs = true
 omit = [
     '*/.venv/*',
     '*/tests/*',
+    '*/command.py'
 ]
 source = [
     './leaf_focus/'

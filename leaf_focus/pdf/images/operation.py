@@ -1,5 +1,6 @@
 from logging import Logger
 from pathlib import Path
+from typing import Iterable
 
 from leaf_focus.support.location import Location
 from leaf_focus.pdf.images.component import Component
@@ -26,3 +27,7 @@ class Operation:
 
         # result
         return pdf_image_paths
+
+    def read(self, file_hash: str) -> Iterable[tuple[int, Path]]:
+        output_prefix = self._location.pdf_images_path(self._base_path, file_hash)
+        return self._component.read(output_prefix)

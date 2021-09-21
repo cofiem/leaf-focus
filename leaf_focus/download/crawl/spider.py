@@ -7,7 +7,7 @@ from scrapy.http import Response
 from scrapy.link import Link
 from scrapy.linkextractors import LinkExtractor
 
-from download.crawl.item import Item
+from leaf_focus.download.crawl.item import Item
 
 
 class Spider(ScrapySpider):
@@ -22,7 +22,6 @@ class Spider(ScrapySpider):
         s = super().from_crawler(crawler, *args, **kwargs)  # type: Spider
         s.set_custom_start_urls()
         s.set_custom_link_extractor()
-        s.set_custom_config()
         return s
 
     def start_requests(self):
@@ -60,12 +59,6 @@ class Spider(ScrapySpider):
             allow_domains=allowed_domains,
             deny_extensions=sorted(set(linkextractors.IGNORED_EXTENSIONS) - {"pdf"}),
         )
-
-    def set_custom_config(self):
-        config = self.settings.get("LEAF_FOCUS_CONFIG")
-        if not config:
-            raise ValueError("Config must be provided.")
-        self.leaf_focus_config = config
 
     def _parse_pdf(self, response: Response):
         if "pdf" in response.url.lower():
@@ -150,7 +143,8 @@ class Spider(ScrapySpider):
         elif is_senator:
             category = "senator"
         else:
-            raise IgnoreRequest(f"Unknown category for '{url_lower}'.")
+            category = None
+            self.logger.warning(f"Unknown category for '{url_lower}'.")
 
         found_info = {
             "link": link,

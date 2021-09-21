@@ -1,7 +1,9 @@
 from pathlib import Path
+from typing import Iterable
 
 from prefect import Task
 
+from leaf_focus.pdf.identify.item import Item as PdfIdentifyItem
 from leaf_focus.pdf.images.operation import Operation
 
 
@@ -13,9 +15,10 @@ class PrefectTask(Task):
         self._operation = Operation(self.logger, base_path, exe_path)
 
     # noinspection PyMethodOverriding
-    def run(self, pdf_file: str, file_hash: str):
+    def run(self, input_item: PdfIdentifyItem) -> Iterable[tuple[str, int]]:
         """Run the task."""
-
-        pdf_path = Path(pdf_file)
-        pdf_image_paths = self._operation.run(pdf_path, file_hash)
-        return [{"path": str(p), "page": n} for p, n in pdf_image_paths]
+        pdf_path = input_item.pdf_file
+        file_hash = input_item.file_hash
+        self._operation.run(pdf_path, file_hash)
+        for page, _ in self._operation.read(file_hash):
+            yield file_hash, page

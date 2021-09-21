@@ -13,7 +13,7 @@ class Component:
         self._cache_dir = cache_dir
 
     def run(self, allowed_domains: list[str], urls: list[dict[str, str]]):
-        os.environ["SCRAPY_SETTINGS_MODULE"] = "leaf_focus.piece.download.settings"
+        os.environ["SCRAPY_SETTINGS_MODULE"] = "leaf_focus.download.crawl.settings"
 
         settings = get_project_settings()
 

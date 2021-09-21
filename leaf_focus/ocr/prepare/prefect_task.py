@@ -2,7 +2,7 @@ from pathlib import Path
 
 from prefect import Task
 
-from ocr.prepare.operation import Operation
+from leaf_focus.ocr.prepare.operation import Operation
 
 
 class PrefectTask(Task):
@@ -13,8 +13,8 @@ class PrefectTask(Task):
         self._operation = Operation(self.logger, base_path)
 
     # noinspection PyMethodOverriding
-    def run(self, file_hash: str, page: int, threshold: int):
+    def run(self, input_item: tuple[str, int], threshold: int) -> tuple[str, int]:
         """Run the task."""
-
+        file_hash, page = input_item
         image_path = self._operation.run(file_hash, page, threshold)
-        return str(image_path)
+        return image_path

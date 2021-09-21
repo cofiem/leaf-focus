@@ -9,8 +9,8 @@
 
 BOT_NAME = "leaf_focus.download"
 
-SPIDER_MODULES = ["leaf_focus.piece.download.spider"]
-NEWSPIDER_MODULE = "leaf_focus.piece.download.spider"
+SPIDER_MODULES = ["leaf_focus.download.crawl.spider"]
+NEWSPIDER_MODULE = "leaf_focus.download.crawl.spider"
 
 LOG_LEVEL = "INFO"
 

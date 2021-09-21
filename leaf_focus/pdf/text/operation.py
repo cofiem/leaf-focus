@@ -26,3 +26,6 @@ class Operation:
 
         # result
         return output_file
+
+    def read(self, path: Path) -> list[list[str]]:
+        return self._component.read(path)

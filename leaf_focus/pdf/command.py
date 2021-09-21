@@ -29,7 +29,7 @@ def pdf():
 )
 def pdf_identify(input_file: Path, output_file: Path):
     """Identify a pdf for use in other operations."""
-    from leaf_focus.pdf.identify import Component
+    from leaf_focus.pdf.identify.component import Component
 
     click.secho("Starting pdf identify.", bold=True)
 

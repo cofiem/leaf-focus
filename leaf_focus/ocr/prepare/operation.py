@@ -19,7 +19,7 @@ class Operation:
         bd = self._base_path
         input_file = loc.pdf_page_image_file(bd, file_hash, page)
         output_file = loc.pdf_page_prepared_file(bd, file_hash, page, threshold)
-        self._location.create_directory(output_file.parent)
+        loc.create_directory(output_file.parent)
 
         # create the image file
         self._component.threshold(input_file, output_file, threshold)

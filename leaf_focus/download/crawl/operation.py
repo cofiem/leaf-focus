@@ -3,18 +3,15 @@ import json
 from logging import Logger
 from pathlib import Path
 
-from download.crawl.component import Component
-from support.location import Location
+from leaf_focus.download.crawl.component import Component
+from leaf_focus.support.location import Location
 
 
 class Operation:
     """An independent operation that runs the download."""
 
-    def __init__(
-        self, logger: Logger, base_path: Path, feed_dir: Path, cache_dir: Path
-    ):
+    def __init__(self, logger: Logger, feed_dir: Path, cache_dir: Path):
         self._logger = logger
-        self._base_path = base_path
         self._location = Location(logger)
         self._component = Component(logger, feed_dir, cache_dir)
 
