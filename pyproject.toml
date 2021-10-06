@@ -23,7 +23,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4"
-Scrapy = "^2.5.0"
+Scrapy = "^2.5.1"
 matplotlib = "^3.4.2"
 keras-ocr = "^0.8.7"
 tensorflow = "^2.5.0"
