@@ -7,10 +7,11 @@ from leaf_focus.pdf.identify.item import Item as PdfIdentifyItem
 from leaf_focus.pdf.identify.operation import Operation
 
 
-class PrefectTask(Task):
+class PdfIdentifyTask(Task):
     """A Prefect task to run the pdf identify operation."""
 
     def __init__(self, base_path: Path, **kwargs):
+        kwargs = {**kwargs, "name": "pdf.identify"}
         super().__init__(**kwargs)
         self._operation = Operation(self.logger, base_path)
 

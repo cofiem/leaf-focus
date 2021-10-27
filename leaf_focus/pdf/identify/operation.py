@@ -18,7 +18,7 @@ class Operation:
     def run(self, pdf_path: Path):
         """Run the operation."""
 
-        self._logger.info(f"Creating pdf identify for '{pdf_path}'.")
+        self._logger.info(f"Creating pdf identify for cache id '{pdf_path.parts[-2]}'.")
 
         # generate file hash
         file_hash = self._component.file_hash(pdf_path)

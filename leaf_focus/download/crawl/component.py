@@ -35,7 +35,7 @@ class Component:
         settings.set("HTTPCACHE_DIR", str(self._cache_dir))
 
         # create crawler process
-        process = CrawlerProcess(settings)
+        process = CrawlerProcess(settings, install_root_handler=False)
 
         # set the spider to use
         process.crawl("pdf")

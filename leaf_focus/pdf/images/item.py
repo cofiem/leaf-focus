@@ -19,6 +19,8 @@ class Item:
     @classmethod
     def load(cls, directory: Path):
         for path in directory.glob("*.png"):
+            if not path.is_file():
+                continue
             try:
                 yield cls.read(path)
             except ValueError:

@@ -67,7 +67,14 @@ class Component:
             msg_page = f" starting from page {page_start}"
         else:
             msg_page = ""
-        self._logger.info(f"Creating pdf page images for '{pdf_path}'{msg_page}.")
+
+        if pdf_path:
+            msg_path = pdf_path.parts[-2]
+        else:
+            msg_path = ""
+        self._logger.info(
+            f"Creating pdf page images for cache id '{msg_path}'{msg_page}."
+        )
 
         result = subprocess.run(commands, capture_output=True, check=True)
 

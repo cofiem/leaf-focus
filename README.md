@@ -3,7 +3,7 @@
 Extract text from pdf files.
 
 ```
-$ leaf-focus --help
+$ leaf-focus
 Usage: leaf-focus [OPTIONS] COMMAND [ARGS]...
 
   Extract text from pdf files.
@@ -16,12 +16,11 @@ Commands:
   download  Find and download pdfs.
   ocr       Run Optical Character Recogition.
   pdf       Extract information from pdf files.
-  pipeline  Run a pipeline of tasks.
+  pipeline  Run or view the pipeline of tasks.
   report    Create a report.
 ```
 
 [![Build and Test](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml/badge.svg)](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml)
-[![Coverage](coverage.svg)](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml)
 
 ## Overview
 

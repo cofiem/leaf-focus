@@ -5,10 +5,11 @@ from leaf_focus.pdf.identify.item import Item as PdfIdentifyItem
 from leaf_focus.pdf.text.operation import Operation
 
 
-class PrefectTask(Task):
+class PdfTextTask(Task):
     """A Prefect task to run the pdf text operation."""
 
     def __init__(self, base_path: Path, exe_path: Path, **kwargs):
+        kwargs = {**kwargs, "name": "pdf.text"}
         super().__init__(**kwargs)
         self._operation = Operation(self.logger, base_path, exe_path)
 

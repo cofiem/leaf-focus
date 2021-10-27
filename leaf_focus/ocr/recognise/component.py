@@ -1,12 +1,11 @@
 from logging import Logger
-import os
 from pathlib import Path
 from typing import Any, Optional, Iterable, List, Tuple
-
 
 import numpy as np
 
 from leaf_focus.ocr.recognise.item import Item as TextItem
+from leaf_focus.ocr.recognise.ocr_wrapper import OcrWrapper
 
 
 class Component:
@@ -15,22 +14,12 @@ class Component:
     def __init__(self, logger: Logger):
         self._logger = logger
 
-        # set TF_CPP_MIN_LOG_LEVEL before importing tensorflow
-        os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
-        import tensorflow as tf
-
-        tf.get_logger().setLevel("WARNING")
-
-        import keras_ocr
-
-        # see: https://github.com/faustomorales/keras-ocr
-        # keras-ocr will automatically download pretrained
-        # weights for the detector and recognizer.
-        self._pipeline = keras_ocr.pipeline.Pipeline()
-
     def recognise_text(
-        self, image_file: Path, annotation_file: Path, predictions_file: Path
+        self,
+        image_file: Path,
+        annotation_file: Path,
+        predictions_file: Path,
+        ocr_wrapper: OcrWrapper,
     ) -> None:
         """Recognise the text in an image and save the text and image annotations."""
 
@@ -58,7 +47,7 @@ class Component:
 
         # Each list of predictions in prediction_groups is a list of
         # (word, box) tuples.
-        prediction_groups = self._pipeline.recognize(images)
+        prediction_groups = ocr_wrapper.pipeline.recognize(images)
 
         # Plot the predictions
         for image, predictions in zip(images, prediction_groups):

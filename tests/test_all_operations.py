@@ -3,6 +3,7 @@ import pytest
 from pathlib import Path
 
 from leaf_focus.ocr.prepare.operation import Operation as PrepareOperation
+from leaf_focus.ocr.recognise.ocr_wrapper import OcrWrapper
 from leaf_focus.ocr.recognise.operation import Operation as RecogniseOperation
 from leaf_focus.pdf.identify.item import Item as IdentifyItem
 from leaf_focus.pdf.identify.operation import Operation as IdentifyOperation
@@ -31,7 +32,7 @@ class TestAllOperations(BaseTest):
         assert caplog.record_tuples[0] == (
             "root",
             logging.INFO,
-            f"Creating pdf identify for '{pdf_path}'.",
+            f"Creating pdf identify for cache id '{pdf_path.parts[-2]}'.",
         )
         assert len(caplog.record_tuples) == 1
 
@@ -69,7 +70,7 @@ class TestAllOperations(BaseTest):
         assert caplog.record_tuples[3] == (
             "root",
             logging.INFO,
-            f"Creating pdf page images for '{pdf_path}'.",
+            f"Creating pdf page images for cache id '{pdf_path.parts[-2]}'.",
         )
         assert len(caplog.record_tuples) == 4
 
@@ -87,13 +88,13 @@ class TestAllOperations(BaseTest):
         assert caplog.record_tuples[4] == (
             "root",
             logging.INFO,
-            f"Creating threshold image for '{image_path[0]}'.",
+            f"Creating threshold image for '{image_path[0].parts[-2]}' '{image_path[0].name}'.",
         )
         assert len(caplog.record_tuples) == 5
 
         # ocr recognise
         recognise = RecogniseOperation(logger, base_path)
-        a_path, p_path = recognise.run(file_hash, page, threshold)
+        a_path, p_path = recognise.run(file_hash, page, threshold, OcrWrapper())
 
         assert a_path == base_path / hash_dir / "pdf-page-000001-ocr-th-190.png"
         assert p_path == base_path / hash_dir / "pdf-page-000001-text-th-190.csv"

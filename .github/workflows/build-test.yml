@@ -36,9 +36,8 @@ jobs:
           pip install --upgrade --upgrade-strategy eager pip
           pip install --upgrade --upgrade-strategy eager setuptools wheel
           pip install -r requirements.txt
-          pip install --upgrade --use-feature=in-tree-build --quiet .
+          pip install --upgrade --quiet .
 
-      # generate coverage.svg by running tests with coverage, then 'poetry run coverage-badge -o coverage.svg'
       - name: Test with pytest
         run: |
           coverage run -m pytest -m 'not slow and not needs_exe'

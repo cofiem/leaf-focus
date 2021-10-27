@@ -1,0 +1,45 @@
+version: 1
+incremental: false
+disable_existing_loggers: true
+formatters:
+  generic:
+    datefmt: '%Y-%m-%d %H:%M:%S%z'
+    format: '%(asctime)s [%(levelname)-8s] %(name)s: %(message)s'
+    validate: true
+filters: {}
+handlers:
+  console:
+    class: 'logging.StreamHandler'
+    formatter: 'generic'
+    level: 'INFO'
+    filters: []
+    stream: 'ext://sys.stdout'
+loggers:
+  hpack:
+    level: 'ERROR'
+    handlers: ['console']
+  scrapy:
+    level: 'INFO'
+    handlers: ['console']
+  twisted:
+    level: 'ERROR'
+    handlers: ['console']
+  tornado:
+    level: 'ERROR'
+    handlers: ['console']
+  prefect:
+    level: 'INFO'
+    handlers: ['console']
+  requests:
+    level: 'ERROR'
+    handlers: ['console']
+  urllib3:
+    level: 'ERROR'
+    handlers: ['console']
+  pyasn1:
+    level: 'INFO'
+    handlers: ['console']
+
+root:
+  level: 'INFO'
+  handlers: ['console']

@@ -3,6 +3,8 @@ from pathlib import Path
 
 import click
 
+from leaf_focus.ocr.recognise.ocr_wrapper import OcrWrapper
+
 
 def validate_threshold(ctx, param, value):
     if 0 <= value <= 255:
@@ -92,6 +94,6 @@ def ocr_recognise(image_file: Path, annotation_file: Path, predictions_file: Pat
 
     logger = logging.getLogger()
     c = Component(logger)
-    c.recognise_text(image_file, annotation_file, predictions_file)
+    c.recognise_text(image_file, annotation_file, predictions_file, OcrWrapper())
 
     click.secho("Finished ocr recognise.", bold=True)

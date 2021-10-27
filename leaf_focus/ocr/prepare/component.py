@@ -22,10 +22,16 @@ class Component:
             raise ValueError(f"Threshold must between 0 and 255, not {threshold}.")
 
         if output_file.exists():
-            self._logger.debug(f"Prepared image already exists for '{input_file}'.")
+            self._logger.debug(
+                "Prepared image already exists for "
+                f"'{input_file.parts[-2]}' '{input_file.name}'."
+            )
             return
 
-        self._logger.info(f"Creating threshold image for '{input_file}'.")
+        self._logger.info(
+            "Creating threshold image for "
+            f"'{input_file.parts[-2]}' '{input_file.name}'."
+        )
 
         img = Image.open(input_file)
 

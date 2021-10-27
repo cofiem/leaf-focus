@@ -2,6 +2,7 @@ from logging import Logger
 from pathlib import Path
 
 from leaf_focus.ocr.recognise.component import Component
+from leaf_focus.ocr.recognise.ocr_wrapper import OcrWrapper
 from leaf_focus.support.location import Location
 
 
@@ -14,7 +15,7 @@ class Operation:
         self._location = Location(logger)
         self._component = Component(logger)
 
-    def run(self, file_hash: str, page: int, threshold: int):
+    def run(self, file_hash: str, page: int, threshold: int, ocr_wrapper: OcrWrapper):
         """Run the operation."""
 
         # crate output directory
@@ -25,7 +26,9 @@ class Operation:
         predictions_file = loc.pdf_page_text_file(bd, file_hash, page, threshold)
 
         # create annotation file and predictions file
-        self._component.recognise_text(input_file, annotation_file, predictions_file)
+        self._component.recognise_text(
+            input_file, annotation_file, predictions_file, ocr_wrapper
+        )
 
         # result
         return annotation_file, predictions_file
