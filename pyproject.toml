@@ -34,7 +34,6 @@ pytz = "^2021.1"
 prefect = {extras = ["viz"], version = "^0.15.6"}
 click = "^7.0"
 colorama = "^0.4.4"
-pywin32 = ">=301"
 bokeh = "^2.3.0"
 numpy = "^1.19.0"
 scipy = "^1.7.1"
