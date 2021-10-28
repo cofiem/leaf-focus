@@ -133,3 +133,5 @@ dmypy.json
 .idea/
 
 .temp/
+
+dask-worker-space/

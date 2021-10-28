@@ -1,72 +1,168 @@
 # leaf-focus
 
-Extract text from pdf files.
+Extract structured text from pdf files.
+
+Dealing with pdf files that are scans of pages or don't contain machine-readable text can be difficult.
+
+This package is a command line program that helps to extract text from these kinds of pdf files.
+
+It is a best-effort approach, so be aware that any text extracted may be incorrect.
+
+There are four stages:
+
+- download pdfs
+- extract pdf information
+- run optical character recognition (OCR) on the pdf pages
+- generate a report in csv format
+
+
+[![Build and Test](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml/badge.svg)](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml)
+
+
+## Command line
 
 ```
 $ leaf-focus
 Usage: leaf-focus [OPTIONS] COMMAND [ARGS]...
 
-  Extract text from pdf files.
+  Extract structured text from pdf files.
 
 Options:
   --version  Show the version and exit.
   --help     Show this message and exit.
 
 Commands:
-  download  Find and download pdfs.
-  ocr       Run Optical Character Recogition.
-  pdf       Extract information from pdf files.
-  pipeline  Run or view the pipeline of tasks.
-  report    Create a report.
+  download   Find and download pdfs.
+  ocr        Run Optical Character Recognition.
+  pdf        Extract information and text from pdf files.
+  report     Create a report.
+  visualise  Visualise all the stages that are run using a pipeline.
 ```
 
-[![Build and Test](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml/badge.svg)](https://github.com/cofiem/leaf-focus/actions/workflows/build-test.yml)
+Add `--help` to any command to see the help for that command.
+
+For example, `leaf-focus download --help`.
+
 
 ## Overview
 
-Dealing with pdf files that are scans of pages or don't contain machine-readable text can be tough.
-This package is a command line program that helps to extract text from these kinds of pdf files.
+To begin, run the four stages in order: `download`, `pdf`, `ocr`, `report`.
 
-It is a best-effort approach, so be aware that any text extracted may be incorrect.
+The inputs are pdf files, urls, and xpdf program.
 
-There are three main stages - downloading, pdf processing, and producing a report.
+The outputs are the extracted pdf information, text form the pdfs, and csv report files.
+
+Each stage can work with partial results from the previous stage.
+This helps with checking the output and processing, so changes can be made without waiting for all the stages
+to complete.
 
 - The downloading stage makes the pdf files available to the pdf processing stage.
-- The pdf processing stage tries to extract text from the pdfs.
-  It has sub-steps that can be run as a pipeline or separately.
+- The pdf processing stage tries to extract information and metadata about the pdfs.
+- The ocr stage extracts the text from pdf page images to characters in a plain text file.
 - The report stage makes use of the text extracted from the pdf file to build a report specific to the 
   format of the pdf content.
 
-Each stage can work with partial results from the previous stage.
-This helps with checking the output and processing, so changes can be made without waiting for all the stages 
-to complete.
-
-The essential inputs are pdf files and a definition of the pdf content,
-to be able to extract data that can be used to build a report.
 
 ## Install
 
-(todo)
+Download and install [Python 3.9](https://www.python.org/downloads/).
+
+Create a folder to store this program, the pdf files, images, and report.
+
+For example, `C:\Users\myname\leaf-focus`.
+
+Create a virtual environment: 
+
+```bash
+python -m venv "C:\Users\myname\leaf-focus\venv"
+```
+
+Install this program:
+
+```bash
+"C:\Users\myname\leaf-focus\venv\Scripts\python.exe" -m pip install -U pip
+"C:\Users\myname\leaf-focus\venv\Scripts\pip.exe" install -U setuptools wheel
+"C:\Users\myname\leaf-focus\venv\Scripts\pip.exe" install -U leaf-focus
+```
+
+Run commands using the virtual environment:
+
+```bash
+"C:\Users\myname\leaf-focus\venv\Scripts\leaf-focus.exe" --help
+```
+
+Download the [xpdf tools](https://www.xpdfreader.com/download.html).
+
+Put the files into a folder in the folder you created earlier.
+
+For example, `C:\Users\myname\leaf-focus\xpdf`.
+
+
+## Configure
+
+Create a configuration file to let the program know where to find the folders
+and xpdf tools.
+
+For example, `C:\Users\myname\leaf-focus\config.yml`.
+
+```yaml
+directories:
+  feed: "C:\Users\myname\leaf-focus\feed"
+  cache: "C:\Users\myname\leaf-focus\cache"
+  processing: "C:\Users\myname\leaf-focus\processing"
+xpdf:
+  info: "C:\Users\myname\leaf-focus\xpdf\bin64\pdfinfo.exe"
+  text: "C:\Users\myname\leaf-focus\xpdf\bin64\pdftotext.exe"
+  image: "C:\Users\myname\leaf-focus\xpdf\bin64\pdftopng.exe"
+settings:
+  prepared_threshold: 190
+```
+
 
 ## Find and download pdfs.
 
-(todo)
+Run the command to find and download the pdf files.
 
-## Extract information from pdf files.
+This stage might take a while.
 
-(todo)
+For example, using the provided config file:
 
-## Run Optical Character Recogition.
+- 3 to 4 hours for an initial run with no cache
+- about an hour with an existing cache
 
-(todo)
+```bash
+leaf-focus download --config-file "C:\Users\myname\leaf-focus\config.yml"
+```
 
-## Run a pipeline of tasks.
 
-(todo)
+## Extract information and text from pdf files.
+
+Run the command to extract information and text from pdf files.
+
+This stage can be run using a collection of pdf files or a single pdf file.
+
+For example, using the same directories from the download stage:
+
+```bash
+leaf-focus pdf all --config-file "C:\Users\myname\leaf-focus\config.yml"
+
+```
+
+
+## Run Optical Character Recognition.
+
+Run the commands to prepare the images for OCR, and then run the OCR.
+
+```bash
+leaf-focus ocr prepare-many --config-file "C:\Users\myname\leaf-focus\config.yml"
+leaf-focus ocr recognise-many --config-file "C:\Users\myname\leaf-focus\config.yml"
+```
+
 
 ## Create a report.
 
 (todo)
+
 
 ## Dependencies
 

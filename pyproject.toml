@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "leaf-focus"
 version = "0.4.0"
-description = "Extract text from pdf files."
+description = "Extract structured text from pdf files."
 license = "MIT"
 authors = ["Mark <cofiem@gmail.com>"]
 readme = "README.md"

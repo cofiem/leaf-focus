@@ -5,13 +5,11 @@ from prefect.executors import DaskExecutor
 
 from leaf_focus.download.crawl.prefect_task import DownloadCrawlTask
 from leaf_focus.ocr.prepare.prefect_task import OcrPrepareTask
-from leaf_focus.ocr.recognise.prefect_task import OcrRecogniseTask
 from leaf_focus.pdf.identify.prefect_task import PdfIdentifyTask
 from leaf_focus.pdf.images.prefect_task import PdfImagesLoadTask
 from leaf_focus.pdf.images.prefect_task import PdfImagesTask
 from leaf_focus.pdf.info.prefect_task import PdfInfoTask
 from leaf_focus.pdf.text.prefect_task import PdfTextTask
-from leaf_focus.pipeline.prefect_flow.ocr_resource import OcrResource
 
 
 class Construct:
@@ -28,34 +26,34 @@ class Construct:
             feed_dir = Parameter("feed_dir")
             threshold = Parameter("threshold")
 
-            with OcrResource() as ocr_resource:
-                download_task = DownloadCrawlTask()
-                download_items = download_task(feed_dir)
+            download_task = DownloadCrawlTask()
+            download_items = download_task(feed_dir)
 
-                pdf_identify_task = PdfIdentifyTask(base_dir)
-                pdf_identify_items = pdf_identify_task.map(download_items)
+            pdf_identify_task = PdfIdentifyTask(base_dir)
+            pdf_identify_items = pdf_identify_task.map(download_items)
 
-                pdf_info_task = PdfInfoTask(base_dir, pdf_info_exe)
-                pdf_info_task.map(pdf_identify_items)
+            pdf_info_task = PdfInfoTask(base_dir, pdf_info_exe)
+            pdf_info_task.map(pdf_identify_items)
 
-                pdf_text_task = PdfTextTask(base_dir, pdf_text_exe)
-                pdf_text_task.map(pdf_identify_items)
+            pdf_text_task = PdfTextTask(base_dir, pdf_text_exe)
+            pdf_text_task.map(pdf_identify_items)
 
-                pdf_images_task = PdfImagesTask(base_dir, pdf_image_exe)
-                pdf_image_items = pdf_images_task.map(pdf_identify_items)
+            pdf_images_task = PdfImagesTask(base_dir, pdf_image_exe)
+            pdf_image_items = pdf_images_task.map(pdf_identify_items)
 
-                ocr_prepare_task = OcrPrepareTask(base_dir)
-                ocr_prepare_items = ocr_prepare_task.map(
-                    input_item=flatten(pdf_image_items),
-                    threshold=unmapped(threshold),
-                )
+            ocr_prepare_task = OcrPrepareTask(base_dir)
+            ocr_prepare_task.map(
+                input_item=flatten(pdf_image_items),
+                threshold=unmapped(threshold),
+            )
 
-                ocr_recognise_task = OcrRecogniseTask(base_dir)
-                ocr_recognise_task.map(
-                    input_item=flatten(ocr_prepare_items),
-                    threshold=unmapped(threshold),
-                    ocr_wrapper=ocr_resource,
-                )
+            # NOTE: Cannot run OCR as part of the Prefect flow.
+            # ocr_recognise_task = OcrRecogniseTask(base_dir)
+            # ocr_recognise_task.map(
+            #     input_item=flatten(ocr_prepare_items),
+            #     threshold=unmapped(threshold),
+            #     ocr_wrapper=ocr_resource,
+            # )
 
         return flow
 
@@ -93,23 +91,23 @@ class Construct:
 
         with Flow("leaf-focus") as flow:
             threshold = Parameter("threshold")
-            with OcrResource() as ocr_resource:
 
-                pcf_image_task = PdfImagesLoadTask(base_dir)
-                pdf_image_items = pcf_image_task()
+            pcf_image_task = PdfImagesLoadTask(base_dir)
+            pdf_image_items = pcf_image_task()
 
-                ocr_prepare_task = OcrPrepareTask(base_dir)
-                ocr_prepare_items = ocr_prepare_task.map(
-                    input_item=pdf_image_items,
-                    threshold=unmapped(threshold),
-                )
+            ocr_prepare_task = OcrPrepareTask(base_dir)
+            ocr_prepare_task.map(
+                input_item=pdf_image_items,
+                threshold=unmapped(threshold),
+            )
 
-                ocr_recognise_task = OcrRecogniseTask(base_dir)
-                ocr_recognise_task.map(
-                    input_item=ocr_prepare_items,
-                    threshold=unmapped(threshold),
-                    ocr_wrapper=ocr_resource,
-                )
+            # NOTE: Cannot run OCR as part of the Prefect flow.
+            # ocr_recognise_task = OcrRecogniseTask(base_dir)
+            # ocr_recognise_task.map(
+            #     input_item=ocr_prepare_items,
+            #     threshold=unmapped(threshold),
+            #     ocr_wrapper=ocr_resource,
+            # )
 
         return flow
 

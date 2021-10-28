@@ -3,10 +3,12 @@ from pathlib import Path
 
 import click
 
+from leaf_focus.pipeline.prefect_flow.construct import Construct
+
 
 @click.group()
 def pdf():
-    """Extract information from pdf files."""
+    """Extract information and text from pdf files."""
     pass
 
 
@@ -157,3 +159,74 @@ def pdf_images(exe_file: Path, input_file: Path, output_prefix: Path):
         f"There are {len(result)} images created from the pdf pages.", fg="bright_blue"
     )
     click.secho("Finished pdf images.", bold=True)
+
+
+@pdf.command(name="all")
+@click.option(
+    "-f",
+    "--feed-dir",
+    "feed_dir",
+    required=True,
+    type=Path,
+    help="Path to the feed output directory.",
+)
+@click.option(
+    "-b",
+    "--processing-dir",
+    "processing_dir",
+    required=True,
+    type=Path,
+    help="Path to the processing directory.",
+)
+@click.option(
+    "--info-exe",
+    "pdf_info_exe",
+    required=True,
+    type=Path,
+    help="Path to the xpdf pdfinfo executable.",
+)
+@click.option(
+    "--text-exe",
+    "pdf_text_exe",
+    required=True,
+    type=Path,
+    help="Path to the xpdf pdftotext executable.",
+)
+@click.option(
+    "--image-exe",
+    "pdf_image_exe",
+    required=True,
+    type=Path,
+    help="Path to the xpdf pdftopng executable.",
+)
+def pdf_all(
+    feed_dir: Path,
+    processing_dir: Path,
+    pdf_info_exe: Path,
+    pdf_text_exe: Path,
+    pdf_image_exe: Path,
+):
+    """Run all the pdf steps using multiple pdf files."""
+    click.secho("Starting pdf all.", bold=True)
+
+    logger = logging.getLogger()
+
+    log_data = {
+        "feed_dir": str(feed_dir),
+        "base_dir": str(processing_dir),
+        "pdf_info_exe": str(pdf_info_exe),
+        "pdf_text_exe": str(pdf_text_exe),
+        "pdf_image_exe": str(pdf_image_exe),
+    }
+    log_msg = ", ".join([f"{k}={v}" for k, v in log_data.items()])
+    logger.info(f"Running all using {log_msg}.")
+
+    c = Construct()
+    c.run_pdf(
+        feed_dir=feed_dir,
+        base_dir=processing_dir,
+        pdf_info_exe=pdf_info_exe,
+        pdf_text_exe=pdf_text_exe,
+        pdf_image_exe=pdf_image_exe,
+    )
+    click.secho("Finished pdf all.", bold=True)
