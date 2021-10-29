@@ -105,6 +105,10 @@ and xpdf tools.
 
 For example, `C:\Users\myname\leaf-focus\config.yml`.
 
+An example partial config file is available in this git repository at `leaf_focus\resources\example.yml`.
+This example contains `allowed_domains` and `urls`.
+Copy these to your file and fill in the remaining configuration.
+
 ```yaml
 directories:
   feed: "C:\Users\myname\leaf-focus\feed"
@@ -115,7 +119,16 @@ xpdf:
   text: "C:\Users\myname\leaf-focus\xpdf\bin64\pdftotext.exe"
   image: "C:\Users\myname\leaf-focus\xpdf\bin64\pdftopng.exe"
 settings:
-  prepared_threshold: 190
+  imagethreshold: 190
+allowed_domains:
+  - "<domain>"
+urls:
+  - category: "members"
+    url: "<url to page containing links to pdfs>"
+    comment: ""
+  - category: "senators"
+    url: "<url to page containing links to pdfs>"
+    comment: ""
 ```
 
 
@@ -125,7 +138,7 @@ Run the command to find and download the pdf files.
 
 This stage might take a while.
 
-For example, using the provided config file:
+For example, using the example config file:
 
 - 3 to 4 hours for an initial run with no cache
 - about an hour with an existing cache

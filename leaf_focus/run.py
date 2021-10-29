@@ -1,6 +1,3 @@
-import functools
-from pathlib import Path
-
 import click
 
 from leaf_focus.download.command import download
@@ -9,24 +6,6 @@ from leaf_focus.pdf.command import pdf
 from leaf_focus.pipeline.command import pipeline_visualise
 from leaf_focus.report.command import report
 from leaf_focus.support.log_config import configure_leaf_focus_logging
-
-
-def base_dir_decorator(func):
-    """Base directory option."""
-
-    @click.option(
-        "-b",
-        "--base-dir",
-        "base_dir",
-        required=True,
-        type=Path,
-        help="Directory to store files.",
-    )
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        func(*args, **kwargs)
-
-    return wrapper
 
 
 @click.group()

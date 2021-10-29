@@ -48,6 +48,8 @@ class Construct:
             )
 
             # NOTE: Cannot run OCR as part of the Prefect flow.
+            #       This is because tensorflow does not
+            #       integrate very well into the Prefect Flow.
             # ocr_recognise_task = OcrRecogniseTask(base_dir)
             # ocr_recognise_task.map(
             #     input_item=flatten(ocr_prepare_items),

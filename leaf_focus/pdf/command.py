@@ -4,6 +4,7 @@ from pathlib import Path
 import click
 
 from leaf_focus.pipeline.prefect_flow.construct import Construct
+from leaf_focus.support.config import Config
 
 
 @click.group()
@@ -163,70 +164,39 @@ def pdf_images(exe_file: Path, input_file: Path, output_prefix: Path):
 
 @pdf.command(name="all")
 @click.option(
-    "-f",
-    "--feed-dir",
-    "feed_dir",
-    required=True,
+    "-c",
+    "--config-file",
+    "config_file",
     type=Path,
-    help="Path to the feed output directory.",
+    help="Path to the config file.",
 )
-@click.option(
-    "-b",
-    "--processing-dir",
-    "processing_dir",
-    required=True,
-    type=Path,
-    help="Path to the processing directory.",
-)
-@click.option(
-    "--info-exe",
-    "pdf_info_exe",
-    required=True,
-    type=Path,
-    help="Path to the xpdf pdfinfo executable.",
-)
-@click.option(
-    "--text-exe",
-    "pdf_text_exe",
-    required=True,
-    type=Path,
-    help="Path to the xpdf pdftotext executable.",
-)
-@click.option(
-    "--image-exe",
-    "pdf_image_exe",
-    required=True,
-    type=Path,
-    help="Path to the xpdf pdftopng executable.",
-)
-def pdf_all(
-    feed_dir: Path,
-    processing_dir: Path,
-    pdf_info_exe: Path,
-    pdf_text_exe: Path,
-    pdf_image_exe: Path,
-):
+def pdf_all(config_file: Path):
     """Run all the pdf steps using multiple pdf files."""
+
+    if not config_file:
+        raise click.UsageError("Must provide config file.")
+
     click.secho("Starting pdf all.", bold=True)
 
+    config = Config.load(config_file)
     logger = logging.getLogger()
 
     log_data = {
-        "feed_dir": str(feed_dir),
-        "base_dir": str(processing_dir),
-        "pdf_info_exe": str(pdf_info_exe),
-        "pdf_text_exe": str(pdf_text_exe),
-        "pdf_image_exe": str(pdf_image_exe),
+        "feed_dir": str(config.feed_dir),
+        "base_dir": str(config.processing_dir),
+        "pdf_info_exe": str(config.pdf_info_exe),
+        "pdf_text_exe": str(config.pdf_text_exe),
+        "pdf_image_exe": str(config.pdf_image_exe),
     }
     log_msg = ", ".join([f"{k}={v}" for k, v in log_data.items()])
     logger.info(f"Running all using {log_msg}.")
 
     c = Construct()
     c.run_pdf(
-        feed_dir=feed_dir,
-        base_dir=processing_dir,
-        pdf_info_exe=pdf_info_exe,
-        pdf_text_exe=pdf_text_exe,
-        pdf_image_exe=pdf_image_exe,
+        feed_dir=config.feed_dir,
+        base_dir=config.processing_dir,
+        pdf_info_exe=config.pdf_info_exe,
+        pdf_text_exe=config.pdf_text_exe,
+        pdf_image_exe=config.pdf_image_exe,
     )
     click.secho("Finished pdf all.", bold=True)

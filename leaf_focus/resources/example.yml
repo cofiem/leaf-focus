@@ -1,0 +1,63 @@
+allowed_domains:
+  - "aph.gov.au"
+
+urls:
+  - category: "members"
+    url: "https://www.aph.gov.au/Senators_and_Members/Members/Register"
+    comment: "current 46th"
+
+  - category: "members"
+    url: "https://www.aph.gov.au/Senators_and_Members/Members/Register/Previous_Parliaments/45P_Members_Interest_Statements"
+    comment: "previous by parliment"
+
+  - category: "members"
+    url: "https://www.aph.gov.au/Senators_and_Members/Members/Register/Previous_Parliaments/44P_Members_Interest_Statements"
+    comment: "previous by parliment"
+
+  - category: "members"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/House_of_Representatives_Committees?url=pmi/declarations.htm"
+    comment: "previous by parliment"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Register46thparl"
+    comment: "current 46th"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Register45thparl"
+    comment: "previous 45th"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Register44thparl"
+    comment: "previous 44th"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Volumes_Tabled"
+    comment: "previous by year range"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Volumes_Tabled/2008-10"
+    comment: "previous by year range"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Volumes_Tabled/2004-07"
+    comment: "previous by year range"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Volumes_Tabled/2004-07"
+    comment: "previous by year range"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Volumes_Tabled/2002-04"
+    comment: "previous by year range"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Volumes_Tabled/1998-02"
+    comment: "previous by year range"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Volumes_Tabled/1996-98"
+    comment: "previous by year range"
+
+  - category: "senators"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Committees/Senate/Senators_Interests/Volumes_Tabled/pre1996"
+    comment: "previous by year range"

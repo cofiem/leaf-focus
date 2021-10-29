@@ -3,8 +3,8 @@ from pathlib import Path
 
 import click
 
-from leaf_focus.ocr.recognise.ocr_wrapper import OcrWrapper
 from leaf_focus.pipeline.prefect_flow.construct import Construct
+from leaf_focus.support.config import Config
 
 
 def validate_threshold(ctx, param, value):
@@ -63,28 +63,26 @@ def ocr_prepare(input_file: Path, output_file: Path, threshold: int):
 
 @ocr.command(name="prepare-many")
 @click.option(
-    "-b",
-    "--processing-dir",
-    "processing_dir",
-    required=True,
+    "-c",
+    "--config-file",
+    "config_file",
     type=Path,
-    help="Path to the processing directory.",
+    help="Path to a config file containing domains and urls.",
 )
-@click.option(
-    "-t",
-    "--threshold",
-    "threshold",
-    type=int,
-    default=190,
-    callback=validate_threshold,
-    help="The threshold to use for the prepared image file. Default is 190.",
-)
-def ocr_prepare_many(processing_dir: Path, threshold: int):
+def ocr_prepare_many(config_file: Path):
     """Prepare multiple images for OCR."""
+
+    if not config_file:
+        raise click.UsageError("Must provide config file.")
+
     click.secho("Starting ocr prepare many.", bold=True)
 
+    config = Config.load(config_file)
+    processing_dir = config.processing_dir
+    threshold = config.prepare_image_threshold
+
     logger = logging.getLogger()
-    log_data = {"base_dir": str(processing_dir), "threshold": str(threshold)}
+    log_data = {"base_dir": str(processing_dir), "threshold": threshold}
     log_msg = ", ".join([f"{k}={v}" for k, v in log_data.items()])
     logger.info(f"Running ocr prepare many using {log_msg}.")
 
@@ -127,20 +125,35 @@ def ocr_recognise(image_file: Path, annotation_file: Path, predictions_file: Pat
 
     logger = logging.getLogger()
     c = Component(logger)
-    c.recognise_text(image_file, annotation_file, predictions_file, OcrWrapper())
+    c.recognise_text(image_file, annotation_file, predictions_file)
 
     click.secho("Finished ocr recognise.", bold=True)
 
 
 @ocr.command(name="recognise-many")
 @click.option(
-    "-b",
-    "--processing-dir",
-    "processing_dir",
-    required=True,
+    "-c",
+    "--config-file",
+    "config_file",
     type=Path,
-    help="Path to the processing directory.",
+    help="Path to the config file.",
 )
-def ocr_recognise_many(processing_dir: Path):
+def ocr_recognise_many(config_file: Path):
     """Recognise the text in multiple images."""
+
+    if not config_file:
+        raise click.UsageError("Must provide config file.")
+
+    from leaf_focus.ocr.recognise.operation import Operation
+
+    click.secho("Starting ocr recognise many.", bold=True)
+
+    config = Config.load(config_file)
+    logger = logging.getLogger()
+    o = Operation(logger, config.processing_dir)
+
+    o.run_many()
+
+    click.secho("Finished ocr recognise many.", bold=True)
+
     raise NotImplementedError()

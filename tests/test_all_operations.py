@@ -3,11 +3,9 @@ import pytest
 from pathlib import Path
 
 from leaf_focus.ocr.prepare.operation import Operation as PrepareOperation
-from leaf_focus.ocr.recognise.ocr_wrapper import OcrWrapper
 from leaf_focus.ocr.recognise.operation import Operation as RecogniseOperation
 from leaf_focus.pdf.identify.item import Item as IdentifyItem
 from leaf_focus.pdf.identify.operation import Operation as IdentifyOperation
-from leaf_focus.pdf.images.item import Item as ImageItem
 from leaf_focus.pdf.images.operation import Operation as ImageOperation
 from leaf_focus.pdf.info.operation import Operation as InfoOperation
 from leaf_focus.pdf.text.operation import Operation as TextOperation
@@ -94,7 +92,7 @@ class TestAllOperations(BaseTest):
 
         # ocr recognise
         recognise = RecogniseOperation(logger, base_path)
-        a_path, p_path = recognise.run(file_hash, page, threshold, OcrWrapper())
+        a_path, p_path = recognise.run(file_hash, page, threshold)
 
         assert a_path == base_path / hash_dir / "pdf-page-000001-ocr-th-190.png"
         assert p_path == base_path / hash_dir / "pdf-page-000001-text-th-190.csv"

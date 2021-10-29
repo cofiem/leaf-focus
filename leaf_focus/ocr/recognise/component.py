@@ -1,11 +1,11 @@
+import os
 from logging import Logger
 from pathlib import Path
-from typing import Any, Optional, Iterable, List, Tuple
+from typing import Any, Optional, Iterable
 
 import numpy as np
 
 from leaf_focus.ocr.recognise.item import Item as TextItem
-from leaf_focus.ocr.recognise.ocr_wrapper import OcrWrapper
 
 
 class Component:
@@ -13,13 +13,31 @@ class Component:
 
     def __init__(self, logger: Logger):
         self._logger = logger
+        self._pipeline = None
+
+        self._construct_pipeline()
+
+    def _construct_pipeline(self):
+        if self._pipeline is None:
+            # set TF_CPP_MIN_LOG_LEVEL before importing tensorflow
+            os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
+            import tensorflow as tf
+
+            tf.get_logger().setLevel("WARNING")
+
+            import keras_ocr
+
+            # see: https://github.com/faustomorales/keras-ocr
+            # keras-ocr will automatically download pretrained
+            # weights for the detector and recognizer.
+            self._pipeline = keras_ocr.pipeline.Pipeline()
 
     def recognise_text(
         self,
         image_file: Path,
         annotation_file: Path,
         predictions_file: Path,
-        ocr_wrapper: OcrWrapper,
     ) -> None:
         """Recognise the text in an image and save the text and image annotations."""
 
@@ -47,7 +65,7 @@ class Component:
 
         # Each list of predictions in prediction_groups is a list of
         # (word, box) tuples.
-        prediction_groups = ocr_wrapper.pipeline.recognize(images)
+        prediction_groups = self._pipeline.recognize(images)
 
         # Plot the predictions
         for image, predictions in zip(images, prediction_groups):
@@ -59,7 +77,7 @@ class Component:
         self,
         annotation_file: Path,
         image: Optional[np.ndarray],
-        predictions: List[Tuple[Any, Any]],
+        predictions: list[tuple[Any, Any]],
     ):
         """Save the annotated image."""
 
@@ -84,7 +102,7 @@ class Component:
         fig.savefig(str(annotation_file))
         plt.close(fig)
 
-    def convert_predictions(self, predictions: List[Tuple[Any, Any]]):
+    def convert_predictions(self, predictions: list[tuple[Any, Any]]):
         """Convert predictions to items."""
         if not predictions:
             raise ValueError("Must supply predictions data.")

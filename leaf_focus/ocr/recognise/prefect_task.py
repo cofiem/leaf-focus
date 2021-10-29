@@ -2,7 +2,6 @@ from pathlib import Path
 
 from prefect import Task
 
-from leaf_focus.ocr.recognise.ocr_wrapper import OcrWrapper
 from leaf_focus.ocr.recognise.operation import Operation
 
 
@@ -15,12 +14,10 @@ class OcrRecogniseTask(Task):
         self._operation = Operation(self.logger, base_path)
 
     # noinspection PyMethodOverriding
-    def run(
-        self, input_item: tuple[str, int], threshold: int, ocr_wrapper: OcrWrapper
-    ) -> tuple[Path, Path]:
+    def run(self, input_item: tuple[str, int], threshold: int) -> tuple[Path, Path]:
         """Run the task."""
         file_hash, page = input_item
         annotation_path, predictions_path = self._operation.run(
-            file_hash, page, threshold, ocr_wrapper
+            file_hash, page, threshold
         )
         return annotation_path, predictions_path
