@@ -31,9 +31,11 @@ class Component:
         if not text_path.parent.exists():
             text_path.parent.mkdir(exist_ok=True, parents=True)
 
+        # uses -table instead of -layout because there are a few tables
+        # the -table setting preserves the table structure better than -layout
         commands = [
             str(self._exe_file),
-            "-layout",
+            "-table",
             "-enc",
             "UTF-8",
             "-eol",
@@ -50,7 +52,8 @@ class Component:
             self._logger.error(f"Could not create pdf text: {repr(result)}")
             raise ValueError(result)
 
-    def read(self, path: Path):
+    @classmethod
+    def read(cls, path: Path):
         result = []
         with open(path, "rt", encoding="utf-8") as f:
             # read the whole file

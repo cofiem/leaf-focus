@@ -111,13 +111,14 @@ Copy these to your file and fill in the remaining configuration.
 
 ```yaml
 directories:
-  feed: "C:\Users\myname\leaf-focus\feed"
-  cache: "C:\Users\myname\leaf-focus\cache"
-  processing: "C:\Users\myname\leaf-focus\processing"
+  feed: 'C:\Users\myname\leaf-focus\feed'
+  cache: 'C:\Users\myname\leaf-focus\cache'
+  processing: 'C:\Users\myname\leaf-focus\processing'
+  report: 'C:\Users\myname\leaf-focus\report'
 xpdf:
-  info: "C:\Users\myname\leaf-focus\xpdf\bin64\pdfinfo.exe"
-  text: "C:\Users\myname\leaf-focus\xpdf\bin64\pdftotext.exe"
-  image: "C:\Users\myname\leaf-focus\xpdf\bin64\pdftopng.exe"
+  info: 'C:\Users\myname\leaf-focus\xpdf\bin64\pdfinfo.exe'
+  text: 'C:\Users\myname\leaf-focus\xpdf\bin64\pdftotext.exe'
+  image: 'C:\Users\myname\leaf-focus\xpdf\bin64\pdftopng.exe'
 settings:
   imagethreshold: 190
 allowed_domains:

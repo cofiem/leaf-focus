@@ -6,7 +6,6 @@ from typing import Optional, Iterable
 from leaf_focus.download.crawl.item import Item as CrawlItem
 from leaf_focus.pdf.identify.item import Item as PdfIdentifyItem
 from leaf_focus.pdf.info.item import Item as PdfInfoItem
-from leaf_focus.report.output.item import Item as ReportItem
 from leaf_focus.report.input.dates import Dates
 from leaf_focus.report.input.page import Page
 from leaf_focus.report.input.text import Text
@@ -28,32 +27,6 @@ class Document:
 
     pages: list[Page] = field(default_factory=list)
     """The pages in this document."""
-
-    def parse(self) -> Iterable[ReportItem]:
-        # TODO: parse documents into report items
-        doc = ReportItem(
-            pdf_path=self.pdf_path,
-            pdf_hash_type=self.pdf_hash_type,
-            pdf_hash_value=self.pdf_hash_value,
-            pdf_created_date=self.pdf_created_date,
-            pdf_modified_date=self.pdf_modified_date,
-            pdf_downloaded_date=self.pdf_downloaded_date,
-            website_modified_date=self.website_modified_date,
-            pdf_url=self.pdf_url,
-            referrer_url=self.referrer_url,
-            pdf_source=None,
-            processed_date=None,
-            signed_date=None,
-            assembly=None,
-            last_name=None,
-            first_name=None,
-            state_or_territory=None,
-            electorate=None,
-            register_section=None,
-            change_type=None,
-            form_who=None,
-        )
-        yield doc
 
     @classmethod
     def load(cls, processing_dir: Path, feed_dir: Path) -> Iterable["Document"]:
@@ -126,5 +99,8 @@ class Document:
                 referrer_url=referrer_url,
             )
             pages = Page.load(pdf_processing, doc)
-            doc.pages = pages
+            doc.pages = list(pages)
             yield doc
+
+    def __str__(self):
+        return f"document with {len(self.pages)} pages from {self.pdf_url}"

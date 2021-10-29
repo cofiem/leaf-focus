@@ -184,9 +184,9 @@ def pdf_all(config_file: Path):
     log_data = {
         "feed_dir": str(config.feed_dir),
         "base_dir": str(config.processing_dir),
-        "pdf_info_exe": str(config.pdf_info_exe),
-        "pdf_text_exe": str(config.pdf_text_exe),
-        "pdf_image_exe": str(config.pdf_image_exe),
+        "pdf_info_exe": str(config.pdf_info),
+        "pdf_text_exe": str(config.pdf_text),
+        "pdf_image_exe": str(config.pdf_image),
     }
     log_msg = ", ".join([f"{k}={v}" for k, v in log_data.items()])
     logger.info(f"Running all using {log_msg}.")
@@ -195,8 +195,8 @@ def pdf_all(config_file: Path):
     c.run_pdf(
         feed_dir=config.feed_dir,
         base_dir=config.processing_dir,
-        pdf_info_exe=config.pdf_info_exe,
-        pdf_text_exe=config.pdf_text_exe,
-        pdf_image_exe=config.pdf_image_exe,
+        pdf_info_exe=config.pdf_info,
+        pdf_text_exe=config.pdf_text,
+        pdf_image_exe=config.pdf_image,
     )
     click.secho("Finished pdf all.", bold=True)
