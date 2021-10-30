@@ -25,8 +25,14 @@ class Document:
     pdf_url: str
     referrer_url: Optional[str]
 
+    assembly: str
+
     pages: list[Page] = field(default_factory=list)
     """The pages in this document."""
+
+    @property
+    def short_hash(self):
+        return self.pdf_hash_value[0:15]
 
     @classmethod
     def load(cls, processing_dir: Path, feed_dir: Path) -> Iterable["Document"]:
@@ -82,10 +88,12 @@ class Document:
                 website_modified_date = text.norm_text(pdf_feed.last_updated)
                 pdf_url = pdf_feed.url
                 referrer_url = pdf_feed.referrer
+                assembly = pdf_feed.category
             else:
                 website_modified_date = None
                 pdf_url = None
                 referrer_url = None
+                assembly = None
 
             doc = Document(
                 pdf_path=pdf_path,
@@ -97,6 +105,7 @@ class Document:
                 website_modified_date=dates.parse(website_modified_date),
                 pdf_url=pdf_url,
                 referrer_url=referrer_url,
+                assembly=assembly,
             )
             pages = Page.load(pdf_processing, doc)
             doc.pages = list(pages)

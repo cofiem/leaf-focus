@@ -1,0 +1,24 @@
+---
+- find: 'HIggins'
+  replace: 'Higgins'
+  regex: false
+
+- find: "Member Eden-Monaro NSW"
+  replace: "Member for Eden-Monaro, NSW"
+  regex: false
+
+- find: "Member for Griffith,"
+  replace: "Member for Griffith, QLD"
+  regex: false
+
+- find: "Member for Braddon TAS"
+  replace: "Member for Braddon, TAS"
+  regex: false
+
+- find: "Member for Maribyrnong. VIC"
+  replace: "Member for Maribyrnong, VIC"
+  regex: false
+
+- find: "Senator forTasmania"
+  replace: "Senator for Tasmania"
+  regex: false

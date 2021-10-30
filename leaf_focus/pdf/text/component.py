@@ -65,13 +65,13 @@ class Component:
             # replace EOL and CR with LF
             # split on Form Feed (\f) (pdftotext uses to indicate end of page)
             # ignore the last item of array as that's after the last Form Feed
-            pages = content.replace("\r\n", "\n").replace("\r", "\n").split("\f")[:-1]
+            pages = content.replace("\r\n", "\n").replace("\r", "\n").split("\f")
 
             for page in pages:
 
                 # read each line in each page
                 page_lines = []
-                for line in page.split("\n"):
+                for line in (page or "").split("\n"):
                     if line:
                         page_lines.append(line)
 

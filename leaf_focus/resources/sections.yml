@@ -1,0 +1,69 @@
+---
+- title: Metadata
+  name: metadata
+
+- title: Company Shareholdings
+  name: shareholdings
+  names:
+    - '1. Shareholdings'
+
+- title: Beneficial Interests
+  name: beneficial-interests
+
+- title: Trustee Interests
+  name: trustee-interests
+
+- title: Real Estate
+  name: real-estate
+  names:
+    - '3. Real estate'
+
+- title: Directorships
+  name: directorships
+
+- title: Directorships
+  name: directorships
+  names:
+    - '4. Directorships of companies'
+
+- title: Partnerships
+  name: partnerships
+
+- title: Liabilities
+  name: liabilities
+  names:
+    - '6. Liabilities'
+
+- title: Investments
+  name: investments
+
+- title: Accounts
+  name: accounts
+
+- title: Other Assets
+  name: other-assets
+  names:
+    - '9. Other assets'
+
+- title: Other Income
+  name: other-income
+  names:
+    - '10. Income'
+
+- title: Gifts
+  name: gifts
+  names:
+    - '11. Gifts'
+
+- title: Travel and Hospitality
+  name: travel-hospitality
+  names:
+    - '12. Travel or hospitality'
+
+- title: Organisation Memberships
+  name: organisation-memberships
+  names:
+    - '13. Memberships'
+
+- title: Other Interests
+  name: other-interests

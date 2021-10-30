@@ -50,6 +50,8 @@ class Dates:
             "%d%b%Y",
             # examples: 'Last updated 7 May 2018'
             "Last updated %d %B %Y",
+            # examples: '30/07/2019'
+            "%d/%M/%Y",
         ]
         for pattern in patterns:
             try:

@@ -1,0 +1,240 @@
+---
+- value: 'Registry of Members’ Interests'
+  regex: false
+  group: 'metadata-title'
+  type: 'line'
+
+- value: 'REGISTER OF MEMBERS’ INTERESTS'
+  regex: false
+  group: 'metadata-title'
+  type: 'line'
+
+- value: 'Statement of Registrable Interests'
+  regex: false
+  group: 'metadata-title'
+  type: 'line'
+
+- value: '^ +(?P<parliament_num>\d+)[^ ]* +Parliament$'
+  regex: true
+  group: 'metadata-parliament'
+  type: 'line'
+
+- value: '^ +(?P<parliament_num>\d+)[^ ]* +PARLIAMENT$'
+  regex: true
+  group: 'metadata-parliament'
+  type: 'line'
+
+- value: '^ +(?P<prev_parliament_num>\d+)[^ ]* +Parliament +\((?P<dissolution_date>\d+ +[^ ]+ +\d+)\)\.$'
+  regex: true
+  group: 'metadata-parliament'
+  type: 'line'
+
+- value: '^ +PROCESSED +(?P<processed_date>\d+ +[^ ]+ +\d+)$'
+  regex: true
+  group: 'metadata-processed'
+  type: 'line'
+
+- value: '^ +RECEIVED +(?P<received_date>\d+ +[^ ]+ +\d+)$'
+  regex: true
+  group: 'metadata-processed'
+  type: 'line'
+
+- value: 'Returning Members are to declare interests as at the date of dissolution of'
+  regex: false
+  group: 'metadata-returning-members'
+  type: 'line'
+
+- value: 'Returning Members to declare from the date of dissolution of the'
+  regex: false
+  group: 'metadata-returning-members'
+  type: 'line'
+
+- value: 'Returning Members are to declare from the date of dissolution'
+  regex: false
+  group: 'metadata-returning-members'
+  type: 'line'
+
+- value: '^ +the House in the (?P<prev_parliament_num>\d+)[^ ]* Parliament \((?P<dissolution_date>\d+ +[^ ]+ +\d+)\) and alterations since the$'
+  regex: true
+  group: 'metadata-returning-members'
+  type: 'line'
+
+- value: '^ +of the House in the (?P<prev_parliament_num>\d+)[^ ]* Parliament \((?P<dissolution_date>\d+ +[^ ]+ +\d+)\)$'
+  regex: true
+  group: 'metadata-returning-members'
+  type: 'line'
+
+- value: 'date of dissolution.'
+  regex: false
+  group: 'metadata-returning-members'
+  type: 'line'
+
+- value: 'Newly elected Members are to declare interests as at the date of election'
+  regex: false
+  group: 'metadata-new-members'
+  type: 'line'
+
+- value: ' +\((?P<election_date>\d+ +[^ ]+ +\d+)\) and alterations since the date of election\.$'
+  regex: true
+  group: 'metadata-new-members'
+  type: 'line'
+
+- value: '^ *Newly +elected +Members +are +to +declare +from +the +date +of +election +\((?P<election_date>\d+ +[^ ]+ +\d+)\)$'
+  regex: true
+  group: 'metadata-new-members'
+  type: 'line'
+
+- value: '^ *Newly +elected +Members +to +declare +from +the +date +of +election +\((?P<election_date>\d+ +[^ ]+ +\d+)\)\.$'
+  regex: true
+  group: 'metadata-new-members'
+  type: 'line'
+
+- value: '^ *FAMILY NAME +(?P<last_name>.*)$'
+  regex: true
+  group: 'metadata-name'
+  type: 'line'
+
+- value: '^ *\(please print\)( +(?P<last_name>.*))?$'
+  regex: true
+  group: 'metadata-name'
+  type: 'line'
+
+- value: '^ *SURNAME +(?P<last_name>.*)$'
+  regex: true
+  group: 'metadata-name'
+  type: 'line'
+
+- value: '^ *Surname: +(?P<last_name>.*)$'
+  regex: true
+  group: 'metadata-name'
+  type: 'line'
+
+- value: '^ *GIVEN NAMES +(?P<first_name>.*)$'
+  regex: true
+  group: 'metadata-name'
+  type: 'line'
+
+- value: '^ *OTHER NAMES +(?P<first_name>.*)$'
+  regex: true
+  group: 'metadata-name'
+  type: 'line'
+
+- value: '^ *Other names: +(?P<first_name>.*)$'
+  regex: true
+  group: 'metadata-name'
+  type: 'line'
+
+- value: '^ *ELECTORAL DIVISION +(?P<electorate>.*?) +STATE +(?P<state_or_territory>.*)$'
+  regex: true
+  group: 'metadata-electorate'
+  type: 'line'
+
+- value: '^[Ss]tate/Territory: +(?P<state_or_territory>.*)$'
+  regex: true
+  group: 'metadata-electorate'
+  type: 'line'
+
+- value: 'Notes'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: 'EXPLANATORY NOTES'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: '1. It is suggested that the accompanying Explanatory Notes be read before this statement is'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: 'completed.'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: '2. The information which you are required to provide is contained in resolutions agreed to by the'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: 'House of Representatives on 9 October 1984, amended 13 February 1986, 22 October 1986,'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: '30 November 1988, 9 November 1994, 6 November 2003 and 13 February 2008. It consists of'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: 'the Member’s registrable interests and the registrable interests of which the Member is aware'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: '(a) of the Member’s spouse and (b) of any children who are wholly or mainly dependent on the'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: 'Member for support. For the definition of ‘dependent children’ see the introduction to the'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: 'Explanatory Notes.'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: '3. If there is insufficient space on this form for the information you are required to provide, you may'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: 'attach additional pages for that purpose. Please date and initial each page of any attachment.'
+  regex: false
+  group: 'metadata-notes'
+  type: 'line'
+
+- value: '^ +(?P<page_number>\d{1,3})$'
+  regex: true
+  group: 'metadata-page'
+  type: 'line'
+
+- value: 'Form A'
+  regex: false
+  group: 'metadata-form'
+  type: 'line'
+
+- value: '^Date: +(?P<unknown_date>\d{1,2}\/\d{1,2}\/\d{2,4})$'
+  regex: true
+  group: 'metadata-date'
+  type: 'line'
+
+- value: '^ *(?P<unknown_date>\d{1,2} +[^ ]+ +\d{2,4})$'
+  regex: true
+  group: 'metadata-date'
+  type: 'line'
+
+- value: 'Committee of Senators’ Interests'
+  regex: false
+  group: 'metadata-title'
+  type: 'line'
+
+- value: 'Register of Senators’ Interests'
+  regex: false
+  group: 'metadata-title'
+  type: 'line'
+
+- value: 'Statements of Registrable Interests and notifications of alterations lodged'
+  regex: false
+  group: 'metadata-title'
+  type: 'line'
+
+- value: '^ *between (?P<start_date>\d{1,2} +[^ ]+ +\d{2,4}) and (?P<end_date>\d{1,2} +[^ ]+ +\d{2,4})$'
+  regex: true
+  group: 'metadata-date-range'
+  type: 'line'

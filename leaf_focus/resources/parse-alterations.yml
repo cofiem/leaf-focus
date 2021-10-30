@@ -1,0 +1,86 @@
+---
+- value: '^ *(?P<change_type_addition>ADDITION)$'
+  regex: regex
+  group: 'alteration'
+  type: 'line'
+
+- value: '^ *(?P<change_type_addition>Addition)$'
+  regex: regex
+  group: 'alteration'
+  type: 'line'
+
+- value: '^ *(?P<change_type_deletion>DELETION)$'
+  regex: regex
+  group: 'alteration'
+  type: 'line'
+
+- value: '^ *(?P<change_type_deletion>Deletion)$'
+  regex: regex
+  group: 'alteration'
+  type: 'line'
+
+- value: 'Notification of alteration(s) of interests'
+  regex: false
+  group: 'alteration'
+  type: 'line'
+
+- value: 'NOTIFICATION OF ALTERATION(S) OF INTERESTS'
+  regex: false
+  group: 'alteration'
+  type: 'line'
+
+- value: 'since dissolution or date of election'
+  regex: false
+  group: 'alteration'
+  type: 'line'
+
+- value: 'Since date of election'
+  regex: false
+  group: 'alteration'
+  type: 'line'
+
+- value: 'I wish to notify an alteration of interests as follows:'
+  regex: false
+  group: 'alteration'
+  type: 'line'
+
+- value: 'I wish to alter my statement of registrable interests as follows:'
+  regex: false
+  group: 'alteration'
+  type: 'line'
+
+- value: 'I wish to alter my statement of registrable interests as follow:'
+  regex: false
+  group: 'alteration'
+  type: 'line'
+
+- value: 'I wish to alter my statement of interests as follows:'
+  regex: false
+  group: 'alteration'
+  type: 'line'
+
+- value: '^Signed:?.*Date: *(?P<signed_date>.*)$'
+  regex: true
+  group: 'alteration'
+  type: 'line'
+
+# table
+- value: '^ *(?P<register_section>Item) +(?P<general_details>Details) *$'
+  regex: true
+  group: 'alteration'
+  type: 'table-header'
+
+- value: '^ *(?P<register_section>Item No\.\*) +(?P<general_details>Details) *$'
+  regex: true
+  group: 'alteration'
+  type: 'table-header'
+
+- value: '^ *(?P<register_section>ltem No_\*) +(?P<general_details>Details) *$'
+  regex: true
+  group: 'alteration'
+  type: 'table-header'
+
+- value: '^ *(?P<register_section>Item number) +(?P<general_details>Details) *$'
+  regex: true
+  group: 'alteration'
+  type: 'table-header'

@@ -1,0 +1,140 @@
+---
+# shareholdings
+- value: '^(?P<form_who> ) +(?P<form_name>Name +of +company +\(including +holding +and +subsidiary +companies +if +applicable\)) *$'
+  regex: true
+  group: 'shareholdings'
+  type: 'table-header'
+
+# doc 1aedb4088814335 page 0 line 9 outcome match: no, data: {} text 'Name of company – (including holding and subsidiary companies if applicable)'
+- value: '^(?P<form_name>Name +of +company +– +\(including +holding +and +subsidiary +companies +if +applicable\)) *$'
+  regex: true
+  group: 'shareholdings'
+  type: 'table-header'
+
+# trusts
+- value: '^(?P<form_who> ) +(?P<form_name>Name of trust/nominee) +(?P<form_activity>Nature of its operation) +(?P<form_participation>Beneficial interest) *$'
+  regex: true
+  group: 'trusts'
+  type: 'table-header'
+
+- value: '^ {10,}(?P<form_name>company) *$'
+  regex: true
+  group: 'trusts'
+  type: 'table-header'
+
+# NOTE: 'trusts trustee table' is the same as 'trusts table'
+
+# real estate
+- value: '^(?P<form_who> ) +(?P<form_location>Location) +(?P<form_participation>Purpose for which owned) *$'
+  regex: true
+  group: 'real-estate'
+  type: 'table-header'
+
+- value: '^(?P<form_location>Location) +(?P<form_participation>Purpose for which owned) *$'
+  regex: true
+  group: 'real-estate'
+  type: 'table-header'
+
+# directorships
+- value: '^(?P<form_who> ) +(?P<form_name>Name +of +company) +(?P<form_activity>Activities of company) *$'
+  regex: true
+  group: 'directorships'
+  type: 'table-header'
+
+- value: '^(?P<form_name>Name +of +company) +(?P<form_activity>Activities +of +company) *$'
+  regex: true
+  group: 'directorships'
+  type: 'table-header'
+
+# partnerships
+- value: '^(?P<form_who> ) +(?P<form_name>Name) +(?P<form_participation>Nature +of +interests) +(?P<form_activity>Activities +of +partnership) *$'
+  regex: true
+  group: 'partnerships'
+  type: 'table-header'
+
+- value: '^(?P<form_name>Name) +(?P<form_participation>Nature +of +interest) +(?P<form_activity>Activities +of +partnership) *$'
+  regex: true
+  group: 'partnerships'
+  type: 'table-header'
+
+# liabilities
+- value: '^(?P<form_who> ) +(?P<form_participation>Nature of liability) +(?P<form_name>Creditor) *$'
+  regex: true
+  group: 'liabilities'
+  type: 'table-header'
+
+- value: '^(?P<form_participation>Nature of liability) +(?P<form_name>Creditor) *$'
+  regex: true
+  group: 'liabilities'
+  type: 'table-header'
+
+# investments
+- value: '^(?P<form_who> ) +(?P<form_participation>Type of investment) +(?P<form_name>Body in which investment is held) *$'
+  regex: true
+  group: 'investments'
+  type: 'table-header'
+
+- value: '^(?P<form_participation>Type of investment) +(?P<form_name>Body in which investment is held) *$'
+  regex: true
+  group: 'investments'
+  type: 'table-header'
+
+- value: '^(?P<form_who> ) +(?P<form_participation>Nature of any other assets) *$'
+  regex: true
+  group: 'other-assets'
+  type: 'table-header'
+
+# accounts
+- value: '^(?P<form_who> ) +(?P<form_participation>Nature of account) +(?P<form_name>Name of bank/institution) *$'
+  regex: true
+  group: 'accounts'
+  type: 'table-header'
+
+- value: '^(?P<form_participation>Nature of account) +(?P<form_name>Name of bank/institution) *$'
+  regex: true
+  group: 'accounts'
+  type: 'table-header'
+
+- value: '^(?P<form_who> ) +(?P<form_participation>Nature of income) *$'
+  regex: true
+  group: 'other-income'
+  type: 'table-header'
+
+# gifts
+- value: '^(?P<form_who> ) +(?P<form_participation>Details of gifts) *$'
+  regex: true
+  group: 'gifts'
+  type: 'table-header'
+
+# travel and hospitality
+- value: '^(?P<form_who> ) +(?P<form_participation>Details of travel/hospitality) *$'
+  regex: true
+  group: 'travel-hospitality'
+  type: 'table-header'
+
+- value: '^(?P<form_participation>Details of travel/hospitality) *$'
+  regex: true
+  group: 'travel-hospitality'
+  type: 'table-header'
+
+# organisations
+- value: '^(?P<form_who> ) +(?P<form_name>Name of organisation) *$'
+  regex: true
+  group: 'organisations'
+  type: 'table-header'
+
+- value: '^(?P<form_name>Name of organisation) *$'
+  regex: true
+  group: 'organisations'
+  type: 'table-header'
+
+# other interests
+- value: '^(?P<form_who> ) +(?P<form_participation>Nature +of +interests) *$'
+  regex: true
+  group: 'other-interests'
+  type: 'table-header'
+
+- value: '^(?P<form_participation>Nature +of +interest) *$'
+  regex: true
+  group: 'other-interests'
+  type: 'table-header'

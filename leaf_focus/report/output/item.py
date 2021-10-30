@@ -18,15 +18,11 @@ class Item:
     pdf_hash_value: str
     """The pdf file hash digest."""
 
-    pdf_source: str
-    """
-    The pages where the information in this entry was obtained.
-    Format is one of:
-    single page: '1',
-    multiple pages (inclusive): '1-3',
-    a number of single pages: '1,3',
-    both single and multiple page: '1,3-4'.
-    """
+    pdf_page: str
+    """The page number in the pdf file."""
+
+    pdf_line: str
+    """The line number in the pdf page."""
 
     pdf_created_date: Optional[date]
     """The created date from the pdf file metadata."""
@@ -156,10 +152,10 @@ class Item:
             "website_modified_date",
             "processed_date",
             "signed_date",
-            "pdf_source",
+            "pdf_page",
+            "pdf_line",
             "pdf_url",
             "referrer_url",
-            "pdf_path",
             "pdf_hash_type",
             "pdf_hash_value",
         ]
@@ -170,10 +166,10 @@ class Item:
             for i in items:
                 writer.writerow(
                     {
-                        "pdf_path": i.pdf_path,
                         "pdf_hash_type": i.pdf_hash_type,
                         "pdf_hash_value": i.pdf_hash_value,
-                        "pdf_source": i.pdf_source,
+                        "pdf_page": i.pdf_page,
+                        "pdf_line": i.pdf_line,
                         "pdf_created_date": i.pdf_created_date,
                         "pdf_modified_date": i.pdf_modified_date,
                         "pdf_downloaded_date": i.pdf_downloaded_date,
