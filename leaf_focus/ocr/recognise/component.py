@@ -87,7 +87,7 @@ class Component:
             msg_image = image.shape if image is not None else None
             raise ValueError(f"Must supply valid image data, not '{msg_image}'.")
         if not predictions:
-            raise ValueError("Must supply predictions data.")
+            predictions = []
 
         self._log_info(f"Saving OCR image to '{annotation_file}'.")
 
@@ -105,7 +105,7 @@ class Component:
     def convert_predictions(self, predictions: list[tuple[Any, Any]]):
         """Convert predictions to items."""
         if not predictions:
-            raise ValueError("Must supply predictions data.")
+            predictions = []
 
         for prediction in predictions:
             yield TextItem.from_prediction(prediction)
@@ -128,7 +128,7 @@ class Component:
     def order_text_lines(self, items: Iterable[TextItem]):
         """Put items into lines of text (top -> bottom, left -> right)."""
         if not items:
-            raise ValueError("Must supply items.")
+            items = []
 
         self._log_debug("Arranging text into lines.")
 

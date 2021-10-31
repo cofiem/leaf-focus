@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from leaf_focus.report.input.line import Line
-from leaf_focus.report.output.definition import Definition
 from leaf_focus.report.output.outcome import Outcome
 
 

@@ -3,6 +3,9 @@ from collections import OrderedDict
 
 
 class Text:
+
+    _collapse_spaces_re = re.compile(r"\s+")
+
     def parse_name(self, value: str):
         value = self.norm_text(value)
 
@@ -136,3 +139,7 @@ class Text:
             value = value.replace(replace, "")
 
         return value.strip(), titles
+
+    @classmethod
+    def collapse_spaces(cls, value: str) -> str:
+        return cls._collapse_spaces_re.sub(" ", value)

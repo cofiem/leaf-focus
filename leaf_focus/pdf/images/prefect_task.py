@@ -47,5 +47,4 @@ class PdfImagesLoadTask(Task):
                 if pdf_image.threshold is not None:
                     continue
                 result.append((pdf_identify.file_hash, pdf_image.page))
-            break
         return result

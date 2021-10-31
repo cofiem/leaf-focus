@@ -41,6 +41,8 @@ def pdf_identify(input_file: Path, output_file: Path):
     file_hash = c.file_hash(input_file)
     c.create(input_file, file_hash, output_file)
 
+    click.secho(f"Generated pdf identify info to '{output_file}'.", fg="bright_blue")
+
     click.secho("Finished pdf identify.", bold=True)
 
 
@@ -79,6 +81,10 @@ def pdf_info(exe_file: Path, input_file: Path, output_file: Path):
     c = Component(logger, exe_file)
     c.create(input_file, output_file)
 
+    click.secho(
+        f"Extracted embedded metadata from pdf to '{output_file}'.", fg="bright_blue"
+    )
+
     click.secho("Finished pdf info.", bold=True)
 
 
@@ -116,6 +122,10 @@ def pdf_text(exe_file: Path, input_file: Path, output_prefix: Path):
     logger = logging.getLogger()
     c = Component(logger, exe_file)
     c.create(input_file, output_prefix)
+
+    click.secho(
+        f"Extracted embedded text from pdf to '{output_prefix}'.", fg="bright_blue"
+    )
 
     click.secho("Finished pdf text.", bold=True)
 

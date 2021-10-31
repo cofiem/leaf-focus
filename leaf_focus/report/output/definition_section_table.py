@@ -86,7 +86,6 @@ class DefinitionSectionTable(DefinitionTable):
         # is most likely a page number
         if self._page_number_re.match(line.text):
             return Outcome(
-                match_type=OutcomeType.SECTION_TABLE,
                 is_match=False,
                 index=outcome.index,
                 table_headers=outcome.table_headers,
@@ -95,7 +94,6 @@ class DefinitionSectionTable(DefinitionTable):
         another_header_row = self._header_rows(line, outcome)
         if another_header_row:
             return Outcome(
-                match_type=OutcomeType.SECTION_TABLE,
                 is_match=True,
                 index=outcome.index,
                 table_headers=outcome.table_headers,
@@ -117,7 +115,6 @@ class DefinitionSectionTable(DefinitionTable):
 
         if form_who is None:
             return Outcome(
-                match_type=OutcomeType.SECTION_TABLE,
                 is_match=True,
                 index=outcome.index,
                 table_headers=outcome.table_headers,
@@ -134,7 +131,6 @@ class DefinitionSectionTable(DefinitionTable):
             col_name = self.other_column_name
             col_value = line.text[form_who_len:].strip()
             return Outcome(
-                match_type=OutcomeType.SECTION_TABLE,
                 is_match=True,
                 index=outcome.index,
                 table_headers=outcome.table_headers,
@@ -174,7 +170,6 @@ class DefinitionSectionTable(DefinitionTable):
                 result[name] = ""
 
         return Outcome(
-            match_type=OutcomeType.SECTION_TABLE,
             is_match=True,
             index=outcome.index,
             table_headers=outcome.table_headers,

@@ -40,7 +40,6 @@ class DefinitionAlterationTable(DefinitionTable):
         another_header_row = self._header_rows(line, outcome)
         if another_header_row:
             return Outcome(
-                match_type=OutcomeType.ALTERATION_TABLE,
                 is_match=False,
                 index=outcome.index,
                 table_headers=outcome.table_headers,
@@ -48,7 +47,6 @@ class DefinitionAlterationTable(DefinitionTable):
 
         # parse the table body
         return Outcome(
-            match_type=OutcomeType.ALTERATION_TABLE,
             is_match=True,
             index=outcome.index,
             table_headers=outcome.table_headers,

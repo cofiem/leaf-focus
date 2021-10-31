@@ -130,6 +130,32 @@ class Item:
     3. Real estate;
     """
 
+    @property
+    def is_valid(self):
+        return all(
+            [
+                self.pdf_url,
+                self.assembly,
+                self.last_name,
+                self.state_or_territory,
+                self.register_section,
+                self.change_type,
+                any(
+                    [
+                        self.form_location,
+                        self.form_who,
+                        self.form_name,
+                        self.form_activity,
+                        self.form_participation,
+                    ]
+                ),
+            ]
+        )
+
+    @property
+    def short_hash(self):
+        return self.pdf_hash_value[0:15]
+
     @classmethod
     def save(cls, path: Path, items: Iterable["Item"]):
         """Save items to a csv file."""
@@ -192,3 +218,18 @@ class Item:
                         "form_location": i.form_location,
                     }
                 )
+
+    def __str__(self):
+        items = [
+            ("doc", self.short_hash),
+            ("page", self.pdf_page),
+            ("line", self.pdf_line),
+            ("person", self.last_name),
+            ("group", self.register_section),
+            ("location", self.form_location),
+            ("who", self.form_who),
+            ("name", self.form_name),
+            ("activity", self.form_activity),
+            ("participation", self.form_participation),
+        ]
+        return "; ".join(f"{k}={v}" for k, v in items if v)

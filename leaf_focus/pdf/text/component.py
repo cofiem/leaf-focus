@@ -59,23 +59,33 @@ class Component:
             # read the whole file
             content = f.read() or ""
 
-            # Carriage Return (CR) character (0x0D, \r)
-            # Line Feed (LF) character (0x0A, \n)
-            # End of Line (EOL) sequence (0x0D 0x0A, \r\n)
-            # replace EOL and CR with LF
-            # split on Form Feed (\f) (pdftotext uses to indicate end of page)
-            # ignore the last item of array as that's after the last Form Feed
-            pages = content.replace("\r\n", "\n").replace("\r", "\n").split("\f")
+        # Carriage Return (CR) character (0x0D, \r)
+        # Line Feed (LF) character (0x0A, \n)
+        # End of Line (EOL) sequence (0x0D 0x0A, \r\n)
+        # Double Line Feed (\n\n)
+        # replace with LF
+        find = ["\n\n", "\r\n", "\r"]
+        replacement = "\n"
+        pages = content
+        for item in find:
+            pages = pages.replace(item, replacement)
 
-            for page in pages:
+        # split on Form Feed (\f) (pdftotext uses to indicate end of page)
+        pages = pages.split("\f")
 
-                # read each line in each page
-                page_lines = []
-                for line in (page or "").split("\n"):
-                    if line:
-                        page_lines.append(line)
+        # if the last item of array is empty ignore it,
+        # as that's after the last Form Feed
+        if not pages[-1]:
+            pages = pages[:-1]
 
-                # add the page if there are any lines
-                if len(page_lines) > 0:
-                    result.append(page_lines)
+        for page in pages:
+            # read each line in each page
+            page_lines = []
+            for line in (page or "").split(replacement):
+                if line:
+                    page_lines.append(line)
+
+            # add the page even if there are no lines
+            result.append(page_lines)
+
         return result

@@ -1,7 +1,7 @@
 import re
 from enum import Enum
 from logging import Logger
-from typing import Iterable
+from typing import Iterable, Optional
 
 from leaf_focus.report.input.dates import Dates
 from leaf_focus.report.input.document import Document
@@ -35,7 +35,6 @@ class Parse:
         self._sections = list(sections)
         self._corrections = list(corrections)
         self._urls = list(urls)
-        self._collapse_spaces_re = re.compile(r"\s+")
         self._dates = Dates()
         self._text = Text()
         self._allow_overwrite = [
@@ -60,10 +59,13 @@ class Parse:
 
     def document(self, document: Document) -> Iterable[ReportItem]:
         """Parse a document into report items."""
-        lines = (line for page in document.pages for line in page.lines)
 
-        # TODO: how to integrate ocr items?
-        # items = (item for page in document.pages for item in page.items )
+        self._logger.info(
+            f"Processing document '{document.short_hash}' "
+            f"with {len(document.pages)} pages."
+        )
+
+        lines = self.document_lines(document)
 
         line_info = []
         previous_line_type = None
@@ -72,7 +74,7 @@ class Parse:
                 # ensure empty lines have already been filtered
                 raise ValueError()
 
-            outcome = self.find_def(line)
+            outcome = self.find_def(line.text)
 
             # the explanatory notes document is
             # not a register of interests
@@ -101,14 +103,24 @@ class Parse:
         for item in self.report_items(document, line_info):
             yield item
 
-    def _collapse_spaces(self, value: str) -> str:
-        return self._collapse_spaces_re.sub(" ", value)
+    def document_lines(self, document: Document) -> Iterable[Line]:
+        """Select the page lines to use."""
 
-    def find_def(self, line: Line) -> Outcome:
+        for page in document.pages:
+            # if the ocr items are available, use them
+            if page.items:
+                for index, text in enumerate(page.items_text_iter()):
+                    yield Line(index=index, text=text, page=page)
+            else:
+                # otherwise use the embedded text lines
+                for line in page.lines:
+                    yield line
+
+    def find_def(self, text: str) -> Outcome:
         """Check to see if the definition's first entry matches the line."""
         found = []
         for parser in self._parsers:
-            is_match, extracted = parser.match(line.text)
+            is_match, extracted = parser.match(text)
             if is_match:
                 found.append(Outcome(is_match=True, parser=parser, extracted=extracted))
 
@@ -138,6 +150,7 @@ class Parse:
             # skip the line if it requires checking
             # it likely is unusable
             if outcome.requires_check:
+                self._logger.warning(f"Skipping line that requires check {str(item)}.")
                 continue
 
             # get the current line type
@@ -184,23 +197,7 @@ class Parse:
             for k, v in extracted.items():
                 if not k or not v:
                     continue
-
-                extracted_value = self._text.norm_text(v["value"])
-                extracted_value = self._collapse_spaces(extracted_value)
-                extracted_value = self.corrections(extracted_value)
-
-                if (
-                    extracted_value
-                    and k not in self._allow_overwrite
-                    and k in collected
-                    and extracted_value != collected[k]
-                ):
-                    continue
-                    # TODO
-                    # raise ValueError((collected, k, v))
-
-                if k and v and k not in collected:
-                    collected[k] = extracted_value
+                self.report_item_extract(k, v, item, collected)
 
             # update change_type
             if extracted.get("change_type_addition"):
@@ -224,22 +221,43 @@ class Parse:
                 extracted["pdf_page"] = page
                 extracted["pdf_line"] = line
                 extracted["change_type"] = current_change_type
+
                 report_item = self.report_item(document, {**collected, **extracted})
-                if report_item.register_section:
+                if report_item.is_valid:
                     yield report_item
                 else:
-                    # TODO
-                    pass
+                    self._logger.warning(f"Invalid report item {str(report_item)}.")
 
                 # remove temporary entries
                 for temporary in self._temporary_entries:
                     if temporary in collected:
                         del collected[temporary]
 
+    def report_item_extract(self, key: str, value: dict, item: Match, collected: dict):
+        extracted_value = self._text.norm_text(value["value"])
+        extracted_value = self._text.collapse_spaces(extracted_value)
+        extracted_value = self.corrections(extracted_value)
+
+        if (
+            extracted_value
+            and key not in self._allow_overwrite
+            and key in collected
+            and extracted_value != collected[key]
+        ):
+            self._logger.warning(
+                f"Unexpected new value for '{key}' "
+                f"'{collected[key]}' -> '{extracted_value}' for {str(item)}."
+            )
+            return
+
+        if key and value and key not in collected:
+            collected[key] = extracted_value
+
     def page_table(self, header: Match, row: Match) -> dict:
         header_dict = header.outcome.extracted
         header_sorted = sorted(header_dict.items(), key=lambda x: x[1]["span"][0])
         header_count = len(header_dict)
+        header_keys = ", ".join([k for k, v in header_sorted])
         row_text = row.line.text
         text_len = len(row_text)
 
@@ -275,8 +293,9 @@ class Parse:
 
             # check the table row split worked as expected
             if not is_last_header and not is_last_col and cell_text[-2:] != "  ":
-                # TODO
-                # raise ValueError((header_sorted, row_text, start, end, cell_text))
+                self._logger.warning(
+                    f"Skipping table row '{row_text}' ({header_keys})."
+                )
                 continue
 
             # add the column key and value
@@ -350,8 +369,9 @@ class Parse:
                     register_section = section.name
 
             if not register_section:
-                # TODO
-                # raise ValueError(raw_register_section)
+                self._logger.warning(
+                    f"Unknown alteration group '{raw_register_section}'."
+                )
                 register_section = None
 
         else:

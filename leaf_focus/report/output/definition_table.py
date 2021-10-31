@@ -1,5 +1,3 @@
-from typing import Iterable
-
 from leaf_focus.report.input.line import Line
 from leaf_focus.report.output.outcome import OutcomeTableHeader, Outcome
 

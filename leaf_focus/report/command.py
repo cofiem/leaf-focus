@@ -7,7 +7,6 @@ import click
 from leaf_focus.report.input.document import Document
 from leaf_focus.report.output.correction import Correction
 from leaf_focus.report.output.item import Item as ReportItem
-from leaf_focus.report.output.definition import Definition
 from leaf_focus.report.output.line_parser import LineParser
 from leaf_focus.report.output.parse import Parse
 from leaf_focus.report.output.section import Section
