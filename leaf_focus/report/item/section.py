@@ -4,11 +4,13 @@ from typing import Iterable
 
 import yaml
 
+from leaf_focus.report.item.line_group import LineGroupEnum
+
 
 @dataclass
 class Section:
     title: str
-    name: str
+    name: LineGroupEnum
     names: list[str]
 
     @classmethod
@@ -16,7 +18,8 @@ class Section:
         with open(path, "rt", encoding="utf8") as f:
             data = yaml.safe_load(f)
         for item in data:
-            title = item.get("title")
-            name = item.get("name")
-            names = item.get("names") or []
-            yield Section(title=title, name=name, names=names)
+            yield Section(
+                title=item.get("title"),
+                name=LineGroupEnum.get_by_value(item.get("name")),
+                names=item.get("names") or [],
+            )

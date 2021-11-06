@@ -1,14 +1,12 @@
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Iterable
 
 from leaf_focus.download.crawl.item import Item as CrawlItem
 from leaf_focus.pdf.identify.item import Item as PdfIdentifyItem
 from leaf_focus.pdf.info.item import Item as PdfInfoItem
-from leaf_focus.report.input.dates import Dates
-from leaf_focus.report.input.page import Page
-from leaf_focus.report.input.text import Text
+from leaf_focus.report.item.page import Page
 
 
 @dataclass
@@ -17,10 +15,10 @@ class Document:
     pdf_hash_type: str
     pdf_hash_value: str
 
-    pdf_created_date: Optional[date]
-    pdf_modified_date: Optional[date]
-    pdf_downloaded_date: date
-    website_modified_date: Optional[date]
+    pdf_created_date: Optional[str]
+    pdf_modified_date: Optional[str]
+    pdf_downloaded_date: str
+    website_modified_date: Optional[str]
 
     pdf_url: str
     referrer_url: Optional[str]
@@ -37,9 +35,6 @@ class Document:
     @classmethod
     def load(cls, processing_dir: Path, feed_dir: Path) -> Iterable["Document"]:
         """Load documents from a directory."""
-
-        dates = Dates()
-        text = Text()
 
         items = {}
 
@@ -78,14 +73,14 @@ class Document:
             pdf_processing = item.get("processing")  # type: Path
 
             if pdf_info and pdf_info.entries:
-                pdf_created_date = text.norm_text(pdf_info.entries.get("CreationDate"))
-                pdf_modified_date = text.norm_text(pdf_info.entries.get("ModDate"))
+                pdf_created_date = pdf_info.entries.get("CreationDate")
+                pdf_modified_date = pdf_info.entries.get("ModDate")
             else:
                 pdf_created_date = None
                 pdf_modified_date = None
 
             if pdf_feed:
-                website_modified_date = text.norm_text(pdf_feed.last_updated)
+                website_modified_date = pdf_feed.last_updated
                 pdf_url = pdf_feed.url
                 referrer_url = pdf_feed.referrer
                 assembly = pdf_feed.category
@@ -99,10 +94,10 @@ class Document:
                 pdf_path=pdf_path,
                 pdf_hash_type=pdf_identify.hash_type,
                 pdf_hash_value=pdf_identify.file_hash,
-                pdf_created_date=dates.parse(pdf_created_date),
-                pdf_modified_date=dates.parse(pdf_modified_date),
-                pdf_downloaded_date=dates.downloaded(pdf_path),
-                website_modified_date=dates.parse(website_modified_date),
+                pdf_created_date=pdf_created_date,
+                pdf_modified_date=pdf_modified_date,
+                pdf_downloaded_date=cls.downloaded_date(pdf_path),
+                website_modified_date=website_modified_date,
                 pdf_url=pdf_url,
                 referrer_url=referrer_url,
                 assembly=assembly,
@@ -110,6 +105,15 @@ class Document:
             pages = Page.load(pdf_processing, doc)
             doc.pages = list(pages)
             yield doc
+
+    @classmethod
+    def downloaded_date(cls, path: Path):
+        if not path.exists():
+            return None
+        modified_timestamp = path.stat().st_mtime
+        modified_datetime = datetime.fromtimestamp(modified_timestamp)
+        formatted = modified_datetime.date().isoformat()
+        return formatted
 
     def __str__(self):
         return f"document with {len(self.pages)} pages from {self.pdf_url}"

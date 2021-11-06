@@ -1,31 +1,38 @@
 ---
-- value: 'Registry of Members’ Interests'
+- value: "the senate"
+  regex: false
+  group: 'metadata-title'
+  type: 'line'
+- value: "house of representatives"
   regex: false
   group: 'metadata-title'
   type: 'line'
 
-- value: 'REGISTER OF MEMBERS’ INTERESTS'
-  regex: false
+- value: "^ *(Register|Registry) +of +(Senator|Member)s*[’']? +Interests *$"
+  regex: true
   group: 'metadata-title'
   type: 'line'
-
 - value: 'Statement of Registrable Interests'
   regex: false
   group: 'metadata-title'
   type: 'line'
 
-- value: '^ +(?P<parliament_num>\d+)[^ ]* +Parliament$'
+- value: "^ *(Senators|Members)[’']? +Interests *$"
+  regex: true
+  group: 'metadata-title'
+  type: 'line'
+
+
+- value: '^ *(?P<parliament_num>\d+)[^ ]* *Parliament *$'
   regex: true
   group: 'metadata-parliament'
   type: 'line'
-
-- value: '^ +(?P<parliament_num>\d+)[^ ]* +PARLIAMENT$'
-  regex: true
-  group: 'metadata-parliament'
-  type: 'line'
-
 - value: '^ +(?P<prev_parliament_num>\d+)[^ ]* +Parliament +\((?P<dissolution_date>\d+ +[^ ]+ +\d+)\)\.$'
   regex: true
+  group: 'metadata-parliament'
+  type: 'line'
+- value: 'parliament of australia'
+  regex: false
   group: 'metadata-parliament'
   type: 'line'
 
@@ -74,7 +81,7 @@
   group: 'metadata-new-members'
   type: 'line'
 
-- value: ' +\((?P<election_date>\d+ +[^ ]+ +\d+)\) and alterations since the date of election\.$'
+- value: '^ *\((?P<election_date>\d+ +[^ ]+ +\d+)\) +and +alterations +since +the +date +of +election\. *$'
   regex: true
   group: 'metadata-new-members'
   type: 'line'
@@ -94,7 +101,7 @@
   group: 'metadata-name'
   type: 'line'
 
-- value: '^ *\(please print\)( +(?P<last_name>.*))?$'
+- value: '^ *\(?please printy?\)?( *(?P<last_name>.*))? *$'
   regex: true
   group: 'metadata-name'
   type: 'line'
@@ -204,8 +211,8 @@
   group: 'metadata-page'
   type: 'line'
 
-- value: 'Form A'
-  regex: false
+- value: '^ *Form *A.*(Alteration)? *$'
+  regex: true
   group: 'metadata-form'
   type: 'line'
 
@@ -219,12 +226,12 @@
   group: 'metadata-date'
   type: 'line'
 
-- value: 'Committee of Senators’ Interests'
-  regex: false
-  group: 'metadata-title'
+- value: '^.*? *(and|to) +(?P<unknown_date>[^ ]+ +\d{2,4}) *$'
+  regex: true
+  group: 'metadata-date'
   type: 'line'
 
-- value: 'Register of Senators’ Interests'
+- value: 'Committee of Senators’ Interests'
   regex: false
   group: 'metadata-title'
   type: 'line'

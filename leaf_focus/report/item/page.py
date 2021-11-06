@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING, Iterable
 from leaf_focus.ocr.recognise.item import Item as OcrItem
 from leaf_focus.pdf.images.item import Item as ImageItem
 from leaf_focus.pdf.text.component import Component
-from leaf_focus.report.input.line import Line
+from leaf_focus.report.item.line import Line
 
 if TYPE_CHECKING:
-    from leaf_focus.report.input.document import Document
+    from leaf_focus.report.item.document import Document
 
 
 @dataclass
@@ -78,9 +78,11 @@ class Page:
             offset_chars = math.floor(item.top_left_x / est_char_width)
             text_chars = len(text)
 
-            # ignore that offset_chars might sometimes be smaller than text_chars
-            # each phrase does not overlap and
-            # has to be to the right by at least one space
+            # Ignore that offset_chars might sometimes be
+            # smaller than text_chars.
+            # Each phrase from the OCR is known to not overlap.
+            # Each phrase must be to the right of the previous
+            # phrase by at least one space.
             if offset_chars > text_chars:
                 text += " " * (offset_chars - text_chars)
             else:

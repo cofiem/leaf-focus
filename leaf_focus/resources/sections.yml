@@ -7,11 +7,11 @@
   names:
     - '1. Shareholdings'
 
-- title: Beneficial Interests
-  name: beneficial-interests
+- title: Trusts Beneficial Interests
+  name: trusts-beneficiary
 
-- title: Trustee Interests
-  name: trustee-interests
+- title: Trusts Trustee Interests
+  name: trusts-trustee
 
 - title: Real Estate
   name: real-estate
@@ -61,7 +61,7 @@
     - '12. Travel or hospitality'
 
 - title: Organisation Memberships
-  name: organisation-memberships
+  name: organisations
   names:
     - '13. Memberships'
 

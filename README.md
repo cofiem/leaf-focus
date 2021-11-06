@@ -105,7 +105,7 @@ and xpdf tools.
 
 For example, `C:\Users\myname\leaf-focus\config.yml`.
 
-An example partial config file is available in this git repository at `leaf_focus\resources\example.yml`.
+An example partial config file is available in this git repository at `leaf_focus\resources\config-example.yml`.
 This example contains `allowed_domains` and `urls`.
 Copy these to your file and fill in the remaining configuration.
 

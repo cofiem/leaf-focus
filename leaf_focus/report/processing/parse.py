@@ -1,18 +1,22 @@
 import re
 from enum import Enum
 from logging import Logger
-from typing import Iterable, Optional
+from typing import Iterable
 
-from leaf_focus.report.input.dates import Dates
-from leaf_focus.report.input.document import Document
-from leaf_focus.report.input.line import Line
-from leaf_focus.report.input.text import Text
-from leaf_focus.report.output.correction import Correction
-from leaf_focus.report.output.item import Item as ReportItem
-from leaf_focus.report.output.line_parser import LineParser
-from leaf_focus.report.output.match import Match
-from leaf_focus.report.output.outcome import Outcome
-from leaf_focus.report.output.section import Section
+from leaf_focus.report.item.document import Document
+from leaf_focus.report.item.line import Line
+from leaf_focus.report.item.line_group import LineGroupEnum
+from leaf_focus.report.item.line_parser import LineParser
+from leaf_focus.report.item.line_type import LineTypeEnum
+from leaf_focus.report.item.match import Match
+from leaf_focus.report.item.outcome import Outcome
+from leaf_focus.report.item.report_entry import ReportEntry
+from leaf_focus.report.item.section import Section
+from leaf_focus.report.item.skipped_line import SkippedLine
+from leaf_focus.report.item.skipped_page import SkippedPage
+from leaf_focus.report.processing.normalise import Normalise
+
+from leaf_focus.support.config import Config
 
 
 class ParseResult(Enum):
@@ -25,18 +29,17 @@ class Parse:
     def __init__(
         self,
         logger: Logger,
+        config: Config,
         parsers: Iterable[LineParser],
         sections: Iterable[Section],
-        corrections: Iterable[Correction],
-        urls: Iterable[dict],
+        normalise: Normalise,
     ):
         self._logger = logger
+        self._config = config
         self._parsers = list(parsers)
         self._sections = list(sections)
-        self._corrections = list(corrections)
-        self._urls = list(urls)
-        self._dates = Dates()
-        self._text = Text()
+        self._normalise = normalise
+
         self._allow_overwrite = [
             "page_number",
             "unknown_date",
@@ -50,14 +53,28 @@ class Parse:
             "change_type_deletion",
             "unknown_date",
         ]
+        self._skipped_lines = {}  # type: dict[str, int]
+        self._skipped_pages = []  # type: list[SkippedPage]
 
-    def documents(self, docs: Iterable[Document]) -> Iterable[ReportItem]:
+    @property
+    def skipped_lines(self):
+        items = []
+        for k, v in self._skipped_lines.items():
+            items.append(SkippedLine(text=k, count=v))
+        items = sorted(items, key=lambda x: (x.count, x.text), reverse=True)
+        return items
+
+    @property
+    def skipped_pages(self):
+        return sorted(self._skipped_pages, key=lambda x: (x.pdf_url, x.pdf_page))
+
+    def documents(self, docs: Iterable[Document]) -> Iterable[ReportEntry]:
         for doc in docs:
             items = self.document(doc)
             for item in items:
                 yield item
 
-    def document(self, document: Document) -> Iterable[ReportItem]:
+    def document(self, document: Document) -> Iterable[ReportEntry]:
         """Parse a document into report items."""
 
         self._logger.info(
@@ -68,38 +85,37 @@ class Parse:
         lines = self.document_lines(document)
 
         line_info = []
-        previous_line_type = None
         for line in lines:
             if not line.text:
-                # ensure empty lines have already been filtered
+                # empty lines should already have been filtered
                 raise ValueError()
 
-            outcome = self.find_def(line.text)
-
-            # the explanatory notes document is
-            # not a register of interests
-            if (
-                outcome
-                and outcome.parser
-                and outcome.parser.value == "EXPLANATORY NOTES"
-            ):
-                return []
-
-            if not outcome.is_match and previous_line_type != "table-header":
-                outcome.requires_check = True
+            # check if any line parser matches
+            outcome = self.find_def(line)
 
             # record the outcome for the current line
             line_info.append(Match(line, outcome))
 
-            if outcome and outcome.parser and outcome.parser.line_type:
-                previous_line_type = outcome.parser.line_type
+        # record document pages that have no lines
+        expected_page_nums = {page.index for page in document.pages}
+        actual_page_nums = {
+            match.line.page.index
+            for match in line_info
+            if match and match.line and match.line.page
+        }
+        missing_page_nums = actual_page_nums - expected_page_nums
+        for missing_page_num in sorted(missing_page_nums):
+            self._skipped_pages.append(
+                SkippedPage(
+                    pdf_path=document.pdf_path,
+                    pdf_hash_type=document.pdf_hash_type,
+                    pdf_hash_value=document.pdf_hash_value,
+                    pdf_page=missing_page_num,
+                    pdf_url=document.pdf_url,
+                )
+            )
 
-        # check
-        # requires_check = [i for i in line_info if i.outcome.requires_check]
-        # if requires_check:
-        #     pass
-
-        # use the line info to build the ReportItems
+        # use the line info to build the ReportEntrys
         for item in self.report_items(document, line_info):
             yield item
 
@@ -116,23 +132,42 @@ class Parse:
                 for line in page.lines:
                     yield line
 
-    def find_def(self, text: str) -> Outcome:
+    def find_def(self, line: Line) -> Outcome:
         """Check to see if the definition's first entry matches the line."""
         found = []
         for parser in self._parsers:
-            is_match, extracted = parser.match(text)
+            text_norm = line.text
+            text_norm = self._normalise.text(text_norm)
+            text_norm = self._normalise.collapse_spaces(text_norm)
+            text_norm = text_norm.strip().casefold()
+            is_match, extracted = parser.match(text_norm)
             if is_match:
-                found.append(Outcome(is_match=True, parser=parser, extracted=extracted))
+                found.append(
+                    Outcome(
+                        is_match=True,
+                        match_count=1,
+                        parser=parser,
+                        extracted=extracted,
+                        text=text_norm,
+                    )
+                )
 
         found_count = len(found)
         if found_count < 1:
-            return Outcome(is_match=False)
+            if line.text not in self._skipped_lines:
+                self._skipped_lines[line.text] = 0
+            self._skipped_lines[line.text] += 1
+
+            return Outcome(is_match=False, match_count=0)
 
         if found_count == 1:
             return found[0]
 
         if found_count > 1:
-            return Outcome(is_match=False)
+            values = "', '".join([f.parser.value for f in found])
+            raise ValueError(
+                f"Text '{line.text}' matched {found_count} parsers: '{values}'."
+            )
 
     def report_items(self, document: Document, items: Iterable[Match]):
         """Convert lines from a document into report items."""
@@ -147,12 +182,6 @@ class Parse:
             line = item.line.index + 1
             outcome = item.outcome
 
-            # skip the line if it requires checking
-            # it likely is unusable
-            if outcome.requires_check:
-                self._logger.warning(f"Skipping line that requires check {str(item)}.")
-                continue
-
             # get the current line type
             if outcome and outcome.parser:
                 current_line_type = outcome.parser.line_type
@@ -162,7 +191,11 @@ class Parse:
             # only interested in line type of 'line'
             # if it has extracted data
             extracted = outcome.extracted if outcome.is_match else {}
-            if outcome.is_match and not extracted and current_line_type == "line":
+            if (
+                outcome.is_match
+                and not extracted
+                and current_line_type == LineTypeEnum.LINE
+            ):
                 previous_line_type = current_line_type
                 continue
 
@@ -170,8 +203,8 @@ class Parse:
             # and the previous line was not a table header
             # set the current line as the table header
             if (
-                current_line_type == "table-header"
-                and previous_line_type != "table-header"
+                current_line_type == LineTypeEnum.TABLE_HEADER
+                and previous_line_type != LineTypeEnum.TABLE_HEADER
             ):
                 current_table = item
                 previous_line_type = current_line_type
@@ -189,7 +222,7 @@ class Parse:
 
             # if this is a multi-line header
             # don't try to use the header as a table row
-            if current_line_type == "table-header":
+            if current_line_type == LineTypeEnum.TABLE_HEADER:
                 continue
 
             # Add the data extracted from the line
@@ -210,7 +243,7 @@ class Parse:
             if not outcome.is_match and current_table:
                 extracted = self.page_table(current_table, item)
 
-                if current_table.outcome.parser.group == "alteration":
+                if current_table.outcome.parser.group == LineGroupEnum.ALTERATION:
                     extracted, current_register_section = self.alteration(
                         current_table, item, current_register_section, extracted
                     )
@@ -226,7 +259,7 @@ class Parse:
                 if report_item.is_valid:
                     yield report_item
                 else:
-                    self._logger.warning(f"Invalid report item {str(report_item)}.")
+                    self._logger.debug(f"Invalid report item {str(report_item)}.")
 
                 # remove temporary entries
                 for temporary in self._temporary_entries:
@@ -234,9 +267,9 @@ class Parse:
                         del collected[temporary]
 
     def report_item_extract(self, key: str, value: dict, item: Match, collected: dict):
-        extracted_value = self._text.norm_text(value["value"])
-        extracted_value = self._text.collapse_spaces(extracted_value)
-        extracted_value = self.corrections(extracted_value)
+        extracted_value = value["value"]
+        extracted_value = self._normalise.text(extracted_value)
+        extracted_value = self._normalise.collapse_spaces(extracted_value)
 
         if (
             extracted_value
@@ -244,7 +277,7 @@ class Parse:
             and key in collected
             and extracted_value != collected[key]
         ):
-            self._logger.warning(
+            self._logger.debug(
                 f"Unexpected new value for '{key}' "
                 f"'{collected[key]}' -> '{extracted_value}' for {str(item)}."
             )
@@ -293,9 +326,7 @@ class Parse:
 
             # check the table row split worked as expected
             if not is_last_header and not is_last_col and cell_text[-2:] != "  ":
-                self._logger.warning(
-                    f"Skipping table row '{row_text}' ({header_keys})."
-                )
+                self._logger.debug(f"Skipping table row '{row_text}' ({header_keys}).")
                 continue
 
             # add the column key and value
@@ -309,21 +340,33 @@ class Parse:
 
         return extracted
 
-    def report_item(self, doc: Document, data: dict) -> ReportItem:
-        processed_date = self._text.norm_text(data.get("processed_date"))
-        processed_date = self._dates.parse(processed_date)
+    def report_item(self, doc: Document, data: dict) -> ReportEntry:
+        processed_date = self._normalise.text(data.get("processed_date"))
+        processed_date = self._normalise.date(processed_date)
 
-        signed_date = self._text.norm_text(data.get("signed_date"))
-        signed_date = self._dates.parse(signed_date)
+        signed_date = self._normalise.text(data.get("signed_date"))
+        signed_date = self._normalise.date(signed_date)
 
-        item = ReportItem(
+        pdf_created_date = self._normalise.text(doc.pdf_created_date)
+        pdf_created_date = self._normalise.date(pdf_created_date)
+
+        pdf_modified_date = self._normalise.text(doc.pdf_modified_date)
+        pdf_modified_date = self._normalise.date(pdf_modified_date)
+
+        pdf_downloaded_date = self._normalise.text(doc.pdf_downloaded_date)
+        pdf_downloaded_date = self._normalise.date(pdf_downloaded_date)
+
+        website_modified_date = self._normalise.text(doc.website_modified_date)
+        website_modified_date = self._normalise.date(website_modified_date)
+
+        item = ReportEntry(
             pdf_path=doc.pdf_path,
             pdf_hash_type=doc.pdf_hash_type,
             pdf_hash_value=doc.pdf_hash_value,
-            pdf_created_date=doc.pdf_created_date,
-            pdf_modified_date=doc.pdf_modified_date,
-            pdf_downloaded_date=doc.pdf_downloaded_date,
-            website_modified_date=doc.website_modified_date,
+            pdf_created_date=pdf_created_date,
+            pdf_modified_date=pdf_modified_date,
+            pdf_downloaded_date=pdf_downloaded_date,
+            website_modified_date=website_modified_date,
             pdf_url=doc.pdf_url,
             referrer_url=doc.referrer_url,
             pdf_page=data.get("pdf_page"),
@@ -358,7 +401,7 @@ class Parse:
             return extracted, current_register_section
         if not current_table.outcome.parser:
             return extracted, current_register_section
-        if current_table.outcome.parser.group != "alteration":
+        if current_table.outcome.parser.group != LineGroupEnum.ALTERATION:
             return extracted, current_register_section
 
         raw_register_section = extracted.get("register_section")
@@ -369,7 +412,7 @@ class Parse:
                     register_section = section.name
 
             if not register_section:
-                self._logger.warning(
+                self._logger.debug(
                     f"Unknown alteration group '{raw_register_section}'."
                 )
                 register_section = None
@@ -378,33 +421,26 @@ class Parse:
             register_section = current_register_section
 
         general_details = extracted.get("general_details")
-        if register_section == "travel-hospitality":
+        if register_section == LineGroupEnum.TRAVEL_HOSPITALITY.value:
             extracted = {"form_participation": general_details}
-        elif register_section == "real-estate":
+        elif register_section == LineGroupEnum.REAL_ESTATE.value:
             extracted = {"form_participation": general_details}
-        elif register_section == "liabilities":
+        elif register_section == LineGroupEnum.LIABILITIES.value:
             extracted = {"form_participation": general_details}
-        elif register_section == "gifts":
+        elif register_section == LineGroupEnum.GIFTS.value:
             extracted = {"form_participation": general_details}
-        elif register_section == "organisation-memberships":
+        elif register_section == LineGroupEnum.ORGANISATIONS.value:
             extracted = {"form_name": general_details}
-        elif register_section == "other-income":
+        elif register_section == LineGroupEnum.OTHER_INCOME.value:
             extracted = {"form_participation": general_details}
-        elif register_section == "shareholdings":
+        elif register_section == LineGroupEnum.SHAREHOLDINGS.value:
             extracted = {"form_name": general_details}
-        elif register_section == "directorships":
+        elif register_section == LineGroupEnum.DIRECTORSHIPS.value:
             extracted = {"form_name": general_details}
-        elif register_section == "other-assets":
+        elif register_section == LineGroupEnum.OTHER_ASSETS.value:
             extracted = {"form_participation": general_details}
         else:
             # TODO
             extracted = {"form_participation": item.line.text}
 
         return extracted, register_section
-
-    def corrections(self, value: str):
-        for correction in self._corrections:
-            result = correction.regex.sub(correction.replace, value)
-            if result != value:
-                return result
-        return value

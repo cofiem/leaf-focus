@@ -1,30 +1,20 @@
 ---
-- value: '^ *(?P<change_type_addition>ADDITION)$'
+- value: '^ *(?P<change_type_addition>(ADDITION|Addition|addition)) *$'
   regex: regex
   group: 'alteration'
   type: 'line'
 
-- value: '^ *(?P<change_type_addition>Addition)$'
+- value: '^ *(?P<change_type_deletion>(DELETION|Deletion|deletion)) *$'
   regex: regex
   group: 'alteration'
   type: 'line'
 
-- value: '^ *(?P<change_type_deletion>DELETION)$'
-  regex: regex
+- value: '^ *Notification +of +alteration(\(s\))?s* +of +interests *$'
+  regex: true
   group: 'alteration'
   type: 'line'
 
-- value: '^ *(?P<change_type_deletion>Deletion)$'
-  regex: regex
-  group: 'alteration'
-  type: 'line'
-
-- value: 'Notification of alteration(s) of interests'
-  regex: false
-  group: 'alteration'
-  type: 'line'
-
-- value: 'NOTIFICATION OF ALTERATION(S) OF INTERESTS'
+- value: 'notification of alteration of interests declared'
   regex: false
   group: 'alteration'
   type: 'line'
@@ -54,33 +44,26 @@
   group: 'alteration'
   type: 'line'
 
-- value: 'I wish to alter my statement of interests as follows:'
-  regex: false
+- value: '^ *(I +)?wish +to +alter +my +statement +of +interests +as +follows[:t] *$'
+  regex: true
   group: 'alteration'
   type: 'line'
 
-- value: '^Signed:?.*Date: *(?P<signed_date>.*)$'
+- value: '^ *(Signed|Signature):?.* *Date:? *(?P<signed_date>.*) *$'
+  regex: true
+  group: 'alteration'
+  type: 'line'
+- value: '^ *Date:? *(?P<signed_date>.*) *(Signed|Signature):? *$'
+  regex: true
+  group: 'alteration'
+  type: 'line'
+- value: '^ *(Signed|Signature):? *$'
   regex: true
   group: 'alteration'
   type: 'line'
 
 # table
-- value: '^ *(?P<register_section>Item) +(?P<general_details>Details) *$'
-  regex: true
-  group: 'alteration'
-  type: 'table-header'
-
-- value: '^ *(?P<register_section>Item No\.\*) +(?P<general_details>Details) *$'
-  regex: true
-  group: 'alteration'
-  type: 'table-header'
-
-- value: '^ *(?P<register_section>ltem No_\*) +(?P<general_details>Details) *$'
-  regex: true
-  group: 'alteration'
-  type: 'table-header'
-
-- value: '^ *(?P<register_section>Item number) +(?P<general_details>Details) *$'
+- value: '^ *(?P<register_section>(ITEM|Item|item|Item No\.\*|ltem No_\*|Item Number|Item number|item number)) +(?P<general_details>(DETAILS|Details|details)) *$'
   regex: true
   group: 'alteration'
   type: 'table-header'

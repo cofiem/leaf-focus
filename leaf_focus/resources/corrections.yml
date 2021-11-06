@@ -1,24 +1,169 @@
 ---
+# electorate fixes
 - find: 'HIggins'
   replace: 'Higgins'
   regex: false
-
-- find: "Member Eden-Monaro NSW"
-  replace: "Member for Eden-Monaro, NSW"
+  category: 'electorate'
+- find: 'Member Eden-Monaro NSW'
+  replace: 'Member for Eden-Monaro, NSW'
   regex: false
-
-- find: "Member for Griffith,"
-  replace: "Member for Griffith, QLD"
+  category: 'electorate'
+- find: 'Member for Griffith,'
+  replace: 'Member for Griffith, QLD'
   regex: false
-
-- find: "Member for Braddon TAS"
-  replace: "Member for Braddon, TAS"
+  category: 'electorate'
+- find: 'Member for Braddon TAS'
+  replace: 'Member for Braddon, TAS'
   regex: false
-
-- find: "Member for Maribyrnong. VIC"
-  replace: "Member for Maribyrnong, VIC"
+  category: 'electorate'
+- find: 'Member for Maribyrnong. VIC'
+  replace: 'Member for Maribyrnong, VIC'
   regex: false
-
-- find: "Senator forTasmania"
-  replace: "Senator for Tasmania"
+  category: 'electorate'
+- find: 'Senator forTasmania'
+  replace: 'Senator for Tasmania'
   regex: false
+  category: 'electorate'
+
+- find: "ACT"
+  replace: "act"
+  regex: false
+  category: 'electorate'
+- find: "ACT"
+  replace: "australian capital territory"
+  regex: false
+  category: 'electorate'
+- find: "NSW"
+  replace: "new south wales"
+  regex: false
+  category: 'electorate'
+- find: "NT"
+  replace: "northern territory"
+  regex: false
+  category: 'electorate'
+- find: "NSW"
+  replace: "nsw"
+  regex: false
+  category: 'electorate'
+- find: "NT"
+  replace: "nt"
+  regex: false
+  category: 'electorate'
+- find: "QLD"
+  replace: "qld"
+  regex: false
+  category: 'electorate'
+- find: "QLD"
+  replace: "queensland"
+  regex: false
+  category: 'electorate'
+- find: "SA"
+  replace: "sa"
+  regex: false
+  category: 'electorate'
+- find: "SA"
+  replace: "south australia"
+  regex: false
+  category: 'electorate'
+- find: "TAS"
+  replace: "tas"
+  regex: false
+  category: 'electorate'
+- find: "TAS"
+  replace: "tasmania"
+  regex: false
+  category: 'electorate'
+- find: "VIC"
+  replace: "vic"
+  regex: false
+  category: 'electorate'
+- find: "VIC"
+  replace: "victoria"
+  regex: false
+  category: 'electorate'
+- find: "WA"
+  replace: "wa"
+  regex: false
+  category: 'electorate'
+- find: "WA"
+  replace: "waw"
+  regex: false
+  category: 'electorate'
+- find: "WA"
+  replace: "western australia"
+  regex: false
+  category: 'electorate'
+
+# generic text fixes
+- find: '–' # en dash
+  replace: '-'
+  regex: false
+  category: 'generic'
+- find: '—' # em dash
+  replace: '-'
+  regex: false
+  category: 'generic'
+- find: '―' # horizontal bar
+  replace: '-'
+  regex: false
+  category: 'generic'
+- find: '‒' # figure dash
+  replace: '-'
+  regex: false
+  category: 'generic'
+- find: '\xa0' # \xa0 is NBSP
+  replace: ' '
+  regex: false
+  category: 'generic'
+
+# date fixes
+- find: '(alterations only)'
+  replace: ' '
+  regex: false
+  category: 'date'
+- find: '(statements only)'
+  replace: ' '
+  regex: false
+  category: 'date'
+
+# replace known parts of pdf names
+- find: "(PDF"
+  replace: ''
+  regex: false
+  category: 'pdf-name'
+- find: '( PDF'
+  replace: ''
+  regex: false
+  category: 'pdf-name'
+- find: '('
+  replace: ''
+  regex: false
+  category: 'pdf-name'
+- find: ')'
+  replace: ''
+  regex: false
+  category: 'pdf-name'
+- find: 'Vol 1 -'
+  replace: ''
+  regex: false
+  category: 'pdf-name'
+- find: 'Volume 1 -'
+  replace: ''
+  regex: false
+  category: 'pdf-name'
+- find: 'Vol 1 '
+  replace: ''
+  regex: false
+  category: 'pdf-name'
+- find: 'Vol 2 -'
+  replace: ''
+  regex: false
+  category: 'pdf-name'
+- find: 'Volume 2 -'
+  replace: ''
+  regex: false
+  category: 'pdf-name'
+- find: 'Vol 2 '
+  replace: ''
+  regex: false
+  category: 'pdf-name'

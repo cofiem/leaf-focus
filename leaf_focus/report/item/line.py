@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Iterable
 
 if TYPE_CHECKING:
-    from leaf_focus.report.input.page import Page
+    from leaf_focus.report.item.page import Page
 
 
 @dataclass

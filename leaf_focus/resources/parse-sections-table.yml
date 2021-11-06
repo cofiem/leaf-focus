@@ -5,21 +5,24 @@
   group: 'shareholdings'
   type: 'table-header'
 
-# doc 1aedb4088814335 page 0 line 9 outcome match: no, data: {} text 'Name of company – (including holding and subsidiary companies if applicable)'
-- value: '^(?P<form_name>Name +of +company +– +\(including +holding +and +subsidiary +companies +if +applicable\)) *$'
+- value: '^(?P<form_name>Name +of +company +\– +\(including +holding +and +subsidiary +companies +if +applicable\)) *$'
   regex: true
   group: 'shareholdings'
   type: 'table-header'
 
 # trusts
-- value: '^(?P<form_who> ) +(?P<form_name>Name of trust/nominee) +(?P<form_activity>Nature of its operation) +(?P<form_participation>Beneficial interest) *$'
+- value: '^(?P<form_who> ) +(?P<form_name>Name +of +trust\/nominee( +company)?) +(?P<form_activity>Nature +of +its +operation) +(?P<form_participation>Beneficial +interest) *$'
   regex: true
-  group: 'trusts'
+  group: 'trusts-interests'
+  type: 'table-header'
+- value: '^ *(?P<form_name>Name +of +trust\/nominee( +company)?) +(?P<form_activity>Nature +of +its +operation) +(?P<form_participation>Beneficial +interest) *$'
+  regex: true
+  group: 'trusts-interests'
   type: 'table-header'
 
-- value: '^ {10,}(?P<form_name>company) *$'
+- value: '^ *(?P<form_name>company) *$'
   regex: true
-  group: 'trusts'
+  group: 'trusts-interests'
   type: 'table-header'
 
 # NOTE: 'trusts trustee table' is the same as 'trusts table'
@@ -84,24 +87,39 @@
   group: 'other-assets'
   type: 'table-header'
 
+- value: '^ *(?P<form_participation>Nature +of +any +other +assets) *$'
+  regex: true
+  group: 'other-assets'
+  type: 'table-header'
+
 # accounts
 - value: '^(?P<form_who> ) +(?P<form_participation>Nature of account) +(?P<form_name>Name of bank/institution) *$'
   regex: true
   group: 'accounts'
   type: 'table-header'
 
-- value: '^(?P<form_participation>Nature of account) +(?P<form_name>Name of bank/institution) *$'
+- value: '^(?P<form_participation>Nature +of +account) +(?P<form_name>Name +of +bank/institution) *$'
   regex: true
   group: 'accounts'
   type: 'table-header'
 
-- value: '^(?P<form_who> ) +(?P<form_participation>Nature of income) *$'
+- value: '^(?P<form_who> ) +(?P<form_participation>Nature +of +income) *$'
+  regex: true
+  group: 'other-income'
+  type: 'table-header'
+
+- value: '^ *(?P<form_participation>Nature +of +income) *$'
   regex: true
   group: 'other-income'
   type: 'table-header'
 
 # gifts
 - value: '^(?P<form_who> ) +(?P<form_participation>Details of gifts) *$'
+  regex: true
+  group: 'gifts'
+  type: 'table-header'
+
+- value: '^ *(?P<form_participation>Details +of +gifts) *$'
   regex: true
   group: 'gifts'
   type: 'table-header'
@@ -138,3 +156,29 @@
   regex: true
   group: 'other-interests'
   type: 'table-header'
+
+# generic table rows
+- value: '^ *(?P<form_who>(SELF|Self|self)) *(?P<general_details>(NOT APPLICABLE|Not Applicable|not applicable))? *$'
+  regex: true
+  group: 'unknown'
+  type: 'table-row'
+- value: '^ *(?P<form_who>(PARTNER|Partner|partner)) *(?P<general_details>(NOT APPLICABLE|Not Applicable|not applicable))? *$'
+  regex: true
+  group: 'unknown'
+  type: 'table-row'
+- value: '^ *(?P<form_who>(SPOUSE|Spouse|spouse)/?) *(?P<general_details>(NOT APPLICABLE|Not Applicable|not applicable))? *$'
+  regex: true
+  group: 'unknown'
+  type: 'table-row'
+- value: '^ *(?P<form_who>(CHILDREN|Children|children)) *(?P<general_details>(NOT APPLICABLE|Not Applicable|not applicable))? *$'
+  regex: true
+  group: 'unknown'
+  type: 'table-row'
+- value: '^ *(?P<form_who>(DEPENDENT|Dependent|dependent)) *(?P<general_details>(NOT APPLICABLE|Not Applicable|not applicable))? *$'
+  regex: true
+  group: 'unknown'
+  type: 'table-row'
+- value: '^ *(?P<general_details>(NIL|Nil|nil)) *$'
+  regex: true
+  group: 'unknown'
+  type: 'table-row'

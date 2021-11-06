@@ -4,22 +4,18 @@
   regex: false
   group: 'shareholdings'
   type: 'line'
-
 - value: '1. Shareholdings in public and private companies (including holding companies)'
   regex: false
   group: 'shareholdings'
   type: 'line'
-
 - value: 'the name of the company or companies'
   regex: false
   group: 'shareholdings'
   type: 'line'
-
 - value: 'indicating the name of the company or companies'
   regex: false
   group: 'shareholdings'
   type: 'line'
-
 - value: '(Note: It is NOT necessary to declare the size or value of the shareholding)'
   regex: false
   group: 'shareholdings'
@@ -30,12 +26,10 @@
   regex: false
   group: 'trusts-beneficiary'
   type: 'line'
-
 - value: 'i. in which a beneficial interest is held, indicating the name of the trust, the nature of its operation and'
   regex: false
   group: 'trusts-beneficiary'
   type: 'line'
-
 - value: 'beneficial interest'
   regex: false
   group: 'trusts-beneficiary'
@@ -121,9 +115,8 @@
   regex: false
   group: 'investments'
   type: 'line'
-
-- value: '(Note: It is NOT necessary to declare the value of such investments)'
-  regex: false
+- value: '^ *\(Note\: +It +is.+N.?[OQ].?[TI].+necessary +to +declare +the +value +of +such +investments\) *$'
+  regex: true
   group: 'investments'
   type: 'line'
 
@@ -132,22 +125,18 @@
   regex: false
   group: 'accounts'
   type: 'line'
-
 - value: '8. Saving or investment accounts, indicating their nature and the name of the bank or'
   regex: false
   group: 'accounts'
   type: 'line'
-
 - value: 'institutions concerned'
   regex: false
   group: 'accounts'
   type: 'line'
-
 - value: 'other institutions concerned'
   regex: false
   group: 'accounts'
   type: 'line'
-
 - value: '(Note: It is NOT necessary to declare actual amounts held in accounts)'
   regex: false
   group: 'accounts'
@@ -158,14 +147,25 @@
   regex: false
   group: 'other-assets'
   type: 'line'
-
 - value: '$7,500'
   regex: false
+  group: 'other-assets'
+  type: 'line'
+- value: 'at more than $7,500'
+  regex: false
+  group: 'other-assets'
+  type: 'line'
+- value: '^ *\(Note\: +It +is.+N.?[OQ].?[TI].+necessary +to +declare +the +value +of +any +other +assets?\) *$'
+  regex: true
   group: 'other-assets'
   type: 'line'
 
 # other-income
 - value: '10. The nature of any other substantial sources of income (Member’s own salary needn’t be included)'
+  regex: false
+  group: 'other-income'
+  type: 'line'
+- value: '(Note: It is NOT necessary to declare the amount of the income)'
   regex: false
   group: 'other-income'
   type: 'line'
@@ -175,34 +175,37 @@
   regex: false
   group: 'gifts'
   type: 'line'
-
 - value: '11. Gifts requiring registration are those valued at more than $750 received from official'
   regex: false
   group: 'gifts'
   type: 'line'
-
 - value: 'received from other than official sources. Gifts received by a Member, the Member’s spouse or'
   regex: false
   group: 'gifts'
   type: 'line'
-
 - value: 'sources, or at more than $300 where received from other than official sources'
   regex: false
   group: 'gifts'
   type: 'line'
-
 - value: 'dependent children from family members or personal friends in a purely personal capacity need not be'
   regex: false
   group: 'gifts'
   type: 'line'
-
 - value: 'registered unless the member judges that an appearance of conflict of interest may be seen to exist'
+  regex: false
+  group: 'gifts'
+  type: 'line'
+- value: '(Note: It is NOT necessary to declare the value of the gift)'
   regex: false
   group: 'gifts'
   type: 'line'
 
 # travel-hospitality
 - value: '12. Any sponsored travel or hospitality received where the value of the sponsored travel or'
+  regex: false
+  group: 'travel-hospitality'
+  type: 'line'
+- value: '12. Any sponsored travel or hospitality received where the value of the sponsorship or'
   regex: false
   group: 'travel-hospitality'
   type: 'line'

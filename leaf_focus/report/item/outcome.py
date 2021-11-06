@@ -1,30 +1,22 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from leaf_focus.report.output.line_parser import LineParser
-
-
-@dataclass
-class OutcomeTableHeader:
-    name: str
-    text: list[str]
-    index: Optional[int]
-
-    def __str__(self):
-        return f"{self.name}:{self.index}"
+from leaf_focus.report.item.line_parser import LineParser
 
 
 @dataclass
 class Outcome:
     is_match: bool
+    match_count: int
     parser: Optional[LineParser] = None
     extracted: Optional[dict] = None
-    requires_check: bool = False
+    text: Optional[str] = None
 
     def clone(self):
         """Create a new Outcome with the same values."""
         return Outcome(
             is_match=self.is_match,
+            match_count=self.match_count,
             parser=self.parser,
             extracted={**(self.extracted or {})},
         )
@@ -38,6 +30,7 @@ class Outcome:
     def __str__(self):
         result = {
             "match": "yes" if self.is_match else "no",
+            "count": self.match_count,
             "data": self.extracted or {},
         }
         return ", ".join([f"{k}: {v}" for k, v in result.items()])

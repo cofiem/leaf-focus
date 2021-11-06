@@ -6,7 +6,7 @@ from typing import Optional, Iterable
 
 
 @dataclass
-class Item:
+class ReportEntry:
     """An entry in a report."""
 
     pdf_path: Path
@@ -157,7 +157,7 @@ class Item:
         return self.pdf_hash_value[0:15]
 
     @classmethod
-    def save(cls, path: Path, items: Iterable["Item"]):
+    def save(cls, path: Path, items: Iterable["ReportEntry"]):
         """Save items to a csv file."""
         fields = [
             "assembly",
@@ -196,14 +196,14 @@ class Item:
                         "pdf_hash_value": i.pdf_hash_value,
                         "pdf_page": i.pdf_page,
                         "pdf_line": i.pdf_line,
-                        "pdf_created_date": i.pdf_created_date,
-                        "pdf_modified_date": i.pdf_modified_date,
-                        "pdf_downloaded_date": i.pdf_downloaded_date,
+                        "pdf_created_date": cls.fmt_date(i.pdf_created_date),
+                        "pdf_modified_date": cls.fmt_date(i.pdf_modified_date),
+                        "pdf_downloaded_date": cls.fmt_date(i.pdf_downloaded_date),
                         "pdf_url": i.pdf_url,
                         "referrer_url": i.referrer_url,
-                        "website_modified_date": i.website_modified_date,
-                        "processed_date": i.processed_date,
-                        "signed_date": i.signed_date,
+                        "website_modified_date": cls.fmt_date(i.website_modified_date),
+                        "processed_date": cls.fmt_date(i.processed_date),
+                        "signed_date": cls.fmt_date(i.signed_date),
                         "assembly": i.assembly,
                         "last_name": i.last_name,
                         "first_name": i.first_name,
@@ -218,6 +218,12 @@ class Item:
                         "form_location": i.form_location,
                     }
                 )
+
+    @classmethod
+    def fmt_date(cls, value: date) -> str:
+        if not value:
+            return ""
+        return value.isoformat()
 
     def __str__(self):
         items = [
