@@ -142,7 +142,7 @@ urllib3==1.26.7; python_version >= "3.6" and python_full_version < "3.0.0" or py
 validators==0.18.2; python_version >= "3.6" and python_version < "4.0"
 w3lib==1.22.0; python_version >= "3.6"
 websocket-client==1.2.1; python_version >= "3.6"
-werkzeug==2.0.2; python_version >= "3.6"
+werkzeug==2.2.3; python_version >= "3.6"
 wrapt==1.13.3; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 zict==2.0.0; python_version >= "3.7"
 zope.interface==5.4.0; python_full_version >= "3.6.7" and python_version >= "3.6"
