@@ -1,5 +1,9 @@
 # leaf-focus
 
+
+> This project has been moved to [anotherbyte-net/leaf-focus](https://github.com/anotherbyte-net/leaf-focus).
+
+
 Extract structured text from pdf files.
 
 Dealing with pdf files that are scans of pages or don't contain machine-readable text can be difficult.
